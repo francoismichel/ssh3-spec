@@ -19,11 +19,11 @@
 # Change the file extension to match the format (.xml for XML, etc...)
 #
 ###
-title: "TODO - Your title"
-abbrev: "TODO - Abbreviation"
+title: "Running SSH over HTTP/3 connections"
+abbrev: "SSH3"
 category: info
 
-docname: draft-todo-yourname-protocol-latest
+docname: draft-michel-ssh3-latest
 submissiontype: IETF  # also: "independent", "editorial", "IAB", or "IRTF"
 number:
 date:
