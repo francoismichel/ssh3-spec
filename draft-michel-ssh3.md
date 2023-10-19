@@ -94,7 +94,7 @@ TODO: do we want to use an "authentication token" to avoid hijacking
 an SSH session ? WebTransport does not define that, so it may be OK
 to ask the SSH implementation to ensure a client cannot choose the
 session ID.
- 
+
 The Channel Type is a UTF-8-encoded string whose length is defined
 by the Channel Type Length field.
 The Maximum Packet Size field defines the maximum size in bytes of
