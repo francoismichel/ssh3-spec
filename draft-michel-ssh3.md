@@ -34,6 +34,7 @@ normative:
   QUIC-RECOVERY: RFC9002
   SSH-TRANSPORT: RFC4253
   SSH-CONNECT: RFC4254
+  HTTP-SEMANTICS: RFC9110
 
 informative:
 
@@ -60,17 +61,39 @@ WebTransport is not standardized yet.
 
 {::boilerplate bcp14-tagged}
 
-# SSH session
-An SSH session can be started using the HTTP/3 CONNECT method.
+# SSH conversation
+An SSH conversation can be started using the HTTP/3 CONNECT method.
 The stream ID used for this request is then remembered by each endpoint
-as the SSH session ID, uniquely identifying this SSH session.
+as the SSH conversation ID, uniquely identifying this SSH conversation.
+We choose the name conversation to avoid ambiguities with the existing
+concepts of SSH shell session and QUIC connection.
+
+An SSH/3 server listens for CONNECT requests at a URI templates having
+the `username` and variable. Example URIs can be found below.
+
+~~~~
+https://example.org/ssh3/{username}
+https://proxy.example.org:4443/ssh3?u={username}
+https://proxy.example.org:4443/ssh3{?username}
+~~~~
+
+## Authenticating the client
+
+Authentication of the CONNECT request is done using HTTP Authentication
+as defined in {{HTTP-SEMANTICS}}, with no restriction on the authentication
+scheme used. If noauthentication scheme is provided or if the authentication
+scheme is not supported by the server, the server SHOULD respond with a
+401 (Unauthorized) response message. Once the authentication is successful,
+the SSH/3 server can process the request and start the conversation.
 
 
 # Channels
 
 Similarly to {{SSH-TRANSPORT}}, SSH/3 defines bidirectional channels over
 which the endpoints exchange messages. Each channel runs over a bidirectional
-HTTP/3 stream and is attached to a single SSH session.
+HTTP/3 stream and is attached to a single SSH conversation. In this document,
+channels are therefore not assigned a channel number conversely to SSHv2.
+
 
 ## Opening a channel
 
@@ -79,21 +102,21 @@ opened over HTTP/3 bidirectional streams using a specific signal value.
 For experimental purpose this value is chosen at random and will change over
 time.
 
-```
+~~~~
 Channel {
     Signal Value (i) = 0xaf3627e6,
-    Session ID (i),
+    Conversation ID (i),
     Channel Type Length (i)
     Channel Type (..)
     Maximum Packet Size (i)
     SSH messages (..)
 }
-```
+~~~~
 
 TODO: do we want to use an "authentication token" to avoid hijacking
-an SSH session ? WebTransport does not define that, so it may be OK
+an SSH conversation ? WebTransport does not define that, so it may be OK
 to ask the SSH implementation to ensure a client cannot choose the
-session ID.
+conversation ID.
 
 The Channel Type is a UTF-8-encoded string whose length is defined
 by the Channel Type Length field.
@@ -102,7 +125,7 @@ SSH packets.
 
 ## Channel types
 
-This document defines three following channel types, the two first being
+This document defines the following channel types, the two first being
 also defined in {{SSH-CONNECT}}:
 
 - session
@@ -114,7 +137,9 @@ defined as the MASQUE proxy will be used instead.
 ## Messages
 
 Messages are exchanged over channels similarly to SSHv2. The same messages
-format apply.
+format apply with the exception of the channel numbers not being indicated
+in the messages, as messages are directly sent on the HTTP/3 stream of the
+channel they refer to.
 
 # Security Considerations
 
