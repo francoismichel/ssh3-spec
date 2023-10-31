@@ -31,7 +31,7 @@ services atop HTTP/3.
     requests 2.31.0
     setuptools 67.7.2
     six 1.16.0
-    wcwidth 0.2.8
+    wcwidth 0.2.9
 -->
 <link href="draft-michel-ssh3.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
@@ -1034,7 +1034,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Michel</td>
-<td class="center">Expires 21 April 2024</td>
+<td class="center">Expires 3 May 2024</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1047,12 +1047,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-michel-ssh3-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2023-10-19" class="published">19 October 2023</time>
+<time datetime="2023-10-31" class="published">31 October 2023</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2024-04-21">21 April 2024</time></dd>
+<dd class="expires"><time datetime="2024-05-03">3 May 2024</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1100,7 +1100,7 @@ services atop HTTP/3.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 21 April 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 3 May 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1136,7 +1136,12 @@ services atop HTTP/3.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
             <p id="section-toc.1-1.2.1" class="keepWithNext"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-conventions-and-definitions" class="internal xref">Conventions and Definitions</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
-            <p id="section-toc.1-1.3.1" class="keepWithNext"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-ssh-session" class="internal xref">SSH session</a></p>
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-ssh-conversation" class="internal xref">SSH conversation</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1">
+                <p id="section-toc.1-1.3.2.1.1" class="keepWithNext"><a href="#section-3.1" class="auto internal xref">3.1</a>.  <a href="#name-authenticating-the-client" class="internal xref">Authenticating the client</a></p>
+</li>
+            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
             <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-channels" class="internal xref">Channels</a></p>
@@ -1193,14 +1198,38 @@ described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</s
 appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="ssh-session">
+<div id="ssh-conversation">
 <section id="section-3">
-      <h2 id="name-ssh-session">
-<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-ssh-session" class="section-name selfRef">SSH session</a>
+      <h2 id="name-ssh-conversation">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-ssh-conversation" class="section-name selfRef">SSH conversation</a>
       </h2>
-<p id="section-3-1">An SSH session can be started using the HTTP/3 CONNECT method.
+<p id="section-3-1">An SSH conversation can be started using the HTTP/3 CONNECT method.
 The stream ID used for this request is then remembered by each endpoint
-as the SSH session ID, uniquely identifying this SSH session.<a href="#section-3-1" class="pilcrow">¶</a></p>
+as the SSH conversation ID, uniquely identifying this SSH conversation.
+We choose the name conversation to avoid ambiguities with the existing
+concepts of SSH shell session and QUIC connection.<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-3-2">An SSH/3 server listens for CONNECT requests at a URI templates having
+the <code>username</code> and variable. Example URIs can be found below.<a href="#section-3-2" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3-3">
+<pre>
+https://example.org/ssh3/{username}
+https://proxy.example.org:4443/ssh3?u={username}
+https://proxy.example.org:4443/ssh3{?username}
+</pre><a href="#section-3-3" class="pilcrow">¶</a>
+</div>
+<div id="authenticating-the-client">
+<section id="section-3.1">
+        <h3 id="name-authenticating-the-client">
+<a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-authenticating-the-client" class="section-name selfRef">Authenticating the client</a>
+        </h3>
+<p id="section-3.1-1">Authentication of the CONNECT request is done using HTTP Authentication
+as defined in <span>[<a href="#HTTP-SEMANTICS" class="cite xref">HTTP-SEMANTICS</a>]</span>, with no restriction on the authentication
+scheme used. If noauthentication scheme is provided or if the authentication
+scheme is not supported by the server, the server <span class="bcp14">SHOULD</span> respond with a
+401 (Unauthorized) response message. Once the authentication is successful,
+the SSH/3 server can process the request and start the conversation.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
 </section>
 </div>
 <div id="channels">
@@ -1210,7 +1239,8 @@ as the SSH session ID, uniquely identifying this SSH session.<a href="#section-3
       </h2>
 <p id="section-4-1">Similarly to <span>[<a href="#SSH-TRANSPORT" class="cite xref">SSH-TRANSPORT</a>]</span>, SSH/3 defines bidirectional channels over
 which the endpoints exchange messages. Each channel runs over a bidirectional
-HTTP/3 stream and is attached to a single SSH session.<a href="#section-4-1" class="pilcrow">¶</a></p>
+HTTP/3 stream and is attached to a single SSH conversation. In this document,
+channels are therefore not assigned a channel number conversely to SSHv2.<a href="#section-4-1" class="pilcrow">¶</a></p>
 <div id="opening-a-channel">
 <section id="section-4.1">
         <h3 id="name-opening-a-channel">
@@ -1220,20 +1250,22 @@ HTTP/3 stream and is attached to a single SSH session.<a href="#section-4-1" cla
 opened over HTTP/3 bidirectional streams using a specific signal value.
 For experimental purpose this value is chosen at random and will change over
 time.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
-<p id="section-4.1-2"><code>
+<div class="alignLeft art-text artwork" id="section-4.1-2">
+<pre>
 Channel {
     Signal Value (i) = 0xaf3627e6,
-    Session ID (i),
+    Conversation ID (i),
     Channel Type Length (i)
     Channel Type (..)
     Maximum Packet Size (i)
     SSH messages (..)
 }
-</code><a href="#section-4.1-2" class="pilcrow">¶</a></p>
+</pre><a href="#section-4.1-2" class="pilcrow">¶</a>
+</div>
 <p id="section-4.1-3">TODO: do we want to use an "authentication token" to avoid hijacking
-an SSH session ? WebTransport does not define that, so it may be OK
+an SSH conversation ? WebTransport does not define that, so it may be OK
 to ask the SSH implementation to ensure a client cannot choose the
-session ID.<a href="#section-4.1-3" class="pilcrow">¶</a></p>
+conversation ID.<a href="#section-4.1-3" class="pilcrow">¶</a></p>
 <p id="section-4.1-4">The Channel Type is a UTF-8-encoded string whose length is defined
 by the Channel Type Length field.
 The Maximum Packet Size field defines the maximum size in bytes of
@@ -1245,7 +1277,7 @@ SSH packets.<a href="#section-4.1-4" class="pilcrow">¶</a></p>
         <h3 id="name-channel-types">
 <a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-channel-types" class="section-name selfRef">Channel types</a>
         </h3>
-<p id="section-4.2-1">This document defines three following channel types, the two first being
+<p id="section-4.2-1">This document defines the following channel types, the two first being
 also defined in <span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]</span>:<a href="#section-4.2-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-4.2-2.1">
@@ -1265,7 +1297,9 @@ defined as the MASQUE proxy will be used instead.<a href="#section-4.2-3" class=
 <a href="#section-4.3" class="section-number selfRef">4.3. </a><a href="#name-messages" class="section-name selfRef">Messages</a>
         </h3>
 <p id="section-4.3-1">Messages are exchanged over channels similarly to SSHv2. The same messages
-format apply.<a href="#section-4.3-1" class="pilcrow">¶</a></p>
+format apply with the exception of the channel numbers not being indicated
+in the messages, as messages are directly sent on the HTTP/3 stream of the
+channel they refer to.<a href="#section-4.3-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1292,6 +1326,10 @@ format apply.<a href="#section-4.3-1" class="pilcrow">¶</a></p>
 <a href="#section-7" class="section-number selfRef">7. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
       </h2>
 <dl class="references">
+<dt id="HTTP-SEMANTICS">[HTTP-SEMANTICS]</dt>
+      <dd>
+<span class="refAuthor">Fielding, R., Ed.</span>, <span class="refAuthor">Nottingham, M., Ed.</span>, and <span class="refAuthor">J. Reschke, Ed.</span>, <span class="refTitle">"HTTP Semantics"</span>, <span class="seriesInfo">STD 97</span>, <span class="seriesInfo">RFC 9110</span>, <span class="seriesInfo">DOI 10.17487/RFC9110</span>, <time datetime="2022-06" class="refDate">June 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9110">https://www.rfc-editor.org/rfc/rfc9110</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="QUIC-RECOVERY">[QUIC-RECOVERY]</dt>
       <dd>
 <span class="refAuthor">Iyengar, J., Ed.</span> and <span class="refAuthor">I. Swett, Ed.</span>, <span class="refTitle">"QUIC Loss Detection and Congestion Control"</span>, <span class="seriesInfo">RFC 9002</span>, <span class="seriesInfo">DOI 10.17487/RFC9002</span>, <time datetime="2021-05" class="refDate">May 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9002">https://www.rfc-editor.org/rfc/rfc9002</a>&gt;</span>. </dd>
