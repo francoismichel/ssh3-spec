@@ -74,7 +74,7 @@ as the SSH conversation ID, uniquely identifying this SSH conversation.
 We choose the name conversation to avoid ambiguities with the existing
 concepts of SSH shell session and QUIC connection.
 
-An SSH/3 server listens for CONNECT requests with the `ssh3` protocol
+An SSH3 server listens for CONNECT requests with the `ssh3` protocol
 at a URI templates having the `username` variable. Example URIs can be found below.
 
 ~~~~
@@ -88,7 +88,7 @@ https://proxy.example.org:4443/ssh3{?username}
 Authorization of the CONNECT request is done using HTTP Authorization
 as defined in {{HTTP-SEMANTICS}}, with no restriction on the authentication scheme used. If no authentication scheme is provided or if the authentication
 scheme is not supported by the server, the server SHOULD respond with a
-401 (Unauthorized) response message. Once the user authentication is successful, the SSH/3 server can process the request and start the conversation. This section provides example user authorization
+401 (Unauthorized) response message. Once the user authentication is successful, the SSH3 server can process the request and start the conversation. This section provides example user authorization
 mechanisms. Other mechanisms may be proposed in the future.
 
 ### Example: password authentication using HTTP Basic Authentication
