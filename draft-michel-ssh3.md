@@ -41,6 +41,9 @@ normative:
   JWT: RFC7519
   QUIC: RFC9000
   OAUTH2-JWT: RFC9068
+  EXTENDED-CONNECT: RFC8441
+  HTTP-DATAGRAM: RFC9297
+  WEBTRANSPORT-H3: I-D.ietf-webtrans-http3
 
 informative:
 
@@ -57,7 +60,7 @@ services atop HTTP/3.
 
 # Introduction
 
-This document defines mechanism to run the SSH Connection protocol {{SSH-CONNECT}} over HTTP/3 connections.
+This document defines mechanism to run the SSH Connection protocol {{SSH-CONNECT}} over HTTP/3 connections. The mechanisms used for establishing an SSH3 conversation are similar to the WebTransport session establishment {{WEBTRANSPORT-H3}}.
 Currently, it is still undecided whether HTTP/3 or WebTransport should be used as the transport layer for SSH3. We currently only consider HTTP/3 as WebTransport is not standardized yet.
 The semantics of HTTP/2 being comparable with HTTP/3, the mechanisms
 defined in this document may be implemented using HTTP/2. This document being a first introductory document, we limit its current scope to HTTP/3.
@@ -67,21 +70,25 @@ defined in this document may be implemented using HTTP/2. This document being a 
 
 {::boilerplate bcp14-tagged}
 
-# SSH conversation
-An SSH conversation can be started using the HTTP/3 CONNECT method.
-The stream ID used for this request is then remembered by each endpoint
-as the SSH conversation ID, uniquely identifying this SSH conversation.
+# Estalishing an SSH3 conversation
 We choose the name conversation to avoid ambiguities with the existing
 concepts of SSH shell session and QUIC connection.
+An SSH3 conversation can be started using the HTTP/3 Extended CONNECT
+method {{EXTENDED-CONNECT}}. The `:protocol` pseudo-header MUST be set
+to `ssh3` and the `:scheme` pseudo-header MUST be set to `https`.
+If an SSH3 client or server supports the UDP forwarding feature, it MUST indicate support for HTTP/3 datagrams by sending a SETTINGS_H3_DATAGRAM value set to 1 in their SETTINGS frame (see [Section 2.1.1]() of [HTTP-DATAGRAM]).
 
 An SSH3 server listens for CONNECT requests with the `ssh3` protocol
 at a URI templates having the `username` variable. Example URIs can be found below.
 
 ~~~~
-https://example.org/ssh3/{username}
-https://proxy.example.org:4443/ssh3?u={username}
+https://example.org:4443/ssh3?u={username}
 https://proxy.example.org:4443/ssh3{?username}
 ~~~~
+
+Authentication material are placed inside the `Authorization` header of the Extended CONNECT request. If an SSH3 endpoint is available to the HTTP/3 server and if the user is successfully authenticated and authorized, the server responds with a 2xx HTTP status code and the conversation is established.
+
+The stream ID used for the Extended CONNECT request is then remembered by each endpoint as the SSH conversation ID, uniquely identifying this SSH conversation.
 
 ## Authenticating the client
 
@@ -163,10 +170,8 @@ channels are therefore not assigned a channel number conversely to SSHv2.
 
 ### Opening a channel
 
-SSH channels can be
-opened over HTTP bidirectional streams using a specific signal value.
-For experimental purpose, this value is chosen at random and will change over
-time.
+SSH channels can be opened on HTTP/3 client-initiated bidirectional streams using a specific signal value. By default, HTTP/3 considers every client-initiated bidirectional stream as a request stream. Similarly to WebTransport, SSH3 extends HTTP/3 using a specific signal value. Upon receiving HTTP/3 settings announcing SSH3 server support, a client can open a stream with this signal value to indicate that it is not a request stream and that the remaining stream bytes will be used arbitrarily by the SSH3 protocol to carry the content of a channel.
+For experimental purpose, the signal value is chosen at random and will change over time. The content of an HTTP/3 stream carrying an SSH3 channel is illustrated below.
 
 ~~~~
 Channel {
@@ -179,10 +184,17 @@ Channel {
 }
 ~~~~
 
-The Channel Type is a UTF-8-encoded string whose length is defined
+The first byte send on the HTTP/3 stream is the Signal Value. The
+Channel Type is a UTF-8-encoded string whose length is defined
 by the Channel Type Length field.
+
+\[\[Note: SSHv2 uses text-based channel IDs. Should we keep that or
+use somthing else instead ? If we change, we loose a 1-1 mapping with SSHv2.]]
+
 The Maximum Message Size field defines the maximum size in bytes of
 SSH messages.
+
+The remaining bytes of the stream are interpreted as a sequence of SSH messages. Their format and length can vary depending on the message type (see {{messages}}).
 
 ### Channel types
 
@@ -201,10 +213,10 @@ forwarding from a local port on the client towards a remote address accessible f
 The reverse-tcp and reverse-udp channels are use to request
 the forwarding of UDP packets and TCP connections from a specific port on the remote host to the client.
 
-### Messages
+### Messages {#messages}
 
 Messages are exchanged over channels similarly to SSHv2. The same messages
-format as the one defined {{SSH-CONNECT}} applies, with channel numbers removed from the messages headers as channel run over dedicated HTTP streams. Hereunder is an example showing the wire format of the `exit-status` SSH message for SSH3. Its SSHv2 variant is described in [Section 6.10](https://datatracker.ietf.org/doc/html/rfc4254#section-6.10) of {{SSH-CONNECT}}.
+format as the one defined in {{SSH-CONNECT}} applies, with channel numbers removed from the messages headers as channel run over dedicated HTTP streams. Hereunder is an example showing the wire format of the `exit-status` SSH message for SSH3. Its SSHv2 variant is described in [Section 6.10](https://datatracker.ietf.org/doc/html/rfc4254#section-6.10) of {{SSH-CONNECT}}.
 
 ~~~~
 ExitStatusMessage {
