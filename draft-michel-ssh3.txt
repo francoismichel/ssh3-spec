@@ -4,8 +4,8 @@
 
 Network Working Group                                          F. Michel
 Internet-Draft                                                 UCLouvain
-Intended status: Informational                           1 February 2024
-Expires: 4 August 2024
+Intended status: Informational                           7 February 2024
+Expires: 10 August 2024
 
 
                   Running SSH over HTTP/3 connections
@@ -45,7 +45,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 4 August 2024.
+   This Internet-Draft will expire on 10 August 2024.
 
 Copyright Notice
 
@@ -90,11 +90,11 @@ Table of Contents
    establishing an SSH3 conversation are similar to the WebTransport
    session establishment [WEBTRANSPORT-H3].  Currently, it is still
    undecided whether HTTP/3 or WebTransport should be used as the
-   transport layer for SSH3.  We currently only consider HTTP/3 as
+   transport layer for SSH3.  We currently only consider HTTP/3 since
    WebTransport is not standardized yet.  The semantics of HTTP/2 being
    comparable with HTTP/3, the mechanisms defined in this document may
-   be implemented using HTTP/2.  This document being a first
-   introductory document, we limit its current scope to HTTP/3.
+   be implemented using HTTP/2.  This document is a first introductory
+   document and we limit its current scope to HTTP/3.
 
 2.  Conventions and Definitions
 

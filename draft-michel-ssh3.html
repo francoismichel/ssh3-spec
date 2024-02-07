@@ -12,20 +12,20 @@ SSH traditionnally runs atop the TCP transport protocol. This document
 defines mechanisms to run the SSH protocol and provide the same set of
 services atop HTTP/3. 
     " name="description">
-<meta content="xml2rfc 3.19.1" name="generator">
+<meta content="xml2rfc 3.19.2" name="generator">
 <meta content="next generation" name="keyword">
 <meta content="unicorn" name="keyword">
 <meta content="sparkling distributed ledger" name="keyword">
 <meta content="draft-michel-ssh3-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.19.1
+  xml2rfc 3.19.2
     Python 3.11.6
     ConfigArgParse 1.7
     google-i18n-address 3.1.0
     intervaltree 3.1.0
     Jinja2 3.1.2
     lxml 4.9.3
-    platformdirs 4.1.0
+    platformdirs 4.2.0
     pycountry 22.3.5
     PyYAML 6.0.1
     requests 2.31.0
@@ -1034,7 +1034,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Michel</td>
-<td class="center">Expires 4 August 2024</td>
+<td class="center">Expires 10 August 2024</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1047,12 +1047,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-michel-ssh3-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-02-01" class="published">1 February 2024</time>
+<time datetime="2024-02-07" class="published">7 February 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2024-08-04">4 August 2024</time></dd>
+<dd class="expires"><time datetime="2024-08-10">10 August 2024</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1100,7 +1100,7 @@ services atop HTTP/3.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 4 August 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 10 August 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1198,9 +1198,9 @@ services atop HTTP/3.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 <a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
       </h2>
 <p id="section-1-1">This document defines mechanism to run the SSH Connection protocol <span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]</span> over HTTP/3 connections. The mechanisms used for establishing an SSH3 conversation are similar to the WebTransport session establishment <span>[<a href="#WEBTRANSPORT-H3" class="cite xref">WEBTRANSPORT-H3</a>]</span>.
-Currently, it is still undecided whether HTTP/3 or WebTransport should be used as the transport layer for SSH3. We currently only consider HTTP/3 as WebTransport is not standardized yet.
+Currently, it is still undecided whether HTTP/3 or WebTransport should be used as the transport layer for SSH3. We currently only consider HTTP/3 since WebTransport is not standardized yet.
 The semantics of HTTP/2 being comparable with HTTP/3, the mechanisms
-defined in this document may be implemented using HTTP/2. This document being a first introductory document, we limit its current scope to HTTP/3.<a href="#section-1-1" class="pilcrow">¶</a></p>
+defined in this document may be implemented using HTTP/2. This document is a first introductory document and we limit its current scope to HTTP/3.<a href="#section-1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="conventions-and-definitions">
@@ -1224,7 +1224,8 @@ concepts of SSH shell session and QUIC connection.
 An SSH3 conversation can be started using the HTTP/3 Extended CONNECT
 method <span>[<a href="#EXTENDED-CONNECT" class="cite xref">EXTENDED-CONNECT</a>]</span>. The <code>:protocol</code> pseudo-header <span class="bcp14">MUST</span> be set
 to <code>ssh3</code> and the <code>:scheme</code> pseudo-header <span class="bcp14">MUST</span> be set to <code>https</code>.
-If an SSH3 client or server supports the UDP forwarding feature, it <span class="bcp14">MUST</span> indicate support for HTTP/3 datagrams by sending a SETTINGS_H3_DATAGRAM value set to 1 in their SETTINGS frame (see <a href="">Section 2.1.1</a> of <span>[<a href="#HTTP-DATAGRAM" class="cite xref">HTTP-DATAGRAM</a>]</span>).<a href="#section-3-1" class="pilcrow">¶</a></p>
+If an SSH3 client or server supports the UDP forwarding feature, it <span class="bcp14">MUST</span> indicate support for HTTP/3 datagrams by sending a SETTINGS_H3_DATAGRAM value set to 1 in their
+SETTINGS frame (see <a href="">Section 2.1.1</a> of <span>[<a href="#HTTP-DATAGRAM" class="cite xref">HTTP-DATAGRAM</a>]</span>).<a href="#section-3-1" class="pilcrow">¶</a></p>
 <p id="section-3-2">An SSH3 server listens for CONNECT requests with the <code>ssh3</code> protocol
 at a URI templates having the <code>username</code> variable. Example URIs can be found below.<a href="#section-3-2" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-3-3">
