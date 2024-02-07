@@ -61,9 +61,9 @@ services atop HTTP/3.
 # Introduction
 
 This document defines mechanism to run the SSH Connection protocol {{SSH-CONNECT}} over HTTP/3 connections. The mechanisms used for establishing an SSH3 conversation are similar to the WebTransport session establishment {{WEBTRANSPORT-H3}}.
-Currently, it is still undecided whether HTTP/3 or WebTransport should be used as the transport layer for SSH3. We currently only consider HTTP/3 as WebTransport is not standardized yet.
+Currently, it is still undecided whether HTTP/3 or WebTransport should be used as the transport layer for SSH3. We currently only consider HTTP/3 since WebTransport is not standardized yet.
 The semantics of HTTP/2 being comparable with HTTP/3, the mechanisms
-defined in this document may be implemented using HTTP/2. This document being a first introductory document, we limit its current scope to HTTP/3.
+defined in this document may be implemented using HTTP/2. This document is a first introductory document and we limit its current scope to HTTP/3.
 
 
 # Conventions and Definitions
@@ -76,7 +76,8 @@ concepts of SSH shell session and QUIC connection.
 An SSH3 conversation can be started using the HTTP/3 Extended CONNECT
 method {{EXTENDED-CONNECT}}. The `:protocol` pseudo-header MUST be set
 to `ssh3` and the `:scheme` pseudo-header MUST be set to `https`.
-If an SSH3 client or server supports the UDP forwarding feature, it MUST indicate support for HTTP/3 datagrams by sending a SETTINGS_H3_DATAGRAM value set to 1 in their SETTINGS frame (see [Section 2.1.1]() of [HTTP-DATAGRAM]).
+If an SSH3 client or server supports the UDP forwarding feature, it MUST indicate support for HTTP/3 datagrams by sending a SETTINGS_H3_DATAGRAM value set to 1 in their
+SETTINGS frame (see [Section 2.1.1]() of [HTTP-DATAGRAM]).
 
 An SSH3 server listens for CONNECT requests with the `ssh3` protocol
 at a URI templates having the `username` variable. Example URIs can be found below.
