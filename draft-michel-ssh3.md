@@ -28,6 +28,7 @@ author:
     fullname: "François Michel"
     organization: UCLouvain
     email: "francois.michel@uclouvain.be"
+ -
     fullname: "Olivier Bonaventure"
     organization: UCLouvain
     email: "olivier.bonaventure@uclouvain.be"
@@ -56,19 +57,21 @@ informative:
 --- abstract
 
 The SSH protocol offers a series of secure services atop an unsecure network.
-SSH traditionnally runs atop the TCP transport protocol. This document
-defines mechanisms to run the SSH protocol and provide the same set of
-services atop HTTP/3.
+SSH traditionnally runs over the TCP transport protocol. This document defines mechanisms
+to run the SSH protocol and provide a comparable set of services using HTTP/3.
+Running SSH over HTTP/3 allows several benefits such as the scalability offered by HTTP
+multiplexing, relying on TLS for secure channel establishment and the use X.509 certificates and HTTP Authentication schemes for client and server authentication.
+
 
 
 --- middle
 
 # Introduction
 
-This document defines mechanism to run the SSH Connection protocol {{SSH-CONNECT}} over HTTP/3 connections. The mechanisms used for establishing an SSH3 conversation are similar to the WebTransport session establishment {{WEBTRANSPORT-H3}}.
-Currently, it is still undecided whether HTTP/3 or WebTransport should
-be used as the transport layer for SSH3. The current SSH3 prototype is
-built directly over HTTP/3 since there is no public WebTransport
+This document defines mechanism to run the SSH Connection protocol {{SSH-CONNECT}} over HTTP/3 connections. The mechanisms used for establishing an SSH3 conversation are similar to the
+WebTransport session establishment {{WEBTRANSPORT-H3}}. Currently, it is still undecided
+whether HTTP/3 or WebTransport should be used as the transport layer for SSH3. The current
+SSH3 prototype is built directly over HTTP/3 since there is no public WebTransport
 implementation meeting all our requirements as of now.
 The semantics of HTTP/2 being comparable with HTTP/3, the mechanisms
 defined in this document may be implemented using HTTP/2. This document is a first introductory document and we limit its current scope to HTTP/3.
@@ -274,15 +277,16 @@ ExitStatusMessage {
 
 For SSH3 implementations to be able to follow the versions of this draft
 while being interoperable with a large amount of peers, we define the
-`ssh-version` header to list the supported draft versions. The value
+"`ssh-version`" header to list the supported draft versions. The value
 of this field sent by the client is a comma-separated list of strings
-describing the draft in the `<wg>-<name>-<version number>` form.
-For instance, SSH3 clients implementing this draft in versions 00 an 01
-send the `ssh-version: dispatch-michel-00,dispatch-michel-01` HTTP header
-in the CONNECT request.
+representing the filenames of the supported drafts without the "`draft-`"
+prefix.
+For instance, SSH3 clients implementing this draft in versions 00 and 01
+send the "`ssh-version: michel-dispatch-ssh3-00,michel-dispatch-ssh3-01`"
+HTTP header in the CONNECT request.
 Upon receiving this header, the server chooses a version from the ones
 supported by the client. It then sets this single version as the value
-of the `ssh-version` field.
+of the "`ssh-version`" header.
 
 # Security Considerations
 
