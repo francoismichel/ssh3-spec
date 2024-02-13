@@ -5,12 +5,14 @@
 <meta content="Common,Latin" name="scripts">
 <meta content="initial-scale=1.0" name="viewport">
 <title>Running SSH over HTTP/3 connections</title>
+<meta content="François Michel" name="author">
 <meta content="Olivier Bonaventure" name="author">
 <meta content="
        The SSH protocol offers a series of secure services atop an unsecure network.
-SSH traditionnally runs atop the TCP transport protocol. This document
-defines mechanisms to run the SSH protocol and provide the same set of
-services atop HTTP/3. 
+SSH traditionnally runs over the TCP transport protocol. This document defines mechanisms
+to run the SSH protocol and provide a comparable set of services using HTTP/3.
+Running SSH over HTTP/3 allows several benefits such as the scalability offered by HTTP
+multiplexing, relying on TLS for secure channel establishment and the use X.509 certificates and HTTP Authentication schemes for client and server authentication. 
     " name="description">
 <meta content="xml2rfc 3.19.2" name="generator">
 <meta content="next generation" name="keyword">
@@ -1033,7 +1035,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <td class="right">February 2024</td>
 </tr></thead>
 <tfoot><tr>
-<td class="left">Bonaventure</td>
+<td class="left">Michel &amp; Bonaventure</td>
 <td class="center">Expires 16 August 2024</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
@@ -1053,8 +1055,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
 <dd class="expires"><time datetime="2024-08-16">16 August 2024</time></dd>
-<dt class="label-authors">Author:</dt>
+<dt class="label-authors">Authors:</dt>
 <dd class="authors">
+<div class="author">
+      <div class="author-name">F. Michel</div>
+<div class="org">UCLouvain</div>
+</div>
 <div class="author">
       <div class="author-name">O. Bonaventure</div>
 <div class="org">UCLouvain</div>
@@ -1066,9 +1072,10 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
 <p id="section-abstract-1">The SSH protocol offers a series of secure services atop an unsecure network.
-SSH traditionnally runs atop the TCP transport protocol. This document
-defines mechanisms to run the SSH protocol and provide the same set of
-services atop HTTP/3.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+SSH traditionnally runs over the TCP transport protocol. This document defines mechanisms
+to run the SSH protocol and provide a comparable set of services using HTTP/3.
+Running SSH over HTTP/3 allows several benefits such as the scalability offered by HTTP
+multiplexing, relying on TLS for secure channel establishment and the use X.509 certificates and HTTP Authentication schemes for client and server authentication.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-about-this-document">
@@ -1194,7 +1201,7 @@ services atop HTTP/3.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
             <p id="section-toc.1-1.9.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
-            <p id="section-toc.1-1.10.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
+            <p id="section-toc.1-1.10.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
 </li>
         </ul>
 </nav>
@@ -1205,10 +1212,10 @@ services atop HTTP/3.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
       <h2 id="name-introduction">
 <a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
       </h2>
-<p id="section-1-1">This document defines mechanism to run the SSH Connection protocol <span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]</span> over HTTP/3 connections. The mechanisms used for establishing an SSH3 conversation are similar to the WebTransport session establishment <span>[<a href="#WEBTRANSPORT-H3" class="cite xref">WEBTRANSPORT-H3</a>]</span>.
-Currently, it is still undecided whether HTTP/3 or WebTransport should
-be used as the transport layer for SSH3. The current SSH3 prototype is
-built directly over HTTP/3 since there is no public WebTransport
+<p id="section-1-1">This document defines mechanism to run the SSH Connection protocol <span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]</span> over HTTP/3 connections. The mechanisms used for establishing an SSH3 conversation are similar to the
+WebTransport session establishment <span>[<a href="#WEBTRANSPORT-H3" class="cite xref">WEBTRANSPORT-H3</a>]</span>. Currently, it is still undecided
+whether HTTP/3 or WebTransport should be used as the transport layer for SSH3. The current
+SSH3 prototype is built directly over HTTP/3 since there is no public WebTransport
 implementation meeting all our requirements as of now.
 The semantics of HTTP/2 being comparable with HTTP/3, the mechanisms
 defined in this document may be implemented using HTTP/2. This document is a first introductory document and we limit its current scope to HTTP/3.<a href="#section-1-1" class="pilcrow">¶</a></p>
@@ -1478,15 +1485,16 @@ ExitStatusMessage {
       </h2>
 <p id="section-5-1">For SSH3 implementations to be able to follow the versions of this draft
 while being interoperable with a large amount of peers, we define the
-<code>ssh-version</code> header to list the supported draft versions. The value
+"<code>ssh-version</code>" header to list the supported draft versions. The value
 of this field sent by the client is a comma-separated list of strings
-describing the draft in the <code>&lt;wg&gt;-&lt;name&gt;-&lt;version number&gt;</code> form.
-For instance, SSH3 clients implementing this draft in versions 00 an 01
-send the <code>ssh-version: dispatch-michel-00,dispatch-michel-01</code> HTTP header
-in the CONNECT request.
+representing the filenames of the supported drafts without the "<code>draft-</code>"
+prefix.
+For instance, SSH3 clients implementing this draft in versions 00 and 01
+send the "<code>ssh-version: michel-dispatch-ssh3-00,michel-dispatch-ssh3-01</code>"
+HTTP header in the CONNECT request.
 Upon receiving this header, the server chooses a version from the ones
 supported by the client. It then sets this single version as the value
-of the <code>ssh-version</code> field.<a href="#section-5-1" class="pilcrow">¶</a></p>
+of the "<code>ssh-version</code>" header.<a href="#section-5-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="security-considerations">
@@ -1619,9 +1627,17 @@ comments on the document before the submission.<a href="#appendix-A-1" class="pi
 </div>
 <div id="authors-addresses">
 <section id="appendix-B">
-      <h2 id="name-authors-address">
-<a href="#name-authors-address" class="section-name selfRef">Author's Address</a>
+      <h2 id="name-authors-addresses">
+<a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
       </h2>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">François Michel</span></div>
+<div dir="auto" class="left"><span class="org">UCLouvain</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:francois.michel@uclouvain.be" class="email">francois.michel@uclouvain.be</a>
+</div>
+</address>
 <address class="vcard">
         <div dir="auto" class="left"><span class="fn nameRole">Olivier Bonaventure</span></div>
 <div dir="auto" class="left"><span class="org">UCLouvain</span></div>
