@@ -28,6 +28,9 @@ author:
     fullname: "François Michel"
     organization: UCLouvain
     email: "francois.michel@uclouvain.be"
+    fullname: "Olivier Bonaventure"
+    organization: UCLouvain
+    email: "olivier.bonaventure@uclouvain.be"
 
 normative:
   QUICv1: RFC9000
@@ -44,6 +47,8 @@ normative:
   EXTENDED-CONNECT: RFC8441
   HTTP-DATAGRAM: RFC9297
   WEBTRANSPORT-H3: I-D.ietf-webtrans-http3
+  HTTP-SIGNATURE: I-D.ietf-httpbis-unprompted-auth
+  URI: RFC3986
 
 informative:
 
@@ -61,7 +66,10 @@ services atop HTTP/3.
 # Introduction
 
 This document defines mechanism to run the SSH Connection protocol {{SSH-CONNECT}} over HTTP/3 connections. The mechanisms used for establishing an SSH3 conversation are similar to the WebTransport session establishment {{WEBTRANSPORT-H3}}.
-Currently, it is still undecided whether HTTP/3 or WebTransport should be used as the transport layer for SSH3. We currently only consider HTTP/3 since WebTransport is not standardized yet.
+Currently, it is still undecided whether HTTP/3 or WebTransport should
+be used as the transport layer for SSH3. The current SSH3 prototype is
+built directly over HTTP/3 since there is no public WebTransport
+implementation meeting all our requirements as of now.
 The semantics of HTTP/2 being comparable with HTTP/3, the mechanisms
 defined in this document may be implemented using HTTP/2. This document is a first introductory document and we limit its current scope to HTTP/3.
 
@@ -70,7 +78,7 @@ defined in this document may be implemented using HTTP/2. This document is a fir
 
 {::boilerplate bcp14-tagged}
 
-# Estalishing an SSH3 conversation
+# Estalishing an SSH3 conversation {#establishing}
 We choose the name conversation to avoid ambiguities with the existing
 concepts of SSH shell session and QUIC connection.
 An SSH3 conversation can be started using the HTTP/3 Extended CONNECT
@@ -83,9 +91,11 @@ An SSH3 server listens for CONNECT requests with the `ssh3` protocol
 at a URI templates having the `username` variable. Example URIs can be found below.
 
 ~~~~
-https://example.org:4443/ssh3?u={username}
+https://example.org:4443/ssh3?user={username}
 https://proxy.example.org:4443/ssh3{?username}
 ~~~~
+
+\[\[Note: In the current prototype, percent-encoding is used for characters outside the allowed set of {{URI}}. An alternative can be to perform base64url encoding of the username instead.]]
 
 Authentication material are placed inside the `Authorization` header of the Extended CONNECT request. If an SSH3 endpoint is available to the HTTP/3 server and if the user is successfully authenticated and authorized, the server responds with a 2xx HTTP status code and the conversation is established.
 
@@ -96,13 +106,19 @@ The stream ID used for the Extended CONNECT request is then remembered by each e
 Authorization of the CONNECT request is done using HTTP Authorization
 as defined in {{HTTP-SEMANTICS}}, with no restriction on the authentication scheme used. If no authentication scheme is provided or if the authentication
 scheme is not supported by the server, the server SHOULD respond with a
-401 (Unauthorized) response message. Once the user authentication is successful, the SSH3 server can process the request and start the conversation. This section provides example user authorization
-mechanisms. Other mechanisms may be proposed in the future.
+401 (Unauthorized) response message. Once the user authentication is successful, the SSH3 server can process the request and start the conversation. This section only provides example user authorization
+mechanisms. Other mechanisms may be proposed in the future in separate
+documents. The two first examples are implemented by our current
+prototype. The third example leverages the Signature authentication
+scheme {{HTTP-SIGNATURE}} and will be preferred for public key
+authentication in future versions of our prototype.
 
 ### Example: password authentication using HTTP Basic Authentication
 
 Password-based authentication is performed using the HTTP
-Basic authentication scheme {{HTTP-BASIC}}.
+Basic authentication scheme {{HTTP-BASIC}}. The user-id part of the
+`<credentials>` in the Authorization header MUST be equivalent to
+the `username` variable in the request URI defined in {{establishing}}.
 
 ~~~~
   Client
@@ -156,6 +172,33 @@ third-party involved, only the following claims are required (see
 
 The `jti` claim may also be used to prevent the token from
 being replayed.
+
+### Example: public key authentication using HTTP Signature authentication
+
+Public key authentication can also be performed using the HTTP Signature
+Authentication scheme {{HTTP-SIGNATURE}}. The `<k>` parameter designates
+the key ID of the public key used the the authentication process.
+Classical SSH implementations usually do not assign IDs to public keys.
+The value of `<k>` can therefore be set to the cryptographic hash of
+the public key instead.
+
+~~~~
+  Client
+     |                QUIC HANDSHAKE                 |
+     |<--------------------------------------------->|
+     |                                               |
+     | HTTP/3, Stream x CONNECT /<path>?user=<user>  |
+     |    :protocol="ssh3"                           |
+     |    Signature k=<k>, a=<a>,s=<s>,v=<v>,p=<p>   |
+     |---------------------------------------------->|
+     |                                               |
+     |               HTTP/3, Stream x 200 OK         |
+     |<----------------------------------------------|
+     |                                               |
+     |           Conversation established            |
+     +-----------------------------------------------+
+     |                                               |
+~~~~
 
 # SSH Connection protocol
 
@@ -228,16 +271,45 @@ ExitStatusMessage {
 ~~~~
 
 # Version Negotiation
-TODO
+
+For SSH3 implementations to be able to follow the versions of this draft
+while being interoperable with a large amount of peers, we define the
+`ssh-version` header to list the supported draft versions. The value
+of this field sent by the client is a comma-separated list of strings
+describing the draft in the `<wg>-<name>-<version number>` form.
+For instance, SSH3 clients implementing this draft in versions 00 an 01
+send the `ssh-version: dispatch-michel-00,dispatch-michel-01` HTTP header
+in the CONNECT request.
+Upon receiving this header, the server chooses a version from the ones
+supported by the client. It then sets this single version as the value
+of the `ssh-version` field.
 
 # Security Considerations
 
-TODO
+Running an SSH3 endpoint with weak or no authentication methods exposes
+the host to non-negligible risks allowing attackers to gain full control
+of the server. SSH3 servers should not be run without authentication
+and user authentication material should be verified thoroughly. Public
+key authentication should be preferred to passwords.
+
+It is strongly recommended to deploy public TLS certificates on SSH3
+servers. Using valid TLS certificates on the server allows their
+automatic verification no explicit user action required.
+Connecting an SSH3 client to a server with no valid cerificate exposes
+the user to the same risk incurred by SSHv2 endpoints relying on Host
+keys: the user needs to manually validate the certificate before
+connecting to avoid an attacker to impersonate the server and
+access the keystrokes typed by the user during the conversation.
 
 
 # IANA Considerations
 
-TODO
+## HTTP Upgrade Token
+This document will request IANA to register "ssh3" in the "HTTP Upgrade
+Tokens" registry maintained at <https://www.iana.org/assignments/http-upgrade-tokens>.
+
+\[\[Note: This may be removed if we decide to run SSH3 atop WebTransport instead of
+HTTP/3 only.]]
 
 
 --- back
@@ -245,4 +317,5 @@ TODO
 # Acknowledgments
 {:numbered="false"}
 
-TODO acknowledge.
+We warmly thank Lucas Pardue and David Schinazi for their precious
+comments on the document before the submission.
