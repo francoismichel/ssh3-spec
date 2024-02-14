@@ -323,7 +323,7 @@ Table of Contents
    The direct-tcp and direct-udp channels request TCP and UDP port
    forwarding from a local port on the client towards a remote address
    accessible from the remote host.  The reverse-tcp and reverse-udp
-   channels are use to request the forwarding of UDP packets and TCP
+   channels are used to request the forwarding of UDP packets and TCP
    connections from a specific port on the remote host to the client.
 
 4.1.3.  Messages
