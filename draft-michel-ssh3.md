@@ -124,7 +124,7 @@ authentication in future versions of our prototype.
 
 Password-based authentication is performed using the HTTP
 Basic authentication scheme {{HTTP-BASIC}}. The user-id part of the
-`<credentials>` in the Authorization header defined in {{HTTP-BASIC}} 
+`<credentials>` in the Authorization header defined in {{HTTP-BASIC}}
 MUST be equivalent to
 the `username` variable in the request URI defined in {{establishing}}.
 
@@ -222,8 +222,17 @@ channels are therefore not assigned a channel number conversely to SSHv2.
 
 ### Opening a channel
 
-SSH channels can be opened on HTTP/3 client-initiated bidirectional streams using a specific signal value. By default, HTTP/3 considers every client-initiated bidirectional stream as a request stream. Similarly to WebTransport, SSH3 extends HTTP/3 using a specific signal value. Upon receiving HTTP/3 settings announcing SSH3 server support, a client can open a stream with this signal value to indicate that it is not a request stream and that the remaining stream bytes will be used arbitrarily by the SSH3 protocol to carry the content of a channel.
-For experimental purpose, the signal value is chosen at random and will change over time. The content of an HTTP/3 stream carrying an SSH3 channel is illustrated below.
+SSH channels can be opened on HTTP/3 client-initiated bidirectional
+streams. By default, HTTP/3 considers every client-initiated
+bidirectional stream as a request stream. Similarly to WebTransport,
+SSH3 extends HTTP/3 using a specific signal value. Upon receiving HTTP/3
+settings announcing SSH3 server support, a client can open a stream with
+this signal value to indicate that it is not a request stream and that
+the remaining stream bytes will be used arbitrarily by the SSH3 protocol
+to carry the content of a channel.
+For experimental purpose, the signal value is chosen at random and will
+change over time. The content of an HTTP/3 stream carrying an SSH3
+channel is illustrated below.
 
 ~~~~
 Channel {
@@ -246,7 +255,9 @@ use somthing else instead ? If we change, we loose a 1-1 mapping with SSHv2.]]
 The Maximum Message Size field defines the maximum size in bytes of
 SSH messages.
 
-The remaining bytes of the stream are interpreted as a sequence of SSH messages. Their format and length can vary depending on the message type (see {{messages}}).
+The remaining bytes of the stream are interpreted as a sequence of SSH
+messages. Their format and length can vary depending on the message type
+(see {{messages}}).
 
 ### Channel types
 
@@ -261,14 +272,21 @@ also defined in {{SSH-CONNECT}}:
 - reverse-udp
 
 The direct-tcp and direct-udp channels request TCP and UDP port
-forwarding from a local port on the client towards a remote address accessible from the remote host.
+forwarding from a local port on the client towards a remote address
+accessible from the remote host.
 The reverse-tcp and reverse-udp channels are use to request
-the forwarding of UDP packets and TCP connections from a specific port on the remote host to the client.
+the forwarding of UDP packets and TCP connections from a specific port
+on the remote host to the client.
 
 ### Messages {#messages}
 
-Messages are exchanged over channels similarly to SSHv2. The same messages
-format as the one defined in {{SSH-CONNECT}} applies, with channel numbers removed from the messages headers as channel run over dedicated HTTP streams. Hereunder is an example showing the wire format of the `exit-status` SSH message for SSH3. Its SSHv2 variant is described in [Section 6.10](https://datatracker.ietf.org/doc/html/rfc4254#section-6.10) of {{SSH-CONNECT}}.
+Messages are exchanged over channels similarly to SSHv2. The same
+messages
+format as the one defined in {{SSH-CONNECT}} applies, with channel
+numbers removed from the messages headers as channel run over dedicated
+HTTP streams. Hereunder is an example showing the wire format of the
+`exit-status` SSH message for SSH3. Its SSHv2 variant is described in
+[Section 6.10](https://datatracker.ietf.org/doc/html/rfc4254#section-6.10) of {{SSH-CONNECT}}.
 
 ~~~~
 ExitStatusMessage {
