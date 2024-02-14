@@ -68,13 +68,19 @@ multiplexing, relying on TLS for secure channel establishment and the use of X.5
 
 # Introduction
 
-This document defines mechanism to run the SSH Connection protocol {{SSH-CONNECT}} over HTTP/3 connections. The mechanisms used for establishing an SSH3 conversation are similar to the
-WebTransport session establishment {{WEBTRANSPORT-H3}}. Currently, it is still undecided
-whether HTTP/3 or WebTransport should be used as the transport layer for SSH3. The current
-SSH3 prototype is built directly over HTTP/3 since there is no public WebTransport
+This document defines mechanisms to run the SSH Connection protocol
+{{SSH-CONNECT}} over HTTP/3 connections. The mechanisms used for 
+establishing an SSH3 conversation are similar to the
+WebTransport session establishment {{WEBTRANSPORT-H3}}. Currently, it is 
+still undecided
+whether HTTP/3 or WebTransport should be used as the transport layer for 
+SSH3. The current
+SSH3 prototype is built directly over HTTP/3 since there is no public 
+WebTransport
 implementation meeting all our requirements as of now.
 The semantics of HTTP/2 being comparable with HTTP/3, the mechanisms
-defined in this document may be implemented using HTTP/2. This document is a first introductory document and we limit its current scope to HTTP/3.
+defined in this document may be implemented using HTTP/2. This document 
+is a first introductory document and we limit its current scope to HTTP/3.
 
 
 # Conventions and Definitions
