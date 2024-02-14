@@ -230,7 +230,7 @@ this signal value to indicate that it is not a request stream and that
 the remaining stream bytes will be used arbitrarily by the SSH3 protocol
 to carry the content of a channel.
 For experimental purpose, the signal value is chosen at random and will
-change over time. The content of an HTTP/3 stream carrying an SSH3
+change over time. The current signal value is `0xaf3627e6`. The content of an HTTP/3 stream carrying an SSH3
 channel is illustrated below.
 
 ~~~~
