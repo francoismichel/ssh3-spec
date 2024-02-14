@@ -1247,7 +1247,7 @@ to <code>ssh3</code> and the <code>:scheme</code> pseudo-header <span class="bcp
 If an SSH3 client or server supports the UDP forwarding feature, it <span class="bcp14">MUST</span> indicate support for HTTP/3 datagrams by sending a SETTINGS_H3_DATAGRAM value set to 1 in their
 SETTINGS frame (see <a href="">Section 2.1.1</a> of <span>[<a href="#HTTP-DATAGRAM" class="cite xref">HTTP-DATAGRAM</a>]</span>).<a href="#section-3-1" class="pilcrow">¶</a></p>
 <p id="section-3-2">An SSH3 server listens for CONNECT requests with the <code>ssh3</code> protocol
-at a URI templates having the <code>username</code> variable. Example URIs can be found below.<a href="#section-3-2" class="pilcrow">¶</a></p>
+on URI templates having the <code>username</code> variable. Example URIs can be found below.<a href="#section-3-2" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-3-3">
 <pre>
 https://example.org:4443/ssh3?user={username}
