@@ -164,8 +164,9 @@ Table of Contents
 
    Password-based authentication is performed using the HTTP Basic
    authentication scheme [HTTP-BASIC].  The user-id part of the
-   <credentials> in the Authorization header MUST be equivalent to the
-   username variable in the request URI defined in Section 3.
+   <credentials> in the Authorization header defined in [HTTP-BASIC]
+   MUST be equivalent to the username variable in the request URI
+   defined in Section 3.
 
      Client
         |                QUIC HANDSHAKE                 |
@@ -267,16 +268,16 @@ Table of Contents
 4.1.1.  Opening a channel
 
    SSH channels can be opened on HTTP/3 client-initiated bidirectional
-   streams using a specific signal value.  By default, HTTP/3 considers
-   every client-initiated bidirectional stream as a request stream.
-   Similarly to WebTransport, SSH3 extends HTTP/3 using a specific
-   signal value.  Upon receiving HTTP/3 settings announcing SSH3 server
-   support, a client can open a stream with this signal value to
-   indicate that it is not a request stream and that the remaining
-   stream bytes will be used arbitrarily by the SSH3 protocol to carry
-   the content of a channel.  For experimental purpose, the signal value
-   is chosen at random and will change over time.  The content of an
-   HTTP/3 stream carrying an SSH3 channel is illustrated below.
+   streams.  By default, HTTP/3 considers every client-initiated
+   bidirectional stream as a request stream.  Similarly to WebTransport,
+   SSH3 extends HTTP/3 using a specific signal value.  Upon receiving
+   HTTP/3 settings announcing SSH3 server support, a client can open a
+   stream with this signal value to indicate that it is not a request
+   stream and that the remaining stream bytes will be used arbitrarily
+   by the SSH3 protocol to carry the content of a channel.  For
+   experimental purpose, the signal value is chosen at random and will
+   change over time.  The content of an HTTP/3 stream carrying an SSH3
+   channel is illustrated below.
 
    Channel {
        Signal Value (i) = 0xaf3627e6,

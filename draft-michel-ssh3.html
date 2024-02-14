@@ -1280,7 +1280,8 @@ authentication in future versions of our prototype.<a href="#section-3.1-1" clas
           </h4>
 <p id="section-3.1.1-1">Password-based authentication is performed using the HTTP
 Basic authentication scheme <span>[<a href="#HTTP-BASIC" class="cite xref">HTTP-BASIC</a>]</span>. The user-id part of the
-<code>&lt;credentials&gt;</code> in the Authorization header <span class="bcp14">MUST</span> be equivalent to
+<code>&lt;credentials&gt;</code> in the Authorization header defined in <span>[<a href="#HTTP-BASIC" class="cite xref">HTTP-BASIC</a>]</span>
+            <span class="bcp14">MUST</span> be equivalent to
 the <code>username</code> variable in the request URI defined in <a href="#establishing" class="auto internal xref">Section 3</a>.<a href="#section-3.1.1-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-3.1.1-2">
 <pre>
@@ -1403,8 +1404,17 @@ channels are therefore not assigned a channel number conversely to SSHv2.<a href
           <h4 id="name-opening-a-channel">
 <a href="#section-4.1.1" class="section-number selfRef">4.1.1. </a><a href="#name-opening-a-channel" class="section-name selfRef">Opening a channel</a>
           </h4>
-<p id="section-4.1.1-1">SSH channels can be opened on HTTP/3 client-initiated bidirectional streams using a specific signal value. By default, HTTP/3 considers every client-initiated bidirectional stream as a request stream. Similarly to WebTransport, SSH3 extends HTTP/3 using a specific signal value. Upon receiving HTTP/3 settings announcing SSH3 server support, a client can open a stream with this signal value to indicate that it is not a request stream and that the remaining stream bytes will be used arbitrarily by the SSH3 protocol to carry the content of a channel.
-For experimental purpose, the signal value is chosen at random and will change over time. The content of an HTTP/3 stream carrying an SSH3 channel is illustrated below.<a href="#section-4.1.1-1" class="pilcrow">¶</a></p>
+<p id="section-4.1.1-1">SSH channels can be opened on HTTP/3 client-initiated bidirectional
+streams. By default, HTTP/3 considers every client-initiated
+bidirectional stream as a request stream. Similarly to WebTransport,
+SSH3 extends HTTP/3 using a specific signal value. Upon receiving HTTP/3
+settings announcing SSH3 server support, a client can open a stream with
+this signal value to indicate that it is not a request stream and that
+the remaining stream bytes will be used arbitrarily by the SSH3 protocol
+to carry the content of a channel.
+For experimental purpose, the signal value is chosen at random and will
+change over time. The content of an HTTP/3 stream carrying an SSH3
+channel is illustrated below.<a href="#section-4.1.1-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.1.1-2">
 <pre>
 Channel {
@@ -1424,7 +1434,9 @@ by the Channel Type Length field.<a href="#section-4.1.1-3" class="pilcrow">¶</
 use somthing else instead ? If we change, we loose a 1-1 mapping with SSHv2.]]<a href="#section-4.1.1-4" class="pilcrow">¶</a></p>
 <p id="section-4.1.1-5">The Maximum Message Size field defines the maximum size in bytes of
 SSH messages.<a href="#section-4.1.1-5" class="pilcrow">¶</a></p>
-<p id="section-4.1.1-6">The remaining bytes of the stream are interpreted as a sequence of SSH messages. Their format and length can vary depending on the message type (see <a href="#messages" class="auto internal xref">Section 4.1.3</a>).<a href="#section-4.1.1-6" class="pilcrow">¶</a></p>
+<p id="section-4.1.1-6">The remaining bytes of the stream are interpreted as a sequence of SSH
+messages. Their format and length can vary depending on the message type
+(see <a href="#messages" class="auto internal xref">Section 4.1.3</a>).<a href="#section-4.1.1-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="channel-types">
@@ -1455,9 +1467,11 @@ also defined in <span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]
 </li>
           </ul>
 <p id="section-4.1.2-3">The direct-tcp and direct-udp channels request TCP and UDP port
-forwarding from a local port on the client towards a remote address accessible from the remote host.
+forwarding from a local port on the client towards a remote address
+accessible from the remote host.
 The reverse-tcp and reverse-udp channels are use to request
-the forwarding of UDP packets and TCP connections from a specific port on the remote host to the client.<a href="#section-4.1.2-3" class="pilcrow">¶</a></p>
+the forwarding of UDP packets and TCP connections from a specific port
+on the remote host to the client.<a href="#section-4.1.2-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="messages">
@@ -1465,8 +1479,13 @@ the forwarding of UDP packets and TCP connections from a specific port on the re
           <h4 id="name-messages">
 <a href="#section-4.1.3" class="section-number selfRef">4.1.3. </a><a href="#name-messages" class="section-name selfRef">Messages</a>
           </h4>
-<p id="section-4.1.3-1">Messages are exchanged over channels similarly to SSHv2. The same messages
-format as the one defined in <span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]</span> applies, with channel numbers removed from the messages headers as channel run over dedicated HTTP streams. Hereunder is an example showing the wire format of the <code>exit-status</code> SSH message for SSH3. Its SSHv2 variant is described in <a href="https://datatracker.ietf.org/doc/html/rfc4254#section-6.10">Section 6.10</a> of <span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]</span>.<a href="#section-4.1.3-1" class="pilcrow">¶</a></p>
+<p id="section-4.1.3-1">Messages are exchanged over channels similarly to SSHv2. The same
+messages
+format as the one defined in <span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]</span> applies, with channel
+numbers removed from the messages headers as channel run over dedicated
+HTTP streams. Hereunder is an example showing the wire format of the
+<code>exit-status</code> SSH message for SSH3. Its SSHv2 variant is described in
+<a href="https://datatracker.ietf.org/doc/html/rfc4254#section-6.10">Section 6.10</a> of <span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]</span>.<a href="#section-4.1.3-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.1.3-2">
 <pre>
 ExitStatusMessage {
