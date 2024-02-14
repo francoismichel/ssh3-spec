@@ -134,7 +134,7 @@ Table of Contents
    characters outside the allowed set of [URI].  An alternative can be
    to perform base64url encoding of the username instead.]]
 
-   Authentication material are placed inside the Authorization header of
+   Authentication material is placed inside the Authorization header of
    the Extended CONNECT request.  If an SSH3 endpoint is available to
    the HTTP/3 server and if the user is successfully authenticated and
    authorized, the server responds with a 2xx HTTP status code and the
