@@ -273,7 +273,7 @@ also defined in {{SSH-CONNECT}}:
 The direct-tcp and direct-udp channels request TCP and UDP port
 forwarding from a local port on the client towards a remote address
 accessible from the remote host.
-The reverse-tcp and reverse-udp channels are use to request
+The reverse-tcp and reverse-udp channels are used to request
 the forwarding of UDP packets and TCP connections from a specific port
 on the remote host to the client.
 
