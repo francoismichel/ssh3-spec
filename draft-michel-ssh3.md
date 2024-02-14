@@ -113,7 +113,7 @@ as defined in {{HTTP-SEMANTICS}}, with no restriction on the
 authentication scheme used. If no Authorization header is present in the
 request or if the authentication
 scheme is not supported by the server, the server SHOULD respond with a
-401 (Unauthorized) response message. Once the user authentication is successful, the SSH3 server can process the request and start the conversation. This section only provides example user authorization
+401 (Unauthorized) response message. Once the user authentication is successful, the SSH3 server can process the request and start the conversation. This section only provides example user authentication
 mechanisms. Other mechanisms may be proposed in the future in separate
 documents. The two first examples are implemented by our current
 prototype. The third example leverages the Signature authentication
