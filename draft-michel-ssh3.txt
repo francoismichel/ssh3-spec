@@ -5,7 +5,7 @@
 Network Working Group                                          F. Michel
 Internet-Draft                                            O. Bonaventure
 Intended status: Informational                                 UCLouvain
-Expires: 16 August 2024                                 13 February 2024
+Expires: 17 August 2024                                 14 February 2024
 
 
                   Running SSH over HTTP/3 connections
@@ -13,14 +13,14 @@ Expires: 16 August 2024                                 13 February 2024
 
 Abstract
 
-   The SSH protocol offers a series of secure services atop an unsecure
-   network.  SSH traditionnally runs over the TCP transport protocol.
-   This document defines mechanisms to run the SSH protocol and provide
-   a comparable set of services using HTTP/3.  Running SSH over HTTP/3
-   allows several benefits such as the scalability offered by HTTP
-   multiplexing, relying on TLS for secure channel establishment and the
-   use X.509 certificates and HTTP Authentication schemes for client and
-   server authentication.
+   The SSH protocol offers a series of secure services on a remote
+   computer across an insecure network.  SSH traditionally runs over the
+   TCP transport protocol.  This document defines mechanisms to run the
+   SSH protocol and provide a comparable set of services using HTTP/3.
+   Running SSH over HTTP/3 allows several benefits such as the
+   scalability offered by HTTP multiplexing, relying on TLS for secure
+   channel establishment and the use of X.509 certificates and HTTP
+   Authentication schemes for client and server authentication.
 
 About This Document
 
@@ -49,7 +49,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 16 August 2024.
+   This Internet-Draft will expire on 17 August 2024.
 
 Copyright Notice
 
@@ -367,12 +367,12 @@ Table of Contents
 
    It is strongly recommended to deploy public TLS certificates on SSH3
    servers.  Using valid TLS certificates on the server allows their
-   automatic verification no explicit user action required.  Connecting
-   an SSH3 client to a server with no valid cerificate exposes the user
-   to the same risk incurred by SSHv2 endpoints relying on Host keys:
-   the user needs to manually validate the certificate before connecting
-   to avoid an attacker to impersonate the server and access the
-   keystrokes typed by the user during the conversation.
+   automatic verification with no explicit user action required.
+   Connecting an SSH3 client to a server with no valid cerificate
+   exposes the user to the same risk incurred by SSHv2 endpoints relying
+   on Host keys: the user needs to manually validate the certificate
+   before connecting to avoid an attacker to impersonate the server and
+   access the keystrokes typed by the user during the conversation.
 
 7.  IANA Considerations
 
