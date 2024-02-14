@@ -92,7 +92,7 @@ Table of Contents
 
 1.  Introduction
 
-   This document defines mechanism to run the SSH Connection protocol
+   This document defines mechanisms to run the SSH Connection protocol
    [SSH-CONNECT] over HTTP/3 connections.  The mechanisms used for
    establishing an SSH3 conversation are similar to the WebTransport
    session establishment [WEBTRANSPORT-H3].  Currently, it is still
