@@ -320,12 +320,13 @@ key authentication should be preferred to passwords.
 
 It is strongly recommended to deploy public TLS certificates on SSH3
 servers in a similar way to classical HTTPS servers. Using valid TLS certificates on the server allows their
-automatic verification with no explicit user action required.
-Connecting an SSH3 client to a server with no valid cerificate exposes
-the user to the same risk incurred by SSHv2 endpoints relying on Host
-keys: the user needs to manually validate the certificate before
-connecting to avoid an attacker to impersonate the server and
-access the keystrokes typed by the user during the conversation.
+automatic verification on the client with no explicit user action 
+required. Connecting an SSH3 client to a server with no valid
+cerificate exposes the user to at best the same risk incurred by SSHv2
+endpoints relying on Host keys: the user needs to manually validate the 
+certificate before connecting to avoid an attacker to impersonate the 
+server and access the keystrokes typed by the user during the 
+conversation.
 
 
 # IANA Considerations
