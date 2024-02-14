@@ -305,7 +305,7 @@ Table of Contents
 
 4.1.2.  Channel types
 
-   This document defines the following channel types, the two first
+   This document defines the following channel types, the four first
    being also defined in [SSH-CONNECT]:
 
    *  session
@@ -314,9 +314,9 @@ Table of Contents
 
    *  direct-tcp
 
-   *  direct-udp
-
    *  reverse-tcp
+
+   *  direct-udp
 
    *  reverse-udp
 
