@@ -148,17 +148,17 @@ Table of Contents
 
    Authorization of the CONNECT request is done using HTTP Authorization
    as defined in [HTTP-SEMANTICS], with no restriction on the
-   authentication scheme used.  If no authentication scheme is provided
-   or if the authentication scheme is not supported by the server, the
-   server SHOULD respond with a 401 (Unauthorized) response message.
-   Once the user authentication is successful, the SSH3 server can
-   process the request and start the conversation.  This section only
-   provides example user authorization mechanisms.  Other mechanisms may
-   be proposed in the future in separate documents.  The two first
-   examples are implemented by our current prototype.  The third example
-   leverages the Signature authentication scheme [HTTP-SIGNATURE] and
-   will be preferred for public key authentication in future versions of
-   our prototype.
+   authentication scheme used.  If no Authorization header is present in
+   the request or if the authentication scheme is not supported by the
+   server, the server SHOULD respond with a 401 (Unauthorized) response
+   message.  Once the user authentication is successful, the SSH3 server
+   can process the request and start the conversation.  This section
+   only provides example user authorization mechanisms.  Other
+   mechanisms may be proposed in the future in separate documents.  The
+   two first examples are implemented by our current prototype.  The
+   third example leverages the Signature authentication scheme
+   [HTTP-SIGNATURE] and will be preferred for public key authentication
+   in future versions of our prototype.
 
 3.1.1.  Example: password authentication using HTTP Basic Authentication
 

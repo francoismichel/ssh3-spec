@@ -1263,7 +1263,9 @@ https://proxy.example.org:4443/ssh3{?username}
 <a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-authenticating-the-client" class="section-name selfRef">Authenticating the client</a>
         </h3>
 <p id="section-3.1-1">Authorization of the CONNECT request is done using HTTP Authorization
-as defined in <span>[<a href="#HTTP-SEMANTICS" class="cite xref">HTTP-SEMANTICS</a>]</span>, with no restriction on the authentication scheme used. If no authentication scheme is provided or if the authentication
+as defined in <span>[<a href="#HTTP-SEMANTICS" class="cite xref">HTTP-SEMANTICS</a>]</span>, with no restriction on the
+authentication scheme used. If no Authorization header is present in the
+request or if the authentication
 scheme is not supported by the server, the server <span class="bcp14">SHOULD</span> respond with a
 401 (Unauthorized) response message. Once the user authentication is successful, the SSH3 server can process the request and start the conversation. This section only provides example user authorization
 mechanisms. Other mechanisms may be proposed in the future in separate
