@@ -244,7 +244,7 @@ Channel {
 }
 ~~~~
 
-The first byte send on the HTTP/3 stream is the Signal Value. The
+The first value sent on the HTTP/3 stream is the Signal Value. The
 Channel Type is a UTF-8-encoded string whose length is defined
 by the Channel Type Length field.
 
