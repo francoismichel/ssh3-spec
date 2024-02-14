@@ -93,7 +93,7 @@ If an SSH3 client or server supports the UDP forwarding feature, it MUST indicat
 SETTINGS frame (see [Section 2.1.1]() of [HTTP-DATAGRAM]).
 
 An SSH3 server listens for CONNECT requests with the `ssh3` protocol
-at a URI templates having the `username` variable. Example URIs can be found below.
+on URI templates having the `username` variable. Example URIs can be found below.
 
 ~~~~
 https://example.org:4443/ssh3?user={username}
