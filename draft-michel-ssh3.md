@@ -56,11 +56,11 @@ informative:
 
 --- abstract
 
-The SSH protocol offers a series of secure services atop an unsecure network.
-SSH traditionnally runs over the TCP transport protocol. This document defines mechanisms
+The SSH protocol offers a series of secure services on a remote computer across an insecure network.
+SSH traditionally runs over the TCP transport protocol. This document defines mechanisms
 to run the SSH protocol and provide a comparable set of services using HTTP/3.
 Running SSH over HTTP/3 allows several benefits such as the scalability offered by HTTP
-multiplexing, relying on TLS for secure channel establishment and the use X.509 certificates and HTTP Authentication schemes for client and server authentication.
+multiplexing, relying on TLS for secure channel establishment and the use of X.509 certificates and HTTP Authentication schemes for client and server authentication.
 
 
 
@@ -298,7 +298,7 @@ key authentication should be preferred to passwords.
 
 It is strongly recommended to deploy public TLS certificates on SSH3
 servers. Using valid TLS certificates on the server allows their
-automatic verification no explicit user action required.
+automatic verification with no explicit user action required.
 Connecting an SSH3 client to a server with no valid cerificate exposes
 the user to the same risk incurred by SSHv2 endpoints relying on Host
 keys: the user needs to manually validate the certificate before
