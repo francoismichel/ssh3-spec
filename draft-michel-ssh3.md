@@ -124,7 +124,8 @@ authentication in future versions of our prototype.
 
 Password-based authentication is performed using the HTTP
 Basic authentication scheme {{HTTP-BASIC}}. The user-id part of the
-`<credentials>` in the Authorization header MUST be equivalent to
+`<credentials>` in the Authorization header defined in {{HTTP-BASIC}} 
+MUST be equivalent to
 the `username` variable in the request URI defined in {{establishing}}.
 
 ~~~~
