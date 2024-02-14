@@ -270,14 +270,13 @@ Table of Contents
    SSH channels can be opened on HTTP/3 client-initiated bidirectional
    streams.  By default, HTTP/3 considers every client-initiated
    bidirectional stream as a request stream.  Similarly to WebTransport,
-   SSH3 extends HTTP/3 using a specific signal value.  Upon receiving
-   HTTP/3 settings announcing SSH3 server support, a client can open a
-   stream with this signal value to indicate that it is not a request
-   stream and that the remaining stream bytes will be used arbitrarily
-   by the SSH3 protocol to carry the content of a channel.  For
-   experimental purpose, the signal value is chosen at random and will
-   change over time.  The content of an HTTP/3 stream carrying an SSH3
-   channel is illustrated below.
+   SSH3 extends HTTP/3 using a specific signal value.  An SSH3 client
+   can open a stream with this signal value to indicate that it is not a
+   request stream and that the remaining stream bytes will be used
+   arbitrarily by the SSH3 protocol to carry the content of a channel.
+   For experimental purpose, the signal value is chosen at random and
+   will change over time.  The content of an HTTP/3 stream carrying an
+   SSH3 channel is illustrated below.
 
    Channel {
        Signal Value (i) = 0xaf3627e6,
