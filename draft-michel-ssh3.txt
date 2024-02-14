@@ -153,7 +153,7 @@ Table of Contents
    server, the server SHOULD respond with a 401 (Unauthorized) response
    message.  Once the user authentication is successful, the SSH3 server
    can process the request and start the conversation.  This section
-   only provides example user authorization mechanisms.  Other
+   only provides example user authentication mechanisms.  Other
    mechanisms may be proposed in the future in separate documents.  The
    two first examples are implemented by our current prototype.  The
    third example leverages the Signature authentication scheme
