@@ -260,14 +260,14 @@ messages. Their format and length can vary depending on the message type
 
 ### Channel types
 
-This document defines the following channel types, the two first being
+This document defines the following channel types, the four first being
 also defined in {{SSH-CONNECT}}:
 
 - session
 - x11
 - direct-tcp
-- direct-udp
 - reverse-tcp
+- direct-udp
 - reverse-udp
 
 The direct-tcp and direct-udp channels request TCP and UDP port
