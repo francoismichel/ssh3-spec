@@ -78,7 +78,7 @@ SSH3. The current
 SSH3 prototype is built directly over HTTP/3 since there is no public
 WebTransport
 implementation meeting all our requirements as of now.
-The semantics of HTTP/2 being comparable with HTTP/3, the mechanisms
+The semantics of HTTP/2 being comparable to HTTP/3, the mechanisms
 defined in this document may be implemented using HTTP/2. This document
 is a first introductory document and we limit its current scope to HTTP/3.
 
