@@ -225,8 +225,7 @@ channels are therefore not assigned a channel number conversely to SSHv2.
 SSH channels can be opened on HTTP/3 client-initiated bidirectional
 streams. By default, HTTP/3 considers every client-initiated
 bidirectional stream as a request stream. Similarly to WebTransport,
-SSH3 extends HTTP/3 using a specific signal value. Upon receiving HTTP/3
-settings announcing SSH3 server support, a client can open a stream with
+SSH3 extends HTTP/3 using a specific signal value. An SSH3 client can open a stream with
 this signal value to indicate that it is not a request stream and that
 the remaining stream bytes will be used arbitrarily by the SSH3 protocol
 to carry the content of a channel.
