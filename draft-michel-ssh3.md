@@ -319,7 +319,7 @@ and user authentication material should be verified thoroughly. Public
 key authentication should be preferred to passwords.
 
 It is strongly recommended to deploy public TLS certificates on SSH3
-servers. Using valid TLS certificates on the server allows their
+servers in a similar way to classical HTTPS servers. Using valid TLS certificates on the server allows their
 automatic verification with no explicit user action required.
 Connecting an SSH3 client to a server with no valid cerificate exposes
 the user to the same risk incurred by SSHv2 endpoints relying on Host
