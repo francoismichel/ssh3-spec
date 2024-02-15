@@ -37,6 +37,7 @@ normative:
   QUICv1: RFC9000
   QUIC-RECOVERY: RFC9002
   SSH-ARCH: RFC4251
+  SSH-AUTH: rfc4252
   SSH-TRANSPORT: RFC4253
   SSH-CONNECT: RFC4254
   HTTP-SEMANTICS: RFC9110
@@ -68,6 +69,9 @@ multiplexing, relying on TLS for secure channel establishment and the use of X.5
 
 # Introduction
 
+The SSH protocol {{RFC4251}} provides a secure way to access computers remotely over an untrusted network. SSH is currently the most popular way to access Unix-based hosts remotely. Built atop the unencrypted TCP protocol, SSH proposes its own mechanisms to establish a secure channel {{SSH-TRANSPORT}} and perform user authentication {{SSH-AUTH}}. Once the secure session is established
+and the user is authenticated and authorized, SSH runs the Connection protocol to run and manage
+remote processes and functionnalities executed on the remote host {{SSH-CONNECT}}.
 This document defines mechanisms to run the SSH Connection protocol
 {{SSH-CONNECT}} over HTTP/3 connections. The mechanisms used for
 establishing an SSH3 conversation are similar to the
@@ -344,5 +348,5 @@ HTTP/3 only.]]
 # Acknowledgments
 {:numbered="false"}
 
-We warmly thank Lucas Pardue and David Schinazi for their precious
+We warmly thank Maxime Piraux, Lucas Pardue and David Schinazi for their precious
 comments on the document before the submission.
