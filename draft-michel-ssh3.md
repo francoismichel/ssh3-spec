@@ -95,7 +95,7 @@ and the user is authenticated and authorized, SSH runs the Connection protocol t
 remote processes and functionnalities executed on the remote host {{SSH-CONNECT}}.
 Among others, SSH provides different services such as remote program execution, shell access and TCP port forwarding.
 
-## SSH and the web ecosystem evolve in parallel
+<!-- ## SSH and the web ecosystem evolve in parallel
 SSH has continued to evolve *outside* the IETF since the publication of {{SSH-ARCH}} in 2006. The OpenSSH
 implementation has continuously improved and extended the services provided by the protocol, adding
 new cryptographic algorithms to the transport protocol and new authentication methods to both clients
@@ -108,8 +108,8 @@ implementation to support these certificates {{PUTTY-CERTIFICATES}}. The Tectia 
 implementation supports three different certificates formats, only one of them being compatible
 with OpenSSH and PuTTY {{TECTIA-CERTIFICATES}}.
 
-In parallel, the IETF has put significant effort over the years in the standardization of new protocols, 
-extensions and improvements of the different mechanisms used for the Web. 
+In parallel, the IETF has put significant effort over the years in the standardization of new protocols,
+extensions and improvements of the different mechanisms used for the Web.  -->
 
 Running exclusively over TCP, SSHv2 does not offer UDP port forwarding and therefore provides
 no support to UDP-based protocols such RTP or the QUIC protocol that is now carrying an important part
