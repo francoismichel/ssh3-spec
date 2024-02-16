@@ -1136,6 +1136,11 @@ multiplexing, relying on TLS for secure channel establishment and the use of X.5
 <nav class="toc"><ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1">
             <p id="section-toc.1-1.1.1" class="keepWithNext"><a href="#section-1" class="auto internal xref">1</a>.  <a href="#name-introduction" class="internal xref">Introduction</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1">
+                <p id="section-toc.1-1.1.2.1.1" class="keepWithNext"><a href="#section-1.1" class="auto internal xref">1.1</a>.  <a href="#name-how-http-3-improves-ssh" class="internal xref">How HTTP/3 improves SSH</a></p>
+</li>
+            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
             <p id="section-toc.1-1.2.1" class="keepWithNext"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-conventions-and-definitions" class="internal xref">Conventions and Definitions</a></p>
@@ -1147,7 +1152,7 @@ multiplexing, relying on TLS for secure channel establishment and the use of X.5
                 <p id="section-toc.1-1.3.2.1.1"><a href="#section-3.1" class="auto internal xref">3.1</a>.  <a href="#name-authenticating-the-client" class="internal xref">Authenticating the client</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1.2.1">
-                    <p id="section-toc.1-1.3.2.1.2.1.1" class="keepWithNext"><a href="#section-3.1.1" class="auto internal xref">3.1.1</a>.  <a href="#name-example-password-authentica" class="internal xref">Example: password authentication using HTTP Basic Authentication</a></p>
+                    <p id="section-toc.1-1.3.2.1.2.1.1"><a href="#section-3.1.1" class="auto internal xref">3.1.1</a>.  <a href="#name-example-password-authentica" class="internal xref">Example: password authentication using HTTP Basic Authentication</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1.2.2">
                     <p id="section-toc.1-1.3.2.1.2.2.1"><a href="#section-3.1.2" class="auto internal xref">3.1.2</a>.  <a href="#name-example-public-key-authenti" class="internal xref">Example: public key authentication using OAUTH2 and JWTs</a></p>
@@ -1193,7 +1198,15 @@ multiplexing, relying on TLS for secure channel establishment and the use of X.5
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
-            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-references" class="internal xref">References</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.1">
+                <p id="section-toc.1-1.8.2.1.1"><a href="#section-8.1" class="auto internal xref">8.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.2">
+                <p id="section-toc.1-1.8.2.2.1"><a href="#section-8.2" class="auto internal xref">8.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+</li>
+            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
             <p id="section-toc.1-1.9.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
@@ -1213,15 +1226,49 @@ multiplexing, relying on TLS for secure channel establishment and the use of X.5
 <p id="section-1-1">The SSH protocol <span>[<a href="#SSH-ARCH" class="cite xref">SSH-ARCH</a>]</span> provides a secure way to access computers remotely over an untrusted network. SSH is currently the most popular way to access Unix-based hosts remotely. Built atop the unencrypted TCP protocol, SSH proposes its own mechanisms to establish a secure channel <span>[<a href="#SSH-TRANSPORT" class="cite xref">SSH-TRANSPORT</a>]</span> and perform user authentication <span>[<a href="#SSH-AUTH" class="cite xref">SSH-AUTH</a>]</span>. Once the secure session is established
 and the user is authenticated and authorized, SSH runs the Connection protocol to run and manage
 remote processes and functionnalities executed on the remote host <span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]</span>.
-This document defines mechanisms to run the SSH Connection protocol
-<span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]</span> over HTTP/3 connections. The mechanisms used for
-establishing an SSH3 conversation are similar to the
-WebTransport session establishment <span>[<a href="#WEBTRANSPORT-H3" class="cite xref">WEBTRANSPORT-H3</a>]</span>. WebTransport is also a good transport layer candidate for SSH3. The current
+Among others, SSH provides different services such as remote program execution, shell access and TCP port forwarding. This document defines mechanisms to run the SSH Connection protocol
+<span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]</span> over HTTP/3 connections and uses the name "SSH3" to refer to
+this solution. The secure channel establishment is performed using QUIC TLS while user authentication
+is performed using existing HTTP authentication schemes, simplifying significantly the design
+of the SSH protocol itself.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">The mechanisms used for establishing an SSH3 conversation
+are similar to the WebTransport session establishment <span>[<a href="#WEBTRANSPORT-H3" class="cite xref">WEBTRANSPORT-H3</a>]</span>.
+WebTransport is also a good transport layer candidate for SSH3. The current
 SSH3 prototype is built directly over HTTP/3 since there is no public
 WebTransport implementation meeting all our requirements as of now.
 The semantics of HTTP/2 being comparable to HTTP/3, the mechanisms
 defined in this document may be implemented using HTTP/2. This document
-is a first introductory document and we limit its current scope to HTTP/3.<a href="#section-1-1" class="pilcrow">¶</a></p>
+is a first introductory document and we limit its current scope to HTTP/3.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<div id="how-http3-improves-ssh">
+<section id="section-1.1">
+        <h3 id="name-how-http-3-improves-ssh">
+<a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-how-http-3-improves-ssh" class="section-name selfRef">How HTTP/3 improves SSH</a>
+        </h3>
+<p id="section-1.1-1">Using HTTP/3 and QUIC as a substrate for SSH brings several different benefits.
+Using QUIC, SSH3 can send data through both reliable streams and unreliable datagrams. This makes SSH3
+able to support port forwarding for both TCP and UDP-based protocols. Being based exclusively on TCP, SSHv2 does not offer UDP port forwarding and therefore provides no support to UDP-based protocols such RTP or the QUIC protocol.
+This lack of UDP support in SSHv2 may become problematic as the use of QUIC applications (HTTP/3, MOQT <span>[<a href="#MOQT" class="cite xref">MOQT</a>]</span>) grows in the Internet. Support for UDP port forwarding with SSH3 also allows accessing real-time media content such as low-latency live video available on the server.
+QUIC also offers a significantly reduced connection establishment time compared to the SSHv2 session
+establishment. The stream multiplexing capabilities of QUIC allow reducing the head-of-line blocking
+SSHv2 encounters when multiplexing several SSH channels over the same TCP connection.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
+<p id="section-1.1-2">Since QUIC integrates authentication and encryption as part of its transport features, it makes
+SSH3 robust to transport-layer attacks that were possible with TCP, such as spoofing or reset
+attacks <span>[<a href="#RFC5961" class="cite xref">RFC5961</a>]</span>. The recent Terrapin attack <span>[<a href="#TERRAPIN" class="cite xref">TERRAPIN</a>]</span> manipulates the TCP sequence number
+to alter the SSH extension negotiation mechanism <span>[<a href="#RFC8308" class="cite xref">RFC8308</a>]</span> and downgrade the client
+authentication algorithms.<a href="#section-1.1-2" class="pilcrow">¶</a></p>
+<p id="section-1.1-3">Using TLS for its secure channel establishment, HTTPS and QUIC offer access to the X.509 certificates
+ecosystem with no or low implementation efforts. TLS and QUIC libraries already implement support
+for generating, parsing and verifying X.509 certificates. With ACME <span>[<a href="#ACME" class="cite xref">ACME</a>]</span>, SSH3 servers can
+automatically (with no additional user action) and freely generate X.509 certificates for their
+domain names and avoid SSH users to rely on the Trust On First Use pattern when connecting to their
+remote hosts. These certificates are publicly valid and can be verified like classical HTTPS certificates.<a href="#section-1.1-3" class="pilcrow">¶</a></p>
+<p id="section-1.1-4">Using HTTP authentication schemes for user authentication allows implementing diverse authentication
+mechanisms such as the classical password-based and public key authentication, but also popular
+web authentication mechanisms such as OpenID Connect <span>[<a href="#OpenID.Core" class="cite xref">OpenID.Core</a>]</span>, SAML2 <span>[<a href="#OASIS.saml-core-2.0-os" class="cite xref">OASIS.saml-core-2.0-os</a>]</span> or the recent Passkeys/WebAuthn standard <span>[<a href="#WebAuthn" class="cite xref">WebAuthn</a>]</span>. All these authentication schemes are compatible
+with HTTP servers and can be integrated to SSH3 with low implementation effort. As a proof-of-concept,
+OpenID Connect has been implemented in our SSH3 prototype.<a href="#section-1.1-4" class="pilcrow">¶</a></p>
+</section>
+</div>
 </section>
 </div>
 <div id="conventions-and-definitions">
@@ -1559,91 +1606,149 @@ HTTP/3 only.]]<a href="#section-7.1-2" class="pilcrow">¶</a></p>
 </div>
 </section>
 </div>
-<div id="sec-normative-references">
 <section id="section-8">
-      <h2 id="name-normative-references">
-<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+      <h2 id="name-references">
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-references" class="section-name selfRef">References</a>
       </h2>
+<div id="sec-normative-references">
+<section id="section-8.1">
+        <h3 id="name-normative-references">
+<a href="#section-8.1" class="section-number selfRef">8.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+        </h3>
 <dl class="references">
 <dt id="EXTENDED-CONNECT">[EXTENDED-CONNECT]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">McManus, P.</span>, <span class="refTitle">"Bootstrapping WebSockets with HTTP/2"</span>, <span class="seriesInfo">RFC 8441</span>, <span class="seriesInfo">DOI 10.17487/RFC8441</span>, <time datetime="2018-09" class="refDate">September 2018</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8441">https://www.rfc-editor.org/rfc/rfc8441</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="HTTP-BASIC">[HTTP-BASIC]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Reschke, J.</span>, <span class="refTitle">"The 'Basic' HTTP Authentication Scheme"</span>, <span class="seriesInfo">RFC 7617</span>, <span class="seriesInfo">DOI 10.17487/RFC7617</span>, <time datetime="2015-09" class="refDate">September 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7617">https://www.rfc-editor.org/rfc/rfc7617</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="HTTP-DATAGRAM">[HTTP-DATAGRAM]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Schinazi, D.</span> and <span class="refAuthor">L. Pardue</span>, <span class="refTitle">"HTTP Datagrams and the Capsule Protocol"</span>, <span class="seriesInfo">RFC 9297</span>, <span class="seriesInfo">DOI 10.17487/RFC9297</span>, <time datetime="2022-08" class="refDate">August 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9297">https://www.rfc-editor.org/rfc/rfc9297</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="HTTP-SEMANTICS">[HTTP-SEMANTICS]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Fielding, R., Ed.</span>, <span class="refAuthor">Nottingham, M., Ed.</span>, and <span class="refAuthor">J. Reschke, Ed.</span>, <span class="refTitle">"HTTP Semantics"</span>, <span class="seriesInfo">STD 97</span>, <span class="seriesInfo">RFC 9110</span>, <span class="seriesInfo">DOI 10.17487/RFC9110</span>, <time datetime="2022-06" class="refDate">June 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9110">https://www.rfc-editor.org/rfc/rfc9110</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="HTTP-SIGNATURE">[HTTP-SIGNATURE]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Schinazi, D.</span>, <span class="refAuthor">Oliver, D.</span>, and <span class="refAuthor">J. Hoyland</span>, <span class="refTitle">"The Signature HTTP Authentication Scheme"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-httpbis-unprompted-auth-06</span>, <time datetime="2024-01-23" class="refDate">23 January 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-unprompted-auth-06">https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-unprompted-auth-06</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="JWT">[JWT]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">N. Sakimura</span>, <span class="refTitle">"JSON Web Token (JWT)"</span>, <span class="seriesInfo">RFC 7519</span>, <span class="seriesInfo">DOI 10.17487/RFC7519</span>, <time datetime="2015-05" class="refDate">May 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7519">https://www.rfc-editor.org/rfc/rfc7519</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="MOQT">[MOQT]</dt>
+        <dd>
+<span class="refAuthor">Curley, L.</span>, <span class="refAuthor">Pugin, K.</span>, <span class="refAuthor">Nandakumar, S.</span>, <span class="refAuthor">Vasiliev, V.</span>, and <span class="refAuthor">I. Swett</span>, <span class="refTitle">"Media over QUIC Transport"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-moq-transport-02</span>, <time datetime="2024-01-24" class="refDate">24 January 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-moq-transport-02">https://datatracker.ietf.org/doc/html/draft-ietf-moq-transport-02</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="OAUTH2">[OAUTH2]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Hardt, D., Ed.</span>, <span class="refTitle">"The OAuth 2.0 Authorization Framework"</span>, <span class="seriesInfo">RFC 6749</span>, <span class="seriesInfo">DOI 10.17487/RFC6749</span>, <time datetime="2012-10" class="refDate">October 2012</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6749">https://www.rfc-editor.org/rfc/rfc6749</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="OAUTH2-JWT">[OAUTH2-JWT]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Bertocci, V.</span>, <span class="refTitle">"JSON Web Token (JWT) Profile for OAuth 2.0 Access Tokens"</span>, <span class="seriesInfo">RFC 9068</span>, <span class="seriesInfo">DOI 10.17487/RFC9068</span>, <time datetime="2021-10" class="refDate">October 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9068">https://www.rfc-editor.org/rfc/rfc9068</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="QUIC">[QUIC]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Iyengar, J., Ed.</span> and <span class="refAuthor">M. Thomson, Ed.</span>, <span class="refTitle">"QUIC: A UDP-Based Multiplexed and Secure Transport"</span>, <span class="seriesInfo">RFC 9000</span>, <span class="seriesInfo">DOI 10.17487/RFC9000</span>, <time datetime="2021-05" class="refDate">May 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9000">https://www.rfc-editor.org/rfc/rfc9000</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="QUIC-RECOVERY">[QUIC-RECOVERY]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Iyengar, J., Ed.</span> and <span class="refAuthor">I. Swett, Ed.</span>, <span class="refTitle">"QUIC Loss Detection and Congestion Control"</span>, <span class="seriesInfo">RFC 9002</span>, <span class="seriesInfo">DOI 10.17487/RFC9002</span>, <time datetime="2021-05" class="refDate">May 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9002">https://www.rfc-editor.org/rfc/rfc9002</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="QUICv1">[QUICv1]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Iyengar, J., Ed.</span> and <span class="refAuthor">M. Thomson, Ed.</span>, <span class="refTitle">"QUIC: A UDP-Based Multiplexed and Secure Transport"</span>, <span class="seriesInfo">RFC 9000</span>, <span class="seriesInfo">DOI 10.17487/RFC9000</span>, <time datetime="2021-05" class="refDate">May 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9000">https://www.rfc-editor.org/rfc/rfc9000</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC2119">[RFC2119]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2119">https://www.rfc-editor.org/rfc/rfc2119</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC8174">[RFC8174]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8174">https://www.rfc-editor.org/rfc/rfc8174</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="SSH-ARCH">[SSH-ARCH]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Ylonen, T.</span> and <span class="refAuthor">C. Lonvick, Ed.</span>, <span class="refTitle">"The Secure Shell (SSH) Protocol Architecture"</span>, <span class="seriesInfo">RFC 4251</span>, <span class="seriesInfo">DOI 10.17487/RFC4251</span>, <time datetime="2006-01" class="refDate">January 2006</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc4251">https://www.rfc-editor.org/rfc/rfc4251</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="SSH-AUTH">[SSH-AUTH]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Ylonen, T.</span> and <span class="refAuthor">C. Lonvick, Ed.</span>, <span class="refTitle">"The Secure Shell (SSH) Authentication Protocol"</span>, <span class="seriesInfo">RFC 4252</span>, <span class="seriesInfo">DOI 10.17487/RFC4252</span>, <time datetime="2006-01" class="refDate">January 2006</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc4252">https://www.rfc-editor.org/rfc/rfc4252</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="SSH-CONNECT">[SSH-CONNECT]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Ylonen, T.</span> and <span class="refAuthor">C. Lonvick, Ed.</span>, <span class="refTitle">"The Secure Shell (SSH) Connection Protocol"</span>, <span class="seriesInfo">RFC 4254</span>, <span class="seriesInfo">DOI 10.17487/RFC4254</span>, <time datetime="2006-01" class="refDate">January 2006</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc4254">https://www.rfc-editor.org/rfc/rfc4254</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="SSH-TRANSPORT">[SSH-TRANSPORT]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Ylonen, T.</span> and <span class="refAuthor">C. Lonvick, Ed.</span>, <span class="refTitle">"The Secure Shell (SSH) Transport Layer Protocol"</span>, <span class="seriesInfo">RFC 4253</span>, <span class="seriesInfo">DOI 10.17487/RFC4253</span>, <time datetime="2006-01" class="refDate">January 2006</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc4253">https://www.rfc-editor.org/rfc/rfc4253</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="URI">[URI]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Berners-Lee, T.</span>, <span class="refAuthor">Fielding, R.</span>, and <span class="refAuthor">L. Masinter</span>, <span class="refTitle">"Uniform Resource Identifier (URI): Generic Syntax"</span>, <span class="seriesInfo">STD 66</span>, <span class="seriesInfo">RFC 3986</span>, <span class="seriesInfo">DOI 10.17487/RFC3986</span>, <time datetime="2005-01" class="refDate">January 2005</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc3986">https://www.rfc-editor.org/rfc/rfc3986</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="WEBTRANSPORT-H3">[WEBTRANSPORT-H3]</dt>
-    <dd>
+      <dd>
 <span class="refAuthor">Frindell, A.</span>, <span class="refAuthor">Kinnear, E.</span>, and <span class="refAuthor">V. Vasiliev</span>, <span class="refTitle">"WebTransport over HTTP/3"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-webtrans-http3-08</span>, <time datetime="2023-10-23" class="refDate">23 October 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-webtrans-http3-08">https://datatracker.ietf.org/doc/html/draft-ietf-webtrans-http3-08</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
 </div>
+<div id="sec-informative-references">
+<section id="section-8.2">
+        <h3 id="name-informative-references">
+<a href="#section-8.2" class="section-number selfRef">8.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+        </h3>
+<dl class="references">
+<dt id="ACME">[ACME]</dt>
+        <dd>
+<span class="refAuthor">Barnes, R.</span>, <span class="refAuthor">Hoffman-Andrews, J.</span>, <span class="refAuthor">McCarney, D.</span>, and <span class="refAuthor">J. Kasten</span>, <span class="refTitle">"Automatic Certificate Management Environment (ACME)"</span>, <span class="seriesInfo">RFC 8555</span>, <span class="seriesInfo">DOI 10.17487/RFC8555</span>, <time datetime="2019-03" class="refDate">March 2019</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8555">https://www.rfc-editor.org/rfc/rfc8555</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="OASIS.saml-core-2.0-os">[OASIS.saml-core-2.0-os]</dt>
+        <dd>
+<span class="refAuthor">Cantor, S.</span>, <span class="refAuthor">Kemp, J.</span>, <span class="refAuthor">Philpott, R.</span>, and <span class="refAuthor">E. Maler</span>, <span class="refTitle">"Assertions and Protocols for the OASIS Security Assertion Markup Language (SAML) V2.0"</span>, <span class="seriesInfo">Web http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf</span>, <span>n.d.</span>. </dd>
+<dd class="break"></dd>
+<dt id="OpenID.Core">[OpenID.Core]</dt>
+        <dd>
+<span class="refAuthor">Sakimura, N.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">de Medeiros, B.</span>, and <span class="refAuthor">C. Mortimore</span>, <span class="refTitle">"OpenID Connect Core 1.0"</span>, <span class="seriesInfo">Web http://openid.net/specs/openid-connect-core-1_0.html</span>, <span>n.d.</span>. </dd>
+<dd class="break"></dd>
+<dt id="OPENSSH-5.4">[OPENSSH-5.4]</dt>
+        <dd>
+<span class="refTitle">"OpenSSH release 5.4"</span>, <span class="seriesInfo">Web https://www.openssh.com/txt/release-5.4</span>. </dd>
+<dd class="break"></dd>
+<dt id="PUTTY-CERTIFICATES">[PUTTY-CERTIFICATES]</dt>
+        <dd>
+<span class="refTitle">"PuTTY Certificates"</span>, <span class="seriesInfo">Web https://www.chiark.greenend.org.uk/~sgtatham/quasiblog/putty-certificates/</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC5961">[RFC5961]</dt>
+        <dd>
+<span class="refAuthor">Ramaiah, A.</span>, <span class="refAuthor">Stewart, R.</span>, and <span class="refAuthor">M. Dalal</span>, <span class="refTitle">"Improving TCP's Robustness to Blind In-Window Attacks"</span>, <span class="seriesInfo">RFC 5961</span>, <span class="seriesInfo">DOI 10.17487/RFC5961</span>, <time datetime="2010-08" class="refDate">August 2010</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc5961">https://www.rfc-editor.org/rfc/rfc5961</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8308">[RFC8308]</dt>
+        <dd>
+<span class="refAuthor">Bider, D.</span>, <span class="refTitle">"Extension Negotiation in the Secure Shell (SSH) Protocol"</span>, <span class="seriesInfo">RFC 8308</span>, <span class="seriesInfo">DOI 10.17487/RFC8308</span>, <time datetime="2018-03" class="refDate">March 2018</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8308">https://www.rfc-editor.org/rfc/rfc8308</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="TECTIA-CERTIFICATES">[TECTIA-CERTIFICATES]</dt>
+        <dd>
+<span class="refTitle">"Tectia Certificates"</span>, <span class="seriesInfo">Web https://privx.docs.ssh.com/docs/enabling-certificate-based-authentication-for-ssh-connections</span>. </dd>
+<dd class="break"></dd>
+<dt id="TERRAPIN">[TERRAPIN]</dt>
+        <dd>
+<span class="refAuthor">Bäumer, F.</span>, <span class="refAuthor">Brinkmann, M.</span>, and <span class="refAuthor">J. Schwenk</span>, <span class="refTitle">"Terrapin Attack: Breaking SSH Channel Integrity By Sequence Number Manipulation"</span>, <span class="seriesInfo">DOI 10.48550/arXiv.2312.12422</span>, <time datetime="2023" class="refDate">2023</time>, <span>&lt;<a href="https://doi.org/10.48550/arXiv.2312.12422">https://doi.org/10.48550/arXiv.2312.12422</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="WebAuthn">[WebAuthn]</dt>
+      <dd>
+<span class="refTitle">"Web Authentication: An API for accessing Public Key Credentials Level 3"</span>, <span class="seriesInfo">Web https://www.w3.org/TR/webauthn-3/</span>, <span>n.d.</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+</section>
 <div id="acknowledgments">
 <section id="appendix-A">
       <h2 id="name-acknowledgments">

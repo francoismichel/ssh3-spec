@@ -67,6 +67,7 @@ Copyright Notice
 Table of Contents
 
    1.  Introduction
+     1.1.  How HTTP/3 improves SSH
    2.  Conventions and Definitions
    3.  Estalishing an SSH3 conversation
      3.1.  Authenticating the client
@@ -85,7 +86,9 @@ Table of Contents
    6.  Security Considerations
    7.  IANA Considerations
      7.1.  HTTP Upgrade Token
-   8.  Normative References
+   8.  References
+     8.1.  Normative References
+     8.2.  Informative References
    Acknowledgments
    Authors' Addresses
 
@@ -99,17 +102,70 @@ Table of Contents
    authentication [SSH-AUTH].  Once the secure session is established
    and the user is authenticated and authorized, SSH runs the Connection
    protocol to run and manage remote processes and functionnalities
-   executed on the remote host [SSH-CONNECT].  This document defines
-   mechanisms to run the SSH Connection protocol [SSH-CONNECT] over
-   HTTP/3 connections.  The mechanisms used for establishing an SSH3
-   conversation are similar to the WebTransport session establishment
-   [WEBTRANSPORT-H3].  WebTransport is also a good transport layer
-   candidate for SSH3.  The current SSH3 prototype is built directly
-   over HTTP/3 since there is no public WebTransport implementation
-   meeting all our requirements as of now.  The semantics of HTTP/2
-   being comparable to HTTP/3, the mechanisms defined in this document
-   may be implemented using HTTP/2.  This document is a first
-   introductory document and we limit its current scope to HTTP/3.
+   executed on the remote host [SSH-CONNECT].  Among others, SSH
+   provides different services such as remote program execution, shell
+   access and TCP port forwarding.  This document defines mechanisms to
+   run the SSH Connection protocol [SSH-CONNECT] over HTTP/3 connections
+   and uses the name "SSH3" to refer to this solution.  The secure
+   channel establishment is performed using QUIC TLS while user
+   authentication is performed using existing HTTP authentication
+   schemes, simplifying significantly the design of the SSH protocol
+   itself.
+
+   The mechanisms used for establishing an SSH3 conversation are similar
+   to the WebTransport session establishment [WEBTRANSPORT-H3].
+   WebTransport is also a good transport layer candidate for SSH3.  The
+   current SSH3 prototype is built directly over HTTP/3 since there is
+   no public WebTransport implementation meeting all our requirements as
+   of now.  The semantics of HTTP/2 being comparable to HTTP/3, the
+   mechanisms defined in this document may be implemented using HTTP/2.
+   This document is a first introductory document and we limit its
+   current scope to HTTP/3.
+
+1.1.  How HTTP/3 improves SSH
+
+   Using HTTP/3 and QUIC as a substrate for SSH brings several different
+   benefits.  Using QUIC, SSH3 can send data through both reliable
+   streams and unreliable datagrams.  This makes SSH3 able to support
+   port forwarding for both TCP and UDP-based protocols.  Being based
+   exclusively on TCP, SSHv2 does not offer UDP port forwarding and
+   therefore provides no support to UDP-based protocols such RTP or the
+   QUIC protocol.  This lack of UDP support in SSHv2 may become
+   problematic as the use of QUIC applications (HTTP/3, MOQT [MOQT])
+   grows in the Internet.  Support for UDP port forwarding with SSH3
+   also allows accessing real-time media content such as low-latency
+   live video available on the server.  QUIC also offers a significantly
+   reduced connection establishment time compared to the SSHv2 session
+   establishment.  The stream multiplexing capabilities of QUIC allow
+   reducing the head-of-line blocking SSHv2 encounters when multiplexing
+   several SSH channels over the same TCP connection.
+
+   Since QUIC integrates authentication and encryption as part of its
+   transport features, it makes SSH3 robust to transport-layer attacks
+   that were possible with TCP, such as spoofing or reset attacks
+   [RFC5961].  The recent Terrapin attack [TERRAPIN] manipulates the TCP
+   sequence number to alter the SSH extension negotiation mechanism
+   [RFC8308] and downgrade the client authentication algorithms.
+
+   Using TLS for its secure channel establishment, HTTPS and QUIC offer
+   access to the X.509 certificates ecosystem with no or low
+   implementation efforts.  TLS and QUIC libraries already implement
+   support for generating, parsing and verifying X.509 certificates.
+   With ACME [ACME], SSH3 servers can automatically (with no additional
+   user action) and freely generate X.509 certificates for their domain
+   names and avoid SSH users to rely on the Trust On First Use pattern
+   when connecting to their remote hosts.  These certificates are
+   publicly valid and can be verified like classical HTTPS certificates.
+
+   Using HTTP authentication schemes for user authentication allows
+   implementing diverse authentication mechanisms such as the classical
+   password-based and public key authentication, but also popular web
+   authentication mechanisms such as OpenID Connect [OpenID.Core], SAML2
+   [OASIS.saml-core-2.0-os] or the recent Passkeys/WebAuthn standard
+   [WebAuthn].  All these authentication schemes are compatible with
+   HTTP servers and can be integrated to SSH3 with low implementation
+   effort.  As a proof-of-concept, OpenID Connect has been implemented
+   in our SSH3 prototype.
 
 2.  Conventions and Definitions
 
@@ -395,7 +451,9 @@ Table of Contents
    [[Note: This may be removed if we decide to run SSH3 atop
    WebTransport instead of HTTP/3 only.]]
 
-8.  Normative References
+8.  References
+
+8.1.  Normative References
 
    [EXTENDED-CONNECT]
               McManus, P., "Bootstrapping WebSockets with HTTP/2",
@@ -428,6 +486,12 @@ Table of Contents
    [JWT]      Jones, M., Bradley, J., and N. Sakimura, "JSON Web Token
               (JWT)", RFC 7519, DOI 10.17487/RFC7519, May 2015,
               <https://www.rfc-editor.org/rfc/rfc7519>.
+
+   [MOQT]     Curley, L., Pugin, K., Nandakumar, S., Vasiliev, V., and
+              I. Swett, "Media over QUIC Transport", Work in Progress,
+              Internet-Draft, draft-ietf-moq-transport-02, 24 January
+              2024, <https://datatracker.ietf.org/doc/html/draft-ietf-
+              moq-transport-02>.
 
    [OAUTH2]   Hardt, D., Ed., "The OAuth 2.0 Authorization Framework",
               RFC 6749, DOI 10.17487/RFC6749, October 2012,
@@ -491,6 +555,57 @@ Table of Contents
               ietf-webtrans-http3-08, 23 October 2023,
               <https://datatracker.ietf.org/doc/html/draft-ietf-
               webtrans-http3-08>.
+
+8.2.  Informative References
+
+   [ACME]     Barnes, R., Hoffman-Andrews, J., McCarney, D., and J.
+              Kasten, "Automatic Certificate Management Environment
+              (ACME)", RFC 8555, DOI 10.17487/RFC8555, March 2019,
+              <https://www.rfc-editor.org/rfc/rfc8555>.
+
+   [OASIS.saml-core-2.0-os]
+              Cantor, S., Kemp, J., Philpott, R., and E. Maler,
+              "Assertions and Protocols for the OASIS Security Assertion
+              Markup Language (SAML) V2.0", Web http://docs.oasis-
+              open.org/security/saml/v2.0/saml-core-2.0-os.pdf, n.d..
+
+   [OpenID.Core]
+              Sakimura, N., Bradley, J., Jones, M., de Medeiros, B., and
+              C. Mortimore, "OpenID Connect Core 1.0", Web 
+              http://openid.net/specs/openid-connect-core-1_0.html,
+              n.d..
+
+   [OPENSSH-5.4]
+              "OpenSSH release 5.4", Web 
+              https://www.openssh.com/txt/release-5.4.
+
+   [PUTTY-CERTIFICATES]
+              "PuTTY Certificates", Web 
+              https://www.chiark.greenend.org.uk/~sgtatham/quasiblog/
+              putty-certificates/.
+
+   [RFC5961]  Ramaiah, A., Stewart, R., and M. Dalal, "Improving TCP's
+              Robustness to Blind In-Window Attacks", RFC 5961,
+              DOI 10.17487/RFC5961, August 2010,
+              <https://www.rfc-editor.org/rfc/rfc5961>.
+
+   [RFC8308]  Bider, D., "Extension Negotiation in the Secure Shell
+              (SSH) Protocol", RFC 8308, DOI 10.17487/RFC8308, March
+              2018, <https://www.rfc-editor.org/rfc/rfc8308>.
+
+   [TECTIA-CERTIFICATES]
+              "Tectia Certificates", Web 
+              https://privx.docs.ssh.com/docs/enabling-certificate-
+              based-authentication-for-ssh-connections.
+
+   [TERRAPIN] Bäumer, F., Brinkmann, M., and J. Schwenk, "Terrapin
+              Attack: Breaking SSH Channel Integrity By Sequence Number
+              Manipulation", DOI 10.48550/arXiv.2312.12422, 2023,
+              <https://doi.org/10.48550/arXiv.2312.12422>.
+
+   [WebAuthn] "Web Authentication: An API for accessing Public Key
+              Credentials Level 3", Web https://www.w3.org/TR/webauthn-
+              3/, n.d..
 
 Acknowledgments
 
