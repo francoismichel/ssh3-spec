@@ -57,8 +57,7 @@ informative:
 
 --- abstract
 
-The SSH protocol offers a series of secure services on a remote computer across an insecure network.
-SSH traditionally runs over the TCP transport protocol. This document defines mechanisms
+SSH traditionally offers its secure services over an insecure network using the TCP transport protocol. This document defines mechanisms
 to run the SSH protocol and provide a comparable set of services using HTTP/3.
 Running SSH over HTTP/3 allows several benefits such as the scalability offered by HTTP
 multiplexing, relying on TLS for secure channel establishment and the use of X.509 certificates and HTTP Authentication schemes for client and server authentication.
