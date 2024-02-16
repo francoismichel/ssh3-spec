@@ -52,7 +52,29 @@ normative:
   HTTP-SIGNATURE: I-D.ietf-httpbis-unprompted-auth
   URI: RFC3986
 
+
 informative:
+  OPENSSH-5.4:
+      title: OpenSSH release 5.4
+      author:
+      - org:
+      date: false
+      seriesinfo:
+        Web: https://www.openssh.com/txt/release-5.4
+  PUTTY-CERTIFICATES:
+      title: PuTTY Certificates
+      author:
+      - org:
+      date: false
+      seriesinfo:
+        Web: https://www.chiark.greenend.org.uk/~sgtatham/quasiblog/putty-certificates/
+  TECTIA-CERTIFICATES:
+      title: Tectia Certificates
+      author:
+      - org:
+      date: false
+      seriesinfo:
+        Web: https://privx.docs.ssh.com/docs/enabling-certificate-based-authentication-for-ssh-connections
 
 
 --- abstract
@@ -71,6 +93,28 @@ multiplexing, relying on TLS for secure channel establishment and the use of X.5
 The SSH protocol {{SSH-ARCH}} provides a secure way to access computers remotely over an untrusted network. SSH is currently the most popular way to access Unix-based hosts remotely. Built atop the unencrypted TCP protocol, SSH proposes its own mechanisms to establish a secure channel {{SSH-TRANSPORT}} and perform user authentication {{SSH-AUTH}}. Once the secure session is established
 and the user is authenticated and authorized, SSH runs the Connection protocol to run and manage
 remote processes and functionnalities executed on the remote host {{SSH-CONNECT}}.
+Among others, SSH provides different services such as remote program execution, shell access and TCP port forwarding.
+
+## SSH and the web ecosystem evolve in parallel
+SSH has continued to evolve *outside* the IETF since the publication of {{SSH-ARCH}} in 2006. The OpenSSH
+implementation has continuously improved and extended the services provided by the protocol, adding
+new cryptographic algorithms to the transport protocol and new authentication methods to both clients
+and servers. These continuous updates are an effort to keep up with recent advances in cryptography and
+authentication methods. Lots of these extensions and improvements are non standard and
+implementation-driven, sometimes creating discrepancies between different implementations of the
+same features. For instance, OpenSSH developed OpenSSH certificates in
+2010 for client and host verification {{OPENSSH-5.4}}. It took around 12 years for the PuTTY SSH client
+implementation to support these certificates {{PUTTY-CERTIFICATES}}. The Tectia SSH
+implementation supports three different certificates formats, only one of them being compatible
+with OpenSSH and PuTTY {{TECTIA-CERTIFICATES}}.
+
+In parallel, the IETF has put significant effort over the years in the standardization of new protocols, 
+extensions and improvements of the different mechanisms used for the Web. 
+
+Running exclusively over TCP, SSHv2 does not offer UDP port forwarding and therefore provides
+no support to UDP-based protocols such RTP or the QUIC protocol that is now carrying an important part
+of the Web traffic in the Internet.
+
 This document defines mechanisms to run the SSH Connection protocol
 {{SSH-CONNECT}} over HTTP/3 connections. The mechanisms used for
 establishing an SSH3 conversation are similar to the
