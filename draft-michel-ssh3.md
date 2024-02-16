@@ -69,7 +69,7 @@ multiplexing, relying on TLS for secure channel establishment and the use of X.5
 
 # Introduction
 
-The SSH protocol {{RFC4251}} provides a secure way to access computers remotely over an untrusted network. SSH is currently the most popular way to access Unix-based hosts remotely. Built atop the unencrypted TCP protocol, SSH proposes its own mechanisms to establish a secure channel {{SSH-TRANSPORT}} and perform user authentication {{SSH-AUTH}}. Once the secure session is established
+The SSH protocol {{SSH-ARCH}} provides a secure way to access computers remotely over an untrusted network. SSH is currently the most popular way to access Unix-based hosts remotely. Built atop the unencrypted TCP protocol, SSH proposes its own mechanisms to establish a secure channel {{SSH-TRANSPORT}} and perform user authentication {{SSH-AUTH}}. Once the secure session is established
 and the user is authenticated and authorized, SSH runs the Connection protocol to run and manage
 remote processes and functionnalities executed on the remote host {{SSH-CONNECT}}.
 This document defines mechanisms to run the SSH Connection protocol
