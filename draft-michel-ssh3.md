@@ -50,6 +50,7 @@ normative:
   HTTP-DATAGRAM: RFC9297
   WEBTRANSPORT-H3: I-D.ietf-webtrans-http3
   HTTP-SIGNATURE: I-D.ietf-httpbis-unprompted-auth
+  MOQT: I-D.ietf-moq-transport
   URI: RFC3986
 
 
@@ -75,6 +76,63 @@ informative:
       date: false
       seriesinfo:
         Web: https://privx.docs.ssh.com/docs/enabling-certificate-based-authentication-for-ssh-connections
+  RFC5961: RFC5961
+  ACME: RFC8555
+  TERRAPIN:
+      title: "Terrapin Attack: Breaking SSH Channel Integrity By Sequence Number Manipulation"
+      author: Fabian Bäumer, Marcus Brinkmann, Jörg Schwenk
+      seriesinfo:
+        DOI: 10.48550/arXiv.2312.12422
+      date: 2023
+      author:
+        -
+          ins: F. Bäumer
+          name: Fabian Bäumer
+        -
+          ins: M. Brinkmann
+          name: Marcus Brinkmann
+        -
+          ins: J. Schwenk
+          name: Jörg Schwenk
+  RFC8308: RFC8308
+  OpenID.Core:
+      title: "OpenID Connect Core 1.0"
+      author:
+        -
+          ins: N. Sakimura
+          name: N. Sakimura
+        -
+          ins: J. Bradley
+          name: J. Bradley
+        -
+          ins: M. Jones
+          name: M. Jones
+        -
+          ins: B. de Medeiros
+          name: B. de Medeiros
+        -
+          ins: C. Mortimore
+          name: C. Mortimore
+      seriesinfo:
+        Web: http://openid.net/specs/openid-connect-core-1_0.html
+  OASIS.saml-core-2.0-os:
+      title: "Assertions and Protocols for the OASIS Security Assertion Markup Language (SAML) V2.0"
+      author:
+        - ins: S. Cantor
+          name: S. Cantor.
+        - ins: J. Kemp
+          name: J. Kemp
+        - ins: R. Philpott
+          name: R. Philpott
+        - ins: E. Maler
+          name: E. Maler
+      seriesinfo:
+        Web: http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf
+  WebAuthn:
+      title: "Web Authentication: An API for accessing Public Key Credentials Level 3"
+      author:
+      seriesinfo:
+        Web: https://www.w3.org/TR/webauthn-3/
 
 
 --- abstract
@@ -93,37 +151,51 @@ multiplexing, relying on TLS for secure channel establishment and the use of X.5
 The SSH protocol {{SSH-ARCH}} provides a secure way to access computers remotely over an untrusted network. SSH is currently the most popular way to access Unix-based hosts remotely. Built atop the unencrypted TCP protocol, SSH proposes its own mechanisms to establish a secure channel {{SSH-TRANSPORT}} and perform user authentication {{SSH-AUTH}}. Once the secure session is established
 and the user is authenticated and authorized, SSH runs the Connection protocol to run and manage
 remote processes and functionnalities executed on the remote host {{SSH-CONNECT}}.
-Among others, SSH provides different services such as remote program execution, shell access and TCP port forwarding.
+Among others, SSH provides different services such as remote program execution, shell access and TCP port forwarding. This document defines mechanisms to run the SSH Connection protocol
+{{SSH-CONNECT}} over HTTP/3 connections and uses the name "SSH3" to refer to
+this solution. The secure channel establishment is performed using QUIC TLS while user authentication
+is performed using existing HTTP authentication schemes, simplifying significantly the design
+of the SSH protocol itself.
 
-<!-- ## SSH and the web ecosystem evolve in parallel
-SSH has continued to evolve *outside* the IETF since the publication of {{SSH-ARCH}} in 2006. The OpenSSH
-implementation has continuously improved and extended the services provided by the protocol, adding
-new cryptographic algorithms to the transport protocol and new authentication methods to both clients
-and servers. These continuous updates are an effort to keep up with recent advances in cryptography and
-authentication methods. Lots of these extensions and improvements are non standard and
-implementation-driven, sometimes creating discrepancies between different implementations of the
-same features. For instance, OpenSSH developed OpenSSH certificates in
-2010 for client and host verification {{OPENSSH-5.4}}. It took around 12 years for the PuTTY SSH client
-implementation to support these certificates {{PUTTY-CERTIFICATES}}. The Tectia SSH
-implementation supports three different certificates formats, only one of them being compatible
-with OpenSSH and PuTTY {{TECTIA-CERTIFICATES}}.
-
-In parallel, the IETF has put significant effort over the years in the standardization of new protocols,
-extensions and improvements of the different mechanisms used for the Web.  -->
-
-Running exclusively over TCP, SSHv2 does not offer UDP port forwarding and therefore provides
-no support to UDP-based protocols such RTP or the QUIC protocol that is now carrying an important part
-of the Web traffic in the Internet.
-
-This document defines mechanisms to run the SSH Connection protocol
-{{SSH-CONNECT}} over HTTP/3 connections. The mechanisms used for
-establishing an SSH3 conversation are similar to the
-WebTransport session establishment {{WEBTRANSPORT-H3}}. WebTransport is also a good transport layer candidate for SSH3. The current
+The mechanisms used for establishing an SSH3 conversation
+are similar to the WebTransport session establishment {{WEBTRANSPORT-H3}}.
+WebTransport is also a good transport layer candidate for SSH3. The current
 SSH3 prototype is built directly over HTTP/3 since there is no public
 WebTransport implementation meeting all our requirements as of now.
 The semantics of HTTP/2 being comparable to HTTP/3, the mechanisms
 defined in this document may be implemented using HTTP/2. This document
 is a first introductory document and we limit its current scope to HTTP/3.
+
+## How HTTP/3 improves SSH
+
+Using HTTP/3 and QUIC as a substrate for SSH brings several different benefits.
+Using QUIC, SSH3 can send data through both reliable streams and unreliable datagrams. This makes SSH3
+able to support port forwarding for both TCP and UDP-based protocols. Being based exclusively on TCP, SSHv2 does not offer UDP port forwarding and therefore provides no support to UDP-based protocols such RTP or the QUIC protocol.
+This lack of UDP support in SSHv2 may become problematic as the use of QUIC applications (HTTP/3, MOQT {{MOQT}}) grows in the Internet. Support for UDP port forwarding with SSH3 also allows accessing real-time media content such as low-latency live video available on the server.
+QUIC also offers a significantly reduced connection establishment time compared to the SSHv2 session
+establishment. The stream multiplexing capabilities of QUIC allow reducing the head-of-line blocking
+SSHv2 encounters when multiplexing several SSH channels over the same TCP connection.
+
+Since QUIC integrates authentication and encryption as part of its transport features, it makes
+SSH3 robust to transport-layer attacks that were possible with TCP, such as spoofing or reset
+attacks {{RFC5961}}. The recent Terrapin attack {{TERRAPIN}} manipulates the TCP sequence number
+to alter the SSH extension negotiation mechanism {{RFC8308}} and downgrade the client
+authentication algorithms.
+
+Using TLS for its secure channel establishment, HTTPS and QUIC offer access to the X.509 certificates
+ecosystem with no or low implementation efforts. TLS and QUIC libraries already implement support
+for generating, parsing and verifying X.509 certificates. With ACME {{ACME}}, SSH3 servers can
+automatically (with no additional user action) and freely generate X.509 certificates for their
+domain names and avoid SSH users to rely on the Trust On First Use pattern when connecting to their
+remote hosts. These certificates are publicly valid and can be verified like classical HTTPS certificates.
+
+Using HTTP authentication schemes for user authentication allows implementing diverse authentication
+mechanisms such as the classical password-based and public key authentication, but also popular
+web authentication mechanisms such as OpenID Connect {{OpenID.Core}}, SAML2 {{OASIS.saml-core-2.0-os}} or the recent Passkeys/WebAuthn standard {{WebAuthn}}. All these authentication schemes are compatible
+with HTTP servers and can be integrated to SSH3 with low implementation effort. As a proof-of-concept,
+OpenID Connect has been implemented in our SSH3 prototype.
+
+
 
 
 # Conventions and Definitions
