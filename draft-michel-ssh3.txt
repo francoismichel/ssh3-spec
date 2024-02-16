@@ -5,7 +5,7 @@
 Network Working Group                                          F. Michel
 Internet-Draft                                            O. Bonaventure
 Intended status: Informational                                 UCLouvain
-Expires: 17 August 2024                                 14 February 2024
+Expires: 19 August 2024                                 16 February 2024
 
 
                   Running SSH over HTTP/3 connections
@@ -49,7 +49,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 17 August 2024.
+   This Internet-Draft will expire on 19 August 2024.
 
 Copyright Notice
 
@@ -92,15 +92,24 @@ Table of Contents
 
 1.  Introduction
 
-   This document defines mechanisms to run the SSH Connection protocol
-   [SSH-CONNECT] over HTTP/3 connections.  The mechanisms used for
-   establishing an SSH3 conversation are similar to the WebTransport
-   session establishment [WEBTRANSPORT-H3].  WebTransport is also a good
-   transport layer candidate for SSH3.  The current SSH3 prototype is
-   built directly over HTTP/3 since there is no public WebTransport
-   implementation meeting all our requirements as of now.  The semantics
-   of HTTP/2 being comparable to HTTP/3, the mechanisms defined in this
-   document may be implemented using HTTP/2.  This document is a first
+   The SSH protocol [SSH-ARCH] provides a secure way to access computers
+   remotely over an untrusted network.  SSH is currently the most
+   popular way to access Unix-based hosts remotely.  Built atop the
+   unencrypted TCP protocol, SSH proposes its own mechanisms to
+   establish a secure channel [SSH-TRANSPORT] and perform user
+   authentication [SSH-AUTH].  Once the secure session is established
+   and the user is authenticated and authorized, SSH runs the Connection
+   protocol to run and manage remote processes and functionnalities
+   executed on the remote host [SSH-CONNECT].  This document defines
+   mechanisms to run the SSH Connection protocol [SSH-CONNECT] over
+   HTTP/3 connections.  The mechanisms used for establishing an SSH3
+   conversation are similar to the WebTransport session establishment
+   [WEBTRANSPORT-H3].  WebTransport is also a good transport layer
+   candidate for SSH3.  The current SSH3 prototype is built directly
+   over HTTP/3 since there is no public WebTransport implementation
+   meeting all our requirements as of now.  The semantics of HTTP/2
+   being comparable to HTTP/3, the mechanisms defined in this document
+   may be implemented using HTTP/2.  This document is a first
    introductory document and we limit its current scope to HTTP/3.
 
 2.  Conventions and Definitions
@@ -458,6 +467,10 @@ Table of Contents
               Protocol Architecture", RFC 4251, DOI 10.17487/RFC4251,
               January 2006, <https://www.rfc-editor.org/rfc/rfc4251>.
 
+   [SSH-AUTH] Ylonen, T. and C. Lonvick, Ed., "The Secure Shell (SSH)
+              Authentication Protocol", RFC 4252, DOI 10.17487/RFC4252,
+              January 2006, <https://www.rfc-editor.org/rfc/rfc4252>.
+
    [SSH-CONNECT]
               Ylonen, T. and C. Lonvick, Ed., "The Secure Shell (SSH)
               Connection Protocol", RFC 4254, DOI 10.17487/RFC4254,
@@ -482,8 +495,8 @@ Table of Contents
 
 Acknowledgments
 
-   We warmly thank Lucas Pardue and David Schinazi for their precious
-   comments on the document before the submission.
+   We warmly thank Maxime Piraux, Lucas Pardue and David Schinazi for
+   their precious comments on the document before the submission.
 
 Authors' Addresses
 
