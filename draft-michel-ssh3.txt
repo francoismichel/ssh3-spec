@@ -5,7 +5,7 @@
 Network Working Group                                          F. Michel
 Internet-Draft                                            O. Bonaventure
 Intended status: Informational                                 UCLouvain
-Expires: 19 August 2024                                 16 February 2024
+Expires: 23 August 2024                                 20 February 2024
 
 
                   Running SSH over HTTP/3 connections
@@ -48,7 +48,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 19 August 2024.
+   This Internet-Draft will expire on 23 August 2024.
 
 Copyright Notice
 
@@ -67,7 +67,13 @@ Copyright Notice
 Table of Contents
 
    1.  Introduction
-     1.1.  How HTTP/3 improves SSH
+     1.1.  How SSH benefits from HTTP/3
+       1.1.1.  QUIC, datagrams support and streams multiplexing
+       1.1.2.  Protecting transport-layer control fields
+       1.1.3.  Accessing the X.509 ecosystem
+       1.1.4.  HTTP authentication: out-of-the-box compatibility with
+               identity providers
+       1.1.5.  URL multiplexing and undiscoverability
    2.  Conventions and Definitions
    3.  Estalishing an SSH3 conversation
      3.1.  Authenticating the client
@@ -122,12 +128,16 @@ Table of Contents
    This document is a first introductory document and we limit its
    current scope to HTTP/3.
 
-1.1.  How HTTP/3 improves SSH
+1.1.  How SSH benefits from HTTP/3
 
    Using HTTP/3 and QUIC as a substrate for SSH brings several different
-   benefits.  Using QUIC, SSH3 can send data through both reliable
-   streams and unreliable datagrams.  This makes SSH3 able to support
-   port forwarding for both TCP and UDP-based protocols.  Being based
+   benefits.  This section highlights these benefits.
+
+1.1.1.  QUIC, datagrams support and streams multiplexing
+
+   Using QUIC, SSH3 can send data through both reliable streams and
+   unreliable datagrams.  This makes SSH3 able to support port
+   forwarding for both TCP and UDP-based protocols.  Being based
    exclusively on TCP, SSHv2 does not offer UDP port forwarding and
    therefore provides no support to UDP-based protocols such RTP or the
    QUIC protocol.  This lack of UDP support in SSHv2 may become
@@ -140,32 +150,67 @@ Table of Contents
    reducing the head-of-line blocking SSHv2 encounters when multiplexing
    several SSH channels over the same TCP connection.
 
+1.1.2.  Protecting transport-layer control fields
+
    Since QUIC integrates authentication and encryption as part of its
    transport features, it makes SSH3 robust to transport-layer attacks
    that were possible with TCP, such as spoofing or reset attacks
-   [RFC5961].  The recent Terrapin attack [TERRAPIN] manipulates the TCP
-   sequence number to alter the SSH extension negotiation mechanism
-   [RFC8308] and downgrade the client authentication algorithms.
+   [RFC5961].  For instance, the recent Terrapin attack [TERRAPIN]
+   manipulates the TCP sequence number to alter the SSH extension
+   negotiation mechanism [RFC8308] and downgrade the client
+   authentication algorithms.  QUIC control informations such as packet
+   numbers and frame formats are authenticated and encrypted starting
+   from the Handshake encryption level.
+
+1.1.3.  Accessing the X.509 ecosystem
 
    Using TLS for its secure channel establishment, HTTPS and QUIC offer
-   access to the X.509 certificates ecosystem with no or low
-   implementation efforts.  TLS and QUIC libraries already implement
-   support for generating, parsing and verifying X.509 certificates.
-   With ACME [ACME], SSH3 servers can automatically (with no additional
-   user action) and freely generate X.509 certificates for their domain
-   names and avoid SSH users to rely on the Trust On First Use pattern
-   when connecting to their remote hosts.  These certificates are
-   publicly valid and can be verified like classical HTTPS certificates.
+   access to the X.509 certificates ecosystem with low implementation
+   effort.  TLS and QUIC libraries already implement support for
+   generating, parsing and verifying X.509 certificates.  Similarly to
+   classical OpenSSH certificates, this avoids SSH users to rely on the
+   Trust On First Use pattern when connecting to their remote hosts.
+   Relying on the X.509 certificates ecosystem additionally enables SSH3
+   servers to use ACME [ACME] and automatically (with no additional user
+   action) generate X.509 certificates for their domain names using
+   well-known certificate authorities such as Let's Encrypt.  These
+   certificates are publicly valid and can be verified like classical
+   HTTPS certificates.  Client certificates can also be issued and used
+   as an authentication method for the client.
+
+1.1.4.  HTTP authentication: out-of-the-box compatibility with identity
+        providers
 
    Using HTTP authentication schemes for user authentication allows
    implementing diverse authentication mechanisms such as the classical
    password-based and public key authentication, but also popular web
    authentication mechanisms such as OpenID Connect [OpenID.Core], SAML2
    [OASIS.saml-core-2.0-os] or the recent Passkeys/WebAuthn standard
-   [WebAuthn].  All these authentication schemes are compatible with
-   HTTP servers and can be integrated to SSH3 with low implementation
-   effort.  As a proof-of-concept, OpenID Connect has been implemented
+   [WebAuthn].  All these authentication schemes are already deployed
+   for managing access to critical resources in different organizations.
+   Sharing computing resources using SSHv2 through these mechanisms
+   generally requires the deployment of middlewares managing the mapping
+   between identities and SSH keys or certificates.  Adding HTTP
+   authentication to SSH allows welcoming these authentication methods
+   directly.  As a proof-of-concept, OpenID Connect has been implemented
    in our SSH3 prototype.
+
+1.1.5.  URL multiplexing and undiscoverability
+
+   Relying on HTTP allows easily placing SSH endpoints as resources
+   accessible through specific URLs.  First, it makes it easier to
+   integrate SSH endpoints to existing web servers that already perform
+   user authentication and authorization.  Second, it allows placing
+   several SSH server instances on the same physical machine on the same
+   port.  This instances can run in different virtual machines,
+   containers or simply different users and be multiplexed on a URL-
+   basis.  Finally, it allows placing SSH endpoints behind secret URLs,
+   reducing the exposure of SSH hosts to scanning and bruteforce
+   attacks.  This goes in line with the will of having undiscoverable
+   resources also tackled by other IETF working groups [HTTP-SIGNATURE].
+   This property is not provided by SSHv2 since the SSHv2 server
+   announces its SSH version string to any connected TCP client.  If
+   wanted, SSH3 hosts can be made undistinuishable from any HTTP server.
 
 2.  Conventions and Definitions
 
