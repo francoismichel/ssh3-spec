@@ -228,7 +228,7 @@ Finally, it allows placing SSH endpoints behind secret URLs, reducing the exposu
 scanning and bruteforce attacks. This goes in line with the will of having undiscoverable resources
 also tackled by other IETF working groups {{HTTP-SIGNATURE}}. This property is not provided by SSHv2 since
 the SSHv2 server announces its SSH version string to any connected TCP client. If wanted, SSH3 hosts can be made
-undistinuishable from any HTTP server.
+undistinguishable from any HTTP server.
 
 
 # Conventions and Definitions
