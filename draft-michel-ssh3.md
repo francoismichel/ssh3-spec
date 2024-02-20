@@ -1,20 +1,23 @@
 ---
 title: "Running SSH over HTTP/3 connections"
 abbrev: "SSH3"
-category: info
+category: exp
 
 docname: draft-michel-ssh3-latest
-submissiontype: IETF  # also: "independent", "editorial", "IAB", or "IRTF"
+submissiontype: independent
 number:
 date:
-consensus: true
+consensus: false
 v: 3
 # area: AREA
 # workgroup: WG Working Group
 keyword:
- - next generation
- - unicorn
- - sparkling distributed ledger
+  - ssh
+  - ssh3
+  - http
+  - h3
+  - quic
+  - tls
 venue:
 #  group: WG
 #  type: Working Group
@@ -466,7 +469,7 @@ of this field sent by the client is a comma-separated list of strings
 representing the filenames of the supported drafts without the "`draft-`"
 prefix.
 For instance, SSH3 clients implementing this draft in versions 00 and 01
-send the "`ssh-version: michel-dispatch-ssh3-00,michel-dispatch-ssh3-01`"
+send the "`ssh-version: michel-ssh3-00,michel-ssh3-01`"
 HTTP header in the CONNECT request.
 Upon receiving this header, the server chooses a version from the ones
 supported by the client. It then sets this single version as the value
