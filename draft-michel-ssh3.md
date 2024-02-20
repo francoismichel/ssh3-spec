@@ -51,6 +51,7 @@ normative:
   WEBTRANSPORT-H3: I-D.ietf-webtrans-http3
   HTTP-SIGNATURE: I-D.ietf-httpbis-unprompted-auth
   MOQT: I-D.ietf-moq-transport
+  MASQUE: I-D.schinazi-masque-proxy-01
   URI: RFC3986
 
 
@@ -446,6 +447,15 @@ ExitStatusMessage {
     Exit Status (i)
 }
 ~~~~
+
+# SSH3 and MASQUE
+
+SSH3 shares common objectives with the MASQUE proxy {{MASQUE}} and while it
+is currently out of scope of this introductory document, interactions between
+the two protocols may exist in the future. For instance, a MASQUE endpoint
+can be integrated with SSH3 to provide diverse forwarding services.
+Another possible outcome is the integration of SSH3 in the MASQUE
+family of proxies in the form of a "`CONNECT-SHELL`" endpoint.
 
 # Version Negotiation
 
