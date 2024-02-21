@@ -178,14 +178,20 @@ Using HTTP/3 and QUIC as a substrate for SSH brings several different benefits. 
 these benefits.
 
 
-### QUIC, datagrams support and streams multiplexing
+### QUIC: datagrams support, streams multiplexing and connection migration
 
 Using QUIC, SSH3 can send data through both reliable streams and unreliable datagrams. This makes SSH3
 able to support port forwarding for both TCP and UDP-based protocols. Being based exclusively on TCP, SSHv2 does not offer UDP port forwarding and therefore provides no support to UDP-based protocols such RTP or the QUIC protocol.
 This lack of UDP support in SSHv2 may become problematic as the use of QUIC applications (HTTP/3, MOQT {{MOQT}}) grows in the Internet. Support for UDP port forwarding with SSH3 also allows accessing real-time media content such as low-latency live video available on the server.
-QUIC also offers a significantly reduced connection establishment time compared to the SSHv2 session
-establishment. The stream multiplexing capabilities of QUIC allow reducing the head-of-line blocking
-SSHv2 encounters when multiplexing several SSH channels over the same TCP connection.
+The stream multiplexing capabilities of QUIC allow reducing the head-of-line blocking SSHv2 encounters when multiplexing several SSH channels over the same TCP connection.
+
+QUIC also defines the concept of connection migration ({{Section 9 of QUIC}}).
+Using connection migrations, mobile hosts roaming between networks can 
+maintain the connection alive across these networks by migrating the connection
+on their newly acquired IP address. This avoids disrupting the SSH conversation
+upon network changes.
+Finally, QUIC also offers a significantly reduced connection establishment 
+time compared to the SSHv2 session establishment.
 
 
 ### Protecting transport-layer control fields
