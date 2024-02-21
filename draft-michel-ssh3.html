@@ -1038,7 +1038,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Michel &amp; Bonaventure</td>
-<td class="center">Expires 23 August 2024</td>
+<td class="center">Expires 24 August 2024</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1051,12 +1051,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-michel-ssh3-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-02-20" class="published">20 February 2024</time>
+<time datetime="2024-02-21" class="published">21 February 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Experimental</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2024-08-23">23 August 2024</time></dd>
+<dd class="expires"><time datetime="2024-08-24">24 August 2024</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1108,7 +1108,7 @@ multiplexing, relying on TLS for secure channel establishment and the use of X.5
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 23 August 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 24 August 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1141,7 +1141,7 @@ multiplexing, relying on TLS for secure channel establishment and the use of X.5
                 <p id="section-toc.1-1.1.2.1.1"><a href="#section-1.1" class="auto internal xref">1.1</a>.  <a href="#name-how-ssh-benefits-from-http-" class="internal xref">How SSH benefits from HTTP/3</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1.2.1">
-                    <p id="section-toc.1-1.1.2.1.2.1.1" class="keepWithNext"><a href="#section-1.1.1" class="auto internal xref">1.1.1</a>.  <a href="#name-quic-datagrams-support-and-" class="internal xref">QUIC, datagrams support and streams multiplexing</a></p>
+                    <p id="section-toc.1-1.1.2.1.2.1.1" class="keepWithNext"><a href="#section-1.1.1" class="auto internal xref">1.1.1</a>.  <a href="#name-quic-datagrams-support-stre" class="internal xref">QUIC: datagrams support, streams multiplexing and connection migration</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1.2.2">
                     <p id="section-toc.1-1.1.2.1.2.2.1" class="keepWithNext"><a href="#section-1.1.2" class="auto internal xref">1.1.2</a>.  <a href="#name-protecting-transport-layer-" class="internal xref">Protecting transport-layer control fields</a></p>
@@ -1266,17 +1266,22 @@ is a first introductory document and we limit its current scope to HTTP/3.<a hre
         </h3>
 <p id="section-1.1-1">Using HTTP/3 and QUIC as a substrate for SSH brings several different benefits. This section highlights
 these benefits.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
-<div id="quic-datagrams-support-and-streams-multiplexing">
+<div id="quic-datagrams-support-streams-multiplexing-and-connection-migration">
 <section id="section-1.1.1">
-          <h4 id="name-quic-datagrams-support-and-">
-<a href="#section-1.1.1" class="section-number selfRef">1.1.1. </a><a href="#name-quic-datagrams-support-and-" class="section-name selfRef">QUIC, datagrams support and streams multiplexing</a>
+          <h4 id="name-quic-datagrams-support-stre">
+<a href="#section-1.1.1" class="section-number selfRef">1.1.1. </a><a href="#name-quic-datagrams-support-stre" class="section-name selfRef">QUIC: datagrams support, streams multiplexing and connection migration</a>
           </h4>
 <p id="section-1.1.1-1">Using QUIC, SSH3 can send data through both reliable streams and unreliable datagrams. This makes SSH3
 able to support port forwarding for both TCP and UDP-based protocols. Being based exclusively on TCP, SSHv2 does not offer UDP port forwarding and therefore provides no support to UDP-based protocols such RTP or the QUIC protocol.
 This lack of UDP support in SSHv2 may become problematic as the use of QUIC applications (HTTP/3, MOQT <span>[<a href="#MOQT" class="cite xref">MOQT</a>]</span>) grows in the Internet. Support for UDP port forwarding with SSH3 also allows accessing real-time media content such as low-latency live video available on the server.
-QUIC also offers a significantly reduced connection establishment time compared to the SSHv2 session
-establishment. The stream multiplexing capabilities of QUIC allow reducing the head-of-line blocking
-SSHv2 encounters when multiplexing several SSH channels over the same TCP connection.<a href="#section-1.1.1-1" class="pilcrow">¶</a></p>
+The stream multiplexing capabilities of QUIC allow reducing the head-of-line blocking SSHv2 encounters when multiplexing several SSH channels over the same TCP connection.<a href="#section-1.1.1-1" class="pilcrow">¶</a></p>
+<p id="section-1.1.1-2">QUIC also defines the concept of connection migration (<span><a href="https://rfc-editor.org/rfc/rfc9000#section-9" class="relref">Section 9</a> of [<a href="#QUIC" class="cite xref">QUIC</a>]</span>).
+Using connection migrations, mobile hosts roaming between networks can
+maintain the connection alive across these networks by migrating the connection
+on their newly acquired IP address. This avoids disrupting the SSH conversation
+upon network changes.
+Finally, QUIC also offers a significantly reduced connection establishment
+time compared to the SSHv2 session establishment.<a href="#section-1.1.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="protecting-transport-layer-control-fields">
