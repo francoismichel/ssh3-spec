@@ -186,11 +186,11 @@ This lack of UDP support in SSHv2 may become problematic as the use of QUIC appl
 The stream multiplexing capabilities of QUIC allow reducing the head-of-line blocking SSHv2 encounters when multiplexing several SSH channels over the same TCP connection.
 
 QUIC also defines the concept of connection migration ({{Section 9 of QUIC}}).
-Using connection migrations, mobile hosts roaming between networks can 
+Using connection migrations, mobile hosts roaming between networks can
 maintain the connection alive across these networks by migrating the connection
 on their newly acquired IP address. This avoids disrupting the SSH conversation
 upon network changes.
-Finally, QUIC also offers a significantly reduced connection establishment 
+Finally, QUIC also offers a significantly reduced connection establishment
 time compared to the SSHv2 session establishment.
 
 
