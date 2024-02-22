@@ -163,7 +163,7 @@ is performed using existing HTTP authentication schemes, simplifying significant
 current architecture (top) and the architectural goal of this document (bottom).
 One benefit of the approach is that the HTTP and QUIC layers can
 evolve independently of SSH. For instance, new encryption and MAC algorithms
-can be added to TLS and use in SSH3 without impacting the specification or
+can be added to TLS and used in SSH3 without impacting the specification or
 adding new codepoints in SSH3 for these new algorithms.
 
 ~~~~
