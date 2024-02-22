@@ -210,8 +210,8 @@ ________________________________________________________________________
    manipulates the TCP sequence number to alter the SSH extension
    negotiation mechanism [RFC8308] and downgrade the client
    authentication algorithms.  QUIC control informations such as packet
-   numbers and frame formats are authenticated and encrypted starting
-   from the Handshake encryption level.
+   numbers and frame formats are all authenticated and encrypted
+   starting from the Handshake encryption level.
 
 1.1.3.  Accessing the X.509 ecosystem
 

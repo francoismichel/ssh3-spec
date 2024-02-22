@@ -1339,11 +1339,13 @@ time compared to the SSHv2 session establishment.<a href="#section-1.1.1-2" clas
           <h4 id="name-protecting-transport-layer-">
 <a href="#section-1.1.2" class="section-number selfRef">1.1.2. </a><a href="#name-protecting-transport-layer-" class="section-name selfRef">Protecting transport-layer control fields</a>
           </h4>
-<p id="section-1.1.2-1">Since QUIC integrates authentication and encryption as part of its transport features, it makes
-SSH3 robust to transport-layer attacks that were possible with TCP, such as spoofing or reset
-attacks <span>[<a href="#RFC5961" class="cite xref">RFC5961</a>]</span>. For instance, the recent Terrapin attack <span>[<a href="#TERRAPIN" class="cite xref">TERRAPIN</a>]</span> manipulates the TCP
-sequence number to alter the SSH extension negotiation mechanism <span>[<a href="#RFC8308" class="cite xref">RFC8308</a>]</span> and downgrade the client
-authentication algorithms. QUIC control informations such as packet numbers and frame formats are
+<p id="section-1.1.2-1">Since QUIC integrates authentication and encryption as part of its transport
+features, it makes SSH3 robust to transport-layer attacks that were possible
+with TCP, such as spoofing or reset attacks <span>[<a href="#RFC5961" class="cite xref">RFC5961</a>]</span>. For instance, the
+recent Terrapin attack <span>[<a href="#TERRAPIN" class="cite xref">TERRAPIN</a>]</span> manipulates the TCP
+sequence number to alter the SSH extension negotiation mechanism <span>[<a href="#RFC8308" class="cite xref">RFC8308</a>]</span>
+and downgrade the client authentication algorithms. QUIC control informations
+such as packet numbers and frame formats are all
 authenticated and encrypted starting from the Handshake encryption level.<a href="#section-1.1.2-1" class="pilcrow">¶</a></p>
 </section>
 </div>
