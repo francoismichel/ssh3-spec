@@ -198,7 +198,7 @@ ________________________________________________________________________
                 | - URL multiplexing         | - secure channel
                 v                            |    establishment
              +-----------------------+       | - streams multiplexing
-             |         HTTP/3        |       |            & datagrams
+             |          HTTP         |       |            & datagrams
              +-----------------------+       v
              +----------------------------------------------+
              |                 QUIC / TLS                   |
