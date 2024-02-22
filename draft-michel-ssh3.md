@@ -263,16 +263,24 @@ domain names using well-known certificate authorities such as Let's Encrypt. The
 and used as an authentication method for the client.
 
 
-### HTTP authentication: out-of-the-box compatibility with identity providers
-
-Using HTTP authentication schemes for user authentication allows implementing diverse authentication
-mechanisms such as the classical password-based and public key authentication, but also popular
-web authentication mechanisms such as OpenID Connect {{OpenID.Core}}, SAML2 {{OASIS.saml-core-2.0-os}} or the recent Passkeys/WebAuthn standard {{WebAuthn}}. All these authentication schemes are already deployed
-for managing access to critical resources in different organizations. Sharing computing resources
-using SSHv2 through these mechanisms generally requires the deployment of middlewares managing the
-mapping between identities and SSH keys or certificates. Adding HTTP authentication to SSH
-allows welcoming these authentication methods directly. As a proof-of-concept,
-OpenID Connect has been implemented in our SSH3 prototype.
+### HTTP authentication: compatibility with existing authentication systems
+Using HTTP authentication schemes for user authentication allows implementing
+diverse authentication
+mechanisms such as the classical password-based and public key authentication,
+but also popular
+web authentication mechanisms such as OpenID Connect {{OpenID.Core}}, SAML2
+{{OASIS.saml-core-2.0-os}} or the recent Passkeys/WebAuthn standard
+{{WebAuthn}}. All these authentication schemes are already deployed
+for managing access to critical resources in different organizations. Sharing
+computing resources
+using SSHv2 through these mechanisms generally requires the deployment of
+middlewares managing the
+mapping between identities and SSH keys or certificates. Adding HTTP
+authentication to SSH allows welcoming these authentication methods directly
+and interface SSH3 more naturally with existing architectures. As a
+proof-of-concept, OpenID Connect has been implemented in our SSH3 prototype.
+Other web authentication standards such as Passkeys/WebAuthn {{WebAuthn}}
+allow administrators to restrict remote access to specific client devices in addition to users.
 
 
 ### URL multiplexing and undiscoverability
