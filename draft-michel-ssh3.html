@@ -1038,7 +1038,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Michel &amp; Bonaventure</td>
-<td class="center">Expires 24 August 2024</td>
+<td class="center">Expires 25 August 2024</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1051,12 +1051,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-michel-ssh3-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-02-21" class="published">21 February 2024</time>
+<time datetime="2024-02-22" class="published">22 February 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Experimental</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2024-08-24">24 August 2024</time></dd>
+<dd class="expires"><time datetime="2024-08-25">25 August 2024</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1108,7 +1108,7 @@ multiplexing, relying on TLS for secure channel establishment and the use of X.5
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 24 August 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 25 August 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1150,7 +1150,7 @@ multiplexing, relying on TLS for secure channel establishment and the use of X.5
                     <p id="section-toc.1-1.1.2.1.2.3.1" class="keepWithNext"><a href="#section-1.1.3" class="auto internal xref">1.1.3</a>.  <a href="#name-accessing-the-x509-ecosyste" class="internal xref">Accessing the X.509 ecosystem</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1.2.4">
-                    <p id="section-toc.1-1.1.2.1.2.4.1"><a href="#section-1.1.4" class="auto internal xref">1.1.4</a>.  <a href="#name-http-authentication-out-of-" class="internal xref">HTTP authentication: out-of-the-box compatibility with identity providers</a></p>
+                    <p id="section-toc.1-1.1.2.1.2.4.1"><a href="#section-1.1.4" class="auto internal xref">1.1.4</a>.  <a href="#name-http-authentication-compati" class="internal xref">HTTP authentication: compatibility with existing authentication systems</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1.2.5">
                     <p id="section-toc.1-1.1.2.1.2.5.1"><a href="#section-1.1.5" class="auto internal xref">1.1.5</a>.  <a href="#name-url-multiplexing-and-undisc" class="internal xref">URL multiplexing and undiscoverability</a></p>
@@ -1249,16 +1249,68 @@ remote processes and functionnalities executed on the remote host <span>[<a href
 Among others, SSH provides different services such as remote program execution, shell access and TCP port forwarding. This document defines mechanisms to run the SSH Connection protocol
 <span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]</span> over HTTP/3 connections and uses the name "SSH3" to refer to
 this solution. The secure channel establishment is performed using QUIC TLS while user authentication
-is performed using existing HTTP authentication schemes, simplifying significantly the design
-of the SSH protocol itself.<a href="#section-1-1" class="pilcrow">¶</a></p>
-<p id="section-1-2">The mechanisms used for establishing an SSH3 conversation
+is performed using existing HTTP authentication schemes, simplifying significantly the design of the SSH protocol itself. <a href="#ssh3-architecture-goal" class="auto internal xref">Figure 1</a> compares the SSHv2
+current architecture (top) and the architectural goal of this document (bottom).
+One benefit of the approach is that the HTTP and QUIC layers can
+evolve independently of SSH. For instance, new encryption and MAC algorithms
+can be added to TLS and use in SSH3 without impacting the specification or
+adding new codepoints in SSH3 for these new algorithms.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<span id="name-top-sshv2-architecture-bott"></span><div id="ssh3-architecture-goal">
+<figure id="figure-1">
+        <div class="alignLeft art-text artwork" id="section-1-2.1">
+<pre>
+     +------------------------------------------------------------+
+     |                           SSHv2                            |
+     | +---------------+   +---------------+   +----------------+ |
+     | | SSH transport |   | SSH user-auth |   | SSH connection | |
+     | |   (RFC4253)   |   |   (RFC4252)   |   |   (RFC4254)    | |
+     | +---------------+   +---------------+   +----------------+ |
+     |  secure channel            user            SSH services    |
+     |   establishment       authentication                       |
+     +------------------------------------------------------------+
+                                   |
+                                   |  - reliable transport
+                                   v
+               +----------------------------------------+
+               |                  TCP                   |
+               +----------------------------------------+
+
+________________________________________________________________________
+
+            +-----------------------------------------------+
+            |                     SSH3                      |
+            |          +-------------------------+          |
+            |          | SSH connection protocol |          |
+            |          |      (~RFC4254)         |          |
+            |          +-------------------------+          |
+            |                 SSH services                  |
+            +-----------------------------------------------+
+                |                            |
+                | - user authentication      |
+                | - URL multiplexing         | - reliable transport
+                |                            | - secure channel
+                v                            |    establishment
+             +-----------------------+       | - streams multiplexing
+             |         HTTP/3        |       |            &amp; datagrams
+             +-----------------------+       v
+             +----------------------------------------------+
+             |                 QUIC / TLS                   |
+             +----------------------------------------------+
+
+</pre>
+</div>
+<figcaption><a href="#figure-1" class="selfRef">Figure 1</a>:
+<a href="#name-top-sshv2-architecture-bott" class="selfRef">Top: SSHv2 architecture. Bottom: SSH3 proposed architecture.</a>
+        </figcaption></figure>
+</div>
+<p id="section-1-3">The mechanisms used for establishing an SSH3 conversation
 are similar to the WebTransport session establishment <span>[<a href="#WEBTRANSPORT-H3" class="cite xref">WEBTRANSPORT-H3</a>]</span>.
 WebTransport is also a good transport layer candidate for SSH3. The current
 SSH3 prototype is built directly over HTTP/3 since there is no public
 WebTransport implementation meeting all our requirements as of now.
 The semantics of HTTP/2 being comparable to HTTP/3, the mechanisms
 defined in this document may be implemented using HTTP/2. This document
-is a first introductory document and we limit its current scope to HTTP/3.<a href="#section-1-2" class="pilcrow">¶</a></p>
+is a first introductory document and we limit its current scope to HTTP/3.<a href="#section-1-3" class="pilcrow">¶</a></p>
 <div id="how-ssh-benefits-from-http3">
 <section id="section-1.1">
         <h3 id="name-how-ssh-benefits-from-http-">
@@ -1312,19 +1364,28 @@ domain names using well-known certificate authorities such as Let's Encrypt. The
 and used as an authentication method for the client.<a href="#section-1.1.3-1" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="http-authentication-out-of-the-box-compatibility-with-identity-providers">
+<div id="http-authentication-compatibility-with-existing-authentication-systems">
 <section id="section-1.1.4">
-          <h4 id="name-http-authentication-out-of-">
-<a href="#section-1.1.4" class="section-number selfRef">1.1.4. </a><a href="#name-http-authentication-out-of-" class="section-name selfRef">HTTP authentication: out-of-the-box compatibility with identity providers</a>
+          <h4 id="name-http-authentication-compati">
+<a href="#section-1.1.4" class="section-number selfRef">1.1.4. </a><a href="#name-http-authentication-compati" class="section-name selfRef">HTTP authentication: compatibility with existing authentication systems</a>
           </h4>
-<p id="section-1.1.4-1">Using HTTP authentication schemes for user authentication allows implementing diverse authentication
-mechanisms such as the classical password-based and public key authentication, but also popular
-web authentication mechanisms such as OpenID Connect <span>[<a href="#OpenID.Core" class="cite xref">OpenID.Core</a>]</span>, SAML2 <span>[<a href="#OASIS.saml-core-2.0-os" class="cite xref">OASIS.saml-core-2.0-os</a>]</span> or the recent Passkeys/WebAuthn standard <span>[<a href="#WebAuthn" class="cite xref">WebAuthn</a>]</span>. All these authentication schemes are already deployed
-for managing access to critical resources in different organizations. Sharing computing resources
-using SSHv2 through these mechanisms generally requires the deployment of middlewares managing the
-mapping between identities and SSH keys or certificates. Adding HTTP authentication to SSH
-allows welcoming these authentication methods directly. As a proof-of-concept,
-OpenID Connect has been implemented in our SSH3 prototype.<a href="#section-1.1.4-1" class="pilcrow">¶</a></p>
+<p id="section-1.1.4-1">Using HTTP authentication schemes for user authentication allows implementing
+diverse authentication
+mechanisms such as the classical password-based and public key authentication,
+but also popular
+web authentication mechanisms such as OpenID Connect <span>[<a href="#OpenID.Core" class="cite xref">OpenID.Core</a>]</span>, SAML2
+<span>[<a href="#OASIS.saml-core-2.0-os" class="cite xref">OASIS.saml-core-2.0-os</a>]</span> or the recent Passkeys/WebAuthn standard
+<span>[<a href="#WebAuthn" class="cite xref">WebAuthn</a>]</span>. All these authentication schemes are already deployed
+for managing access to critical resources in different organizations. Sharing
+computing resources
+using SSHv2 through these mechanisms generally requires the deployment of
+middlewares managing the
+mapping between identities and SSH keys or certificates. Adding HTTP
+authentication to SSH allows welcoming these authentication methods directly
+and interface SSH3 more naturally with existing architectures. As a
+proof-of-concept, OpenID Connect has been implemented in our SSH3 prototype.
+Other web authentication standards such as Passkeys/WebAuthn <span>[<a href="#WebAuthn" class="cite xref">WebAuthn</a>]</span>
+allow administrators to restrict remote access to specific client devices in addition to users.<a href="#section-1.1.4-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="url-multiplexing-and-undiscoverability">
