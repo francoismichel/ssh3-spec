@@ -241,11 +241,13 @@ time compared to the SSHv2 session establishment.
 
 ### Protecting transport-layer control fields
 
-Since QUIC integrates authentication and encryption as part of its transport features, it makes
-SSH3 robust to transport-layer attacks that were possible with TCP, such as spoofing or reset
-attacks {{RFC5961}}. For instance, the recent Terrapin attack {{TERRAPIN}} manipulates the TCP
-sequence number to alter the SSH extension negotiation mechanism {{RFC8308}} and downgrade the client
-authentication algorithms. QUIC control informations such as packet numbers and frame formats are
+Since QUIC integrates authentication and encryption as part of its transport
+features, it makes SSH3 robust to transport-layer attacks that were possible
+with TCP, such as spoofing or reset attacks {{RFC5961}}. For instance, the
+recent Terrapin attack {{TERRAPIN}} manipulates the TCP
+sequence number to alter the SSH extension negotiation mechanism {{RFC8308}}
+and downgrade the client authentication algorithms. QUIC control informations
+such as packet numbers and frame formats are all
 authenticated and encrypted starting from the Handshake encryption level.
 
 
