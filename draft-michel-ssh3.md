@@ -159,8 +159,55 @@ remote processes and functionnalities executed on the remote host {{SSH-CONNECT}
 Among others, SSH provides different services such as remote program execution, shell access and TCP port forwarding. This document defines mechanisms to run the SSH Connection protocol
 {{SSH-CONNECT}} over HTTP/3 connections and uses the name "SSH3" to refer to
 this solution. The secure channel establishment is performed using QUIC TLS while user authentication
-is performed using existing HTTP authentication schemes, simplifying significantly the design
-of the SSH protocol itself.
+is performed using existing HTTP authentication schemes, simplifying significantly the design of the SSH protocol itself. {{ssh3-architecture-goal}} compares the SSHv2
+current architecture (top) and the architectural goal of this document (bottom).
+One benefit of the approach is that the HTTP and QUIC layers can
+evolve independently of SSH. For instance, new encryption and MAC algorithms
+can be added to TLS and use in SSH3 without impacting the specification or
+adding new codepoints in SSH3 for these new algorithms.
+
+~~~~
+
+     +------------------------------------------------------------+
+     |                           SSHv2                            |
+     | +---------------+   +---------------+   +----------------+ |
+     | | SSH transport |   | SSH user-auth |   | SSH connection | |
+     | |   (RFC4253)   |   |   (RFC4252)   |   |   (RFC4254)    | |
+     | +---------------+   +---------------+   +----------------+ |
+     |  secure channel            user            SSH services    |
+     |   establishment       authentication                       |
+     +------------------------------------------------------------+
+                                   |
+                                   |  - reliable transport
+                                   v
+               +----------------------------------------+
+               |                  TCP                   |
+               +----------------------------------------+
+
+________________________________________________________________________
+
+            +-----------------------------------------------+
+            |                     SSH3                      |
+            |          +-------------------------+          |
+            |          | SSH connection protocol |          |
+            |          |      (~RFC4254)         |          |
+            |          +-------------------------+          |
+            |                 SSH services                  |
+            +-----------------------------------------------+
+                |                            |
+                | - user authentication      |
+                | - URL multiplexing         | - reliable transport
+                |                            | - secure channel
+                v                            |    establishment
+             +-----------------------+       | - streams multiplexing
+             |         HTTP/3        |       |            & datagrams
+             +-----------------------+       v
+             +----------------------------------------------+
+             |                 QUIC / TLS                   |
+             +----------------------------------------------+
+
+~~~~
+{: #ssh3-architecture-goal title="Top: SSHv2 architecture. Bottom: SSH3 proposed architecture."}
 
 The mechanisms used for establishing an SSH3 conversation
 are similar to the WebTransport session establishment {{WEBTRANSPORT-H3}}.
