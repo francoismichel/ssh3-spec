@@ -324,24 +324,24 @@ https://proxy.example.org:4443/ssh3{?username}
 establishment.
 
 ~~~~
-  Client
-     |                QUIC HANDSHAKE                 |
-     |<--------------------------------------------->|
-     |                                               |
-     | HTTP/3, Stream x CONNECT /<path>?user=<user>  |
-     |         :protocol="ssh3"                      |
-     |         Authorization=<auth_material>         |
-     |---------------------------------------------->|
-     |                                               |
-     |               HTTP/3, Stream x 200 OK         |
-     |<----------------------------------------------|
-     |                                               |
-     |           Conversation established            |
-   --+-----------------------------------------------+--
-     |                                               |
-     |    (endpoints now run the SSH Connection)     |
-     |    (protocol over QUIC streams          )     |
-     |                                               |
+       Client
+          |                QUIC HANDSHAKE                 |
+          |<--------------------------------------------->|
+          |                                               |
+          | HTTP/3, Stream x CONNECT /<path>?user=<user>  |
+          |         :protocol="ssh3"                      |
+          |         Authorization=<auth_material>         |
+          |---------------------------------------------->|
+          |                                               |
+          |               HTTP/3, Stream x 200 OK         |
+          |<----------------------------------------------|
+          |                                               |
+          |           Conversation established            |
+        --+-----------------------------------------------+--
+          |                                               |
+          |    (endpoints now run the SSH Connection)     |
+          |    (protocol over QUIC streams          )     |
+          |                                               |
 ~~~~
 {: #ssh3-conversation-establishment title="SSH3 successful conversation establishment."}
 
