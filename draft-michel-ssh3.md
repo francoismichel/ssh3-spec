@@ -37,14 +37,13 @@ author:
     email: "olivier.bonaventure@uclouvain.be"
 
 normative:
-  QUICv1: RFC9000
   QUIC-RECOVERY: RFC9002
+  HTTP3: RFC9114
   SSH-ARCH: RFC4251
   SSH-AUTH: rfc4252
   SSH-TRANSPORT: RFC4253
   SSH-CONNECT: RFC4254
   HTTP-SEMANTICS: RFC9110
-  OAUTH2: RFC6749
   HTTP-BASIC: RFC7617
   JWT: RFC7519
   QUIC: RFC9000
@@ -53,12 +52,13 @@ normative:
   HTTP-DATAGRAM: RFC9297
   WEBTRANSPORT-H3: I-D.ietf-webtrans-http3
   HTTP-SIGNATURE: I-D.ietf-httpbis-unprompted-auth
-  MOQT: I-D.ietf-moq-transport
-  MASQUE: I-D.schinazi-masque-proxy-01
   URI: RFC3986
 
 
 informative:
+  OAUTH2: RFC6749
+  MOQT: I-D.ietf-moq-transport
+  MASQUE: I-D.schinazi-masque-proxy-01
   OPENSSH-5.4:
       title: OpenSSH release 5.4
       author:
@@ -171,7 +171,7 @@ adding new codepoints in SSH3 for these new algorithms.
      +------------------------------------------------------------+
      |                           SSHv2                            |
      | +---------------+   +---------------+   +----------------+ |
-     | | SSH transport |   | SSH user-auth |   | SSH connection | |
+     | | SSH Transport |   |   SSH Auth.   |   | SSH Connection | |
      | |   (RFC4253)   |   |   (RFC4252)   |   |   (RFC4254)    | |
      | +---------------+   +---------------+   +----------------+ |
      |  secure channel            user            SSH services    |
@@ -189,8 +189,8 @@ ________________________________________________________________________
             +-----------------------------------------------+
             |                     SSH3                      |
             |          +-------------------------+          |
-            |          | SSH connection protocol |          |
-            |          |      (~RFC4254)         |          |
+            |          |     SSH Connection      |          |
+            |          |       (~RFC4254)        |          |
             |          +-------------------------+          |
             |                 SSH services                  |
             +-----------------------------------------------+
@@ -301,7 +301,7 @@ undistinguishable from any HTTP server.
 {::boilerplate bcp14-tagged}
 
 # Estalishing an SSH3 conversation {#establishing}
-We choose the name conversation to avoid ambiguities with the existing
+We choose the term "conversation" to avoid ambiguities with the existing
 concepts of SSH shell session and QUIC connection.
 An SSH3 conversation can be started using the HTTP/3 Extended CONNECT
 method {{EXTENDED-CONNECT}}. The `:protocol` pseudo-header MUST be set
@@ -309,8 +309,9 @@ to `ssh3` and the `:scheme` pseudo-header MUST be set to `https`.
 If an SSH3 client or server supports the UDP forwarding feature, it MUST indicate support for HTTP/3 datagrams by sending a SETTINGS_H3_DATAGRAM value set to 1 in their
 SETTINGS frame (see [Section 2.1.1]() of [HTTP-DATAGRAM]).
 
-An SSH3 server listens for CONNECT requests with the `ssh3` protocol
-on URI templates having the `username` variable. Example URIs can be found below.
+An SSH3 server listens for CONNECT requests with the `ssh3`
+protocol on URI templates having the `username` variable. Example URIs can be
+found below.
 
 ~~~~
 https://example.org:4443/ssh3?user={username}
@@ -319,11 +320,38 @@ https://proxy.example.org:4443/ssh3{?username}
 
 \[\[Note: In the current prototype, percent-encoding is used for characters outside the allowed set of {{URI}}. An alternative can be to perform base64url encoding of the username instead.]]
 
-Authentication material is placed inside the `Authorization` header of the Extended CONNECT request. If an SSH3 endpoint is available to the HTTP/3 server and if the user is successfully authenticated and authorized, the server responds with a 2xx HTTP status code and the conversation is established.
+{{ssh3-conversation-establishment}} illustrates a successful SSH3 conversation
+establishment.
+
+~~~~
+  Client
+     |                QUIC HANDSHAKE                 |
+     |<--------------------------------------------->|
+     |                                               |
+     | HTTP/3, Stream x CONNECT /<path>?user=<user>  |
+     |         :protocol="ssh3"                      |
+     |         Authorization=<auth_material>         |
+     |---------------------------------------------->|
+     |                                               |
+     |               HTTP/3, Stream x 200 OK         |
+     |<----------------------------------------------|
+     |                                               |
+     |           Conversation established            |
+   --+-----------------------------------------------+--
+     |                                               |
+     |    (endpoints now run the SSH Connection)     |
+     |    (protocol over QUIC streams          )     |
+     |                                               |
+~~~~
+{: #ssh3-conversation-establishment title="SSH3 successful conversation establishment."}
+
+
+Authentication material is placed inside the `Authorization` header of the Extended CONNECT request. The format and value of `<auth_material>` depends on the used HTTP authentication scheme ({{ssh3-authenticating-the-client}} explores several examples of authentication mechanisms). If an SSH3 endpoint is available to the HTTP/3 server and if the user is successfully authenticated and authorized, the server responds with a 2xx HTTP status code and the conversation is established.
 
 The stream ID used for the Extended CONNECT request is then remembered by each endpoint as the SSH conversation ID, uniquely identifying this SSH conversation.
 
 ## Authenticating the client
+{: #ssh3-authenticating-the-client}
 
 Authorization of the CONNECT request is done using HTTP Authorization
 as defined in {{HTTP-SEMANTICS}}, with no restriction on the
@@ -337,7 +365,7 @@ prototype. The third example leverages the Signature authentication
 scheme {{HTTP-SIGNATURE}} and will be preferred for public key
 authentication in future versions of our prototype.
 
-### Example: password authentication using HTTP Basic Authentication
+### Password authentication using HTTP Basic Authentication
 
 Password-based authentication is performed using the HTTP
 Basic authentication scheme {{HTTP-BASIC}}. The user-id part of the
@@ -364,7 +392,7 @@ the `username` variable in the request URI defined in {{establishing}}.
 ~~~~
 
 
-### Example: public key authentication using OAUTH2 and JWTs
+### Public key authentication using OAUTH2 and JWTs
 
 Classical public key authentication can be performed using the OAUTH2 framework {{OAUTH2}}:
 the HTTP Bearer authentication scheme is used to carry an OAUTH access token encoded in the JWT {{JWT}} format {{OAUTH2-JWT}}.
@@ -398,7 +426,7 @@ third-party involved, only the following claims are required (see
 The `jti` claim may also be used to prevent the token from
 being replayed.
 
-### Example: public key authentication using HTTP Signature authentication
+### Public key authentication using HTTP Signature authentication
 
 Public key authentication can also be performed using the HTTP Signature
 Authentication scheme {{HTTP-SIGNATURE}}. The `<k>` parameter designates
@@ -548,7 +576,7 @@ It is strongly recommended to deploy public TLS certificates on SSH3
 servers in a similar way to classical HTTPS servers. Using valid TLS certificates on the server allows their
 automatic verification on the client with no explicit user action
 required. Connecting an SSH3 client to a server with no valid
-cerificate exposes the user to at best the same risk incurred by SSHv2
+cerificate exposes the user to the same risk incurred by SSHv2
 endpoints relying on Host keys: the user needs to manually validate the
 certificate before connecting to avoid an attacker to impersonate the
 server and access the keystrokes typed by the user during the
