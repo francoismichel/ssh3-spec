@@ -1447,24 +1447,24 @@ establishment.<a href="#section-3-5" class="pilcrow">¶</a></p>
 <figure id="figure-2">
         <div class="alignLeft art-text artwork" id="section-3-6.1">
 <pre>
-  Client
-     |                QUIC HANDSHAKE                 |
-     |&lt;---------------------------------------------&gt;|
-     |                                               |
-     | HTTP/3, Stream x CONNECT /&lt;path&gt;?user=&lt;user&gt;  |
-     |         :protocol="ssh3"                      |
-     |         Authorization=&lt;auth_material&gt;         |
-     |----------------------------------------------&gt;|
-     |                                               |
-     |               HTTP/3, Stream x 200 OK         |
-     |&lt;----------------------------------------------|
-     |                                               |
-     |           Conversation established            |
-   --+-----------------------------------------------+--
-     |                                               |
-     |    (endpoints now run the SSH Connection)     |
-     |    (protocol over QUIC streams          )     |
-     |                                               |
+       Client
+          |                QUIC HANDSHAKE                 |
+          |&lt;---------------------------------------------&gt;|
+          |                                               |
+          | HTTP/3, Stream x CONNECT /&lt;path&gt;?user=&lt;user&gt;  |
+          |         :protocol="ssh3"                      |
+          |         Authorization=&lt;auth_material&gt;         |
+          |----------------------------------------------&gt;|
+          |                                               |
+          |               HTTP/3, Stream x 200 OK         |
+          |&lt;----------------------------------------------|
+          |                                               |
+          |           Conversation established            |
+        --+-----------------------------------------------+--
+          |                                               |
+          |    (endpoints now run the SSH Connection)     |
+          |    (protocol over QUIC streams          )     |
+          |                                               |
 </pre>
 </div>
 <figcaption><a href="#figure-2" class="selfRef">Figure 2</a>:

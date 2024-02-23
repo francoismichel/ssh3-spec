@@ -299,24 +299,24 @@ ________________________________________________________________________
 
    Figure 2 illustrates a successful SSH3 conversation establishment.
 
-     Client
-        |                QUIC HANDSHAKE                 |
-        |<--------------------------------------------->|
-        |                                               |
-        | HTTP/3, Stream x CONNECT /<path>?user=<user>  |
-        |         :protocol="ssh3"                      |
-        |         Authorization=<auth_material>         |
-        |---------------------------------------------->|
-        |                                               |
-        |               HTTP/3, Stream x 200 OK         |
-        |<----------------------------------------------|
-        |                                               |
-        |           Conversation established            |
-      --+-----------------------------------------------+--
-        |                                               |
-        |    (endpoints now run the SSH Connection)     |
-        |    (protocol over QUIC streams          )     |
-        |                                               |
+          Client
+             |                QUIC HANDSHAKE                 |
+             |<--------------------------------------------->|
+             |                                               |
+             | HTTP/3, Stream x CONNECT /<path>?user=<user>  |
+             |         :protocol="ssh3"                      |
+             |         Authorization=<auth_material>         |
+             |---------------------------------------------->|
+             |                                               |
+             |               HTTP/3, Stream x 200 OK         |
+             |<----------------------------------------------|
+             |                                               |
+             |           Conversation established            |
+           --+-----------------------------------------------+--
+             |                                               |
+             |    (endpoints now run the SSH Connection)     |
+             |    (protocol over QUIC streams          )     |
+             |                                               |
 
            Figure 2: SSH3 successful conversation establishment.
 
