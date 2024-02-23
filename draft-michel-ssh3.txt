@@ -165,9 +165,11 @@ ________________________________________________________________________
    current SSH3 prototype is built directly over HTTP/3 since there is
    no public WebTransport implementation meeting all our requirements as
    of now.  The semantics of HTTP/2 being comparable to HTTP/3, the
-   mechanisms defined in this document may be implemented using HTTP/2.
-   This document is a first introductory document and we limit its
-   current scope to HTTP/3.
+   mechanisms defined in this document may be implemented using HTTP/2
+   if using TCP is required.  A promising alternative is running HTTP/3
+   over QUIC on Streams [QUIC-ON-STREAMS].  This document is a first
+   introductory document and we limit its current scope to HTTP/3 using
+   the classical QUIC.
 
 1.1.  How SSH benefits from HTTP/3
 
@@ -719,6 +721,13 @@ ________________________________________________________________________
               "PuTTY Certificates", Web 
               https://www.chiark.greenend.org.uk/~sgtatham/quasiblog/
               putty-certificates/.
+
+   [QUIC-ON-STREAMS]
+              Oku, K. and L. Pardue, "QUIC on Streams", Work in
+              Progress, Internet-Draft, draft-kazuho-quic-quic-on-
+              streams-00, 16 February 2024,
+              <https://datatracker.ietf.org/doc/html/draft-kazuho-quic-
+              quic-on-streams-00>.
 
    [RFC5961]  Ramaiah, A., Stewart, R., and M. Dalal, "Improving TCP's
               Robustness to Blind In-Window Attacks", RFC 5961,
