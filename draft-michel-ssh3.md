@@ -231,7 +231,7 @@ The semantics of HTTP/2 being comparable to HTTP/3, the mechanisms
 defined in this document could be implemented using HTTP/2 if a fallback
 to TCP is required. There is an ongoing effort to be able to run HTTP/3 over QUIC on TCP Streams
 {{QUIC-ON-STREAMS}}. This document
-is a first introductory document and we limit its current scope to HTTP/3
+is a first introductory document. We limit its current scope to HTTP/3
 using the classical QUIC.
 
 
@@ -305,7 +305,6 @@ and interfaces SSH3 more naturally with existing architectures. As a
 proof-of-concept, OpenID Connect has been implemented in our SSH3 prototype {{SSH3-PROTOTYPE}}.
 Other web authentication standards such as Passkeys/WebAuthn {{WebAuthn}}
 allow administrators to restrict remote access to specific client devices in addition to users.
-
 
 ### URL multiplexing and undiscoverability
 
@@ -617,7 +616,8 @@ and user authentication material should be verified thoroughly. Public
 key authentication should be preferred to passwords.
 
 It is strongly recommended to deploy public TLS certificates on SSH3
-servers in a similar way to classical HTTPS servers. Using valid TLS certificates on the server allows their
+servers similarly to classical HTTPS servers.
+Using valid TLS certificates on the server allows their
 automatic verification on the client with no explicit user action
 required. Connecting an SSH3 client to a server with no valid
 certificate exposes the user to the same risk incurred by SSHv2
