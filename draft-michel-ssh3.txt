@@ -527,7 +527,7 @@ Table of Contents
    tcp channel directly carries the TCP payload to forward.
 
    For UDP forwarding, UDP packets are carried through HTTP Datagrams
-   Section 2 of [HTTP-DATAGRAM] whose Quarter Stream ID refers directly
+   Section 2 of [HTTP-DATAGRAM] whose Quarter Stream IDs refer directly
    to the HTTP Stream ID of the corresponding direct-udp or reverse-udp
    channel.
 
