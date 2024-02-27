@@ -190,9 +190,6 @@ Among others, SSH provides different services such as remote program execution, 
 {: #ssh2-architecture title="The SSHv2 architecture protocol stack."}
 
 This document defines mechanisms to run the SSH Connection protocol
-
-
-
 {{SSH-CONNECT}} over HTTP/3 and uses the name "SSH3" to refer to
 this solution. The secure channel establishment uses TLS included in QUIC while user authentication
 is performed using existing HTTP authentication schemes, simplifying significantly the design of the protocol. {{ssh3-architecture-goal}}
