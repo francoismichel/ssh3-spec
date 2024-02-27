@@ -4,14 +4,15 @@
 <meta charset="utf-8">
 <meta content="Common,Latin" name="scripts">
 <meta content="initial-scale=1.0" name="viewport">
-<title>Running SSH over HTTP/3 connections</title>
+<title>Secure shell over HTTP/3 connections</title>
 <meta content="François Michel" name="author">
 <meta content="Olivier Bonaventure" name="author">
 <meta content="
-       SSH traditionally offers its secure services over an insecure network using the TCP transport protocol. This document defines mechanisms
+       The secure shell (SSH) traditionally offers its secure services over an insecure network using the TCP transport protocol. This document defines mechanisms
 to run the SSH protocol and provide a comparable set of services using HTTP/3.
 Running SSH over HTTP/3 allows several benefits such as the scalability offered by HTTP
-multiplexing, relying on TLS for secure channel establishment and the use of X.509 certificates and HTTP Authentication schemes for client and server authentication. 
+multiplexing, relying on TLS for secure channel establishment leveraging X.509 certificates, HTTP Authentication schemes for client and server authentication
+and stronger resilience against packet injection attacks and middlebox interference. 
     " name="description">
 <meta content="xml2rfc 3.19.4" name="generator">
 <meta content="ssh" name="keyword">
@@ -1065,18 +1066,19 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </div>
 <div class="author">
       <div class="author-name">O. Bonaventure</div>
-<div class="org">UCLouvain</div>
+<div class="org">UCLouvain and WELRI</div>
 </div>
 </dd>
 </dl>
 </div>
-<h1 id="title">Running SSH over HTTP/3 connections</h1>
+<h1 id="title">Secure shell over HTTP/3 connections</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
-<p id="section-abstract-1">SSH traditionally offers its secure services over an insecure network using the TCP transport protocol. This document defines mechanisms
+<p id="section-abstract-1">The secure shell (SSH) traditionally offers its secure services over an insecure network using the TCP transport protocol. This document defines mechanisms
 to run the SSH protocol and provide a comparable set of services using HTTP/3.
 Running SSH over HTTP/3 allows several benefits such as the scalability offered by HTTP
-multiplexing, relying on TLS for secure channel establishment and the use of X.509 certificates and HTTP Authentication schemes for client and server authentication.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+multiplexing, relying on TLS for secure channel establishment leveraging X.509 certificates, HTTP Authentication schemes for client and server authentication
+and stronger resilience against packet injection attacks and middlebox interference.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-about-this-document">
@@ -1147,7 +1149,7 @@ multiplexing, relying on TLS for secure channel establishment and the use of X.5
                     <p id="section-toc.1-1.1.2.1.2.2.1" class="keepWithNext"><a href="#section-1.1.2" class="auto internal xref">1.1.2</a>.  <a href="#name-protecting-transport-layer-" class="internal xref">Protecting transport-layer control fields</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1.2.3">
-                    <p id="section-toc.1-1.1.2.1.2.3.1" class="keepWithNext"><a href="#section-1.1.3" class="auto internal xref">1.1.3</a>.  <a href="#name-accessing-the-x509-ecosyste" class="internal xref">Accessing the X.509 ecosystem</a></p>
+                    <p id="section-toc.1-1.1.2.1.2.3.1" class="keepWithNext"><a href="#section-1.1.3" class="auto internal xref">1.1.3</a>.  <a href="#name-leveraging-the-x509-ecosyst" class="internal xref">Leveraging the X.509 ecosystem</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1.2.4">
                     <p id="section-toc.1-1.1.2.1.2.4.1"><a href="#section-1.1.4" class="auto internal xref">1.1.4</a>.  <a href="#name-http-authentication-compati" class="internal xref">HTTP authentication: compatibility with existing authentication systems</a></p>
@@ -1163,7 +1165,7 @@ multiplexing, relying on TLS for secure channel establishment and the use of X.5
             <p id="section-toc.1-1.2.1"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-conventions-and-definitions" class="internal xref">Conventions and Definitions</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
-            <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-estalishing-an-ssh3-convers" class="internal xref">Estalishing an SSH3 conversation</a></p>
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-establishing-an-ssh3-conver" class="internal xref">Establishing an SSH3 conversation</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1">
                 <p id="section-toc.1-1.3.2.1.1"><a href="#section-3.1" class="auto internal xref">3.1</a>.  <a href="#name-authenticating-the-client" class="internal xref">Authenticating the client</a></p>
@@ -1246,19 +1248,12 @@ multiplexing, relying on TLS for secure channel establishment and the use of X.5
       <h2 id="name-introduction">
 <a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
       </h2>
-<p id="section-1-1">The SSH protocol <span>[<a href="#SSH-ARCH" class="cite xref">SSH-ARCH</a>]</span> provides a secure way to access computers remotely over an untrusted network. SSH is currently the most popular way to access Unix-based hosts remotely. Built atop the unencrypted TCP protocol, SSH proposes its own mechanisms to establish a secure channel <span>[<a href="#SSH-TRANSPORT" class="cite xref">SSH-TRANSPORT</a>]</span> and perform user authentication <span>[<a href="#SSH-AUTH" class="cite xref">SSH-AUTH</a>]</span>. Once the secure session is established
-and the user is authenticated and authorized, SSH runs the Connection protocol to run and manage
-remote processes and functionnalities executed on the remote host <span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]</span>.
-Among others, SSH provides different services such as remote program execution, shell access and TCP port forwarding. This document defines mechanisms to run the SSH Connection protocol
-<span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]</span> over HTTP/3 connections and uses the name "SSH3" to refer to
-this solution. The secure channel establishment is performed using QUIC TLS while user authentication
-is performed using existing HTTP authentication schemes, simplifying significantly the design of the SSH protocol itself. <a href="#ssh3-architecture-goal" class="auto internal xref">Figure 1</a> compares the SSHv2
-current architecture (top) and the architectural goal of this document (bottom).
-One benefit of the approach is that the HTTP and QUIC layers can
-evolve independently of SSH. For instance, new encryption and MAC algorithms
-can be added to TLS and used in SSH3 without impacting the specification or
-adding new codepoints in SSH3 for these new algorithms.<a href="#section-1-1" class="pilcrow">¶</a></p>
-<span id="name-top-sshv2-architecture-bott"></span><div id="ssh3-architecture-goal">
+<p id="section-1-1">The SSH protocol <span>[<a href="#SSH-ARCH" class="cite xref">SSH-ARCH</a>]</span> provides a secure way to access computers remotely over an untrusted network. SSH is currently the most popular way to access Unix hosts and network equipment remotely. Built atop the unencrypted TCP protocol, SSH proposes its own mechanisms to establish a secure channel <span>[<a href="#SSH-TRANSPORT" class="cite xref">SSH-TRANSPORT</a>]</span> and perform user authentication <span>[<a href="#SSH-AUTH" class="cite xref">SSH-AUTH</a>]</span>. Once the secure session is established
+and the user is authenticated and authorized, SSH uses the Connection protocol to run and manage
+remote processes and functionalities executed on the remote host <span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]</span>.
+Among others, SSH provides different services such as remote program execution, shell access and TCP port forwarding.
+<a href="#ssh2-architecture" class="auto internal xref">Figure 1</a> provides a graphical representation of the SSHv2 protocol stack.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<span id="name-the-sshv2-architecture-prot"></span><div id="ssh2-architecture">
 <figure id="figure-1">
         <div class="alignLeft art-text artwork" id="section-1-2.1">
 <pre>
@@ -1277,9 +1272,25 @@ adding new codepoints in SSH3 for these new algorithms.<a href="#section-1-1" cl
                +----------------------------------------+
                |                  TCP                   |
                +----------------------------------------+
-
-________________________________________________________________________
-
+</pre>
+</div>
+<figcaption><a href="#figure-1" class="selfRef">Figure 1</a>:
+<a href="#name-the-sshv2-architecture-prot" class="selfRef">The SSHv2 architecture protocol stack.</a>
+        </figcaption></figure>
+</div>
+<p id="section-1-3">This document defines mechanisms to run the SSH Connection protocol<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-4"><span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]</span> over HTTP/3 and uses the name "SSH3" to refer to
+this solution. The secure channel establishment uses TLS included in QUIC while user authentication
+is performed using existing HTTP authentication schemes, simplifying significantly the design of the protocol. <a href="#ssh3-architecture-goal" class="auto internal xref">Figure 2</a>
+provides a graphical representation of the architecture proposed in this document.
+One benefit of the approach is that the HTTP3 and QUIC layers can
+evolve independently of SSH. For instance, new encryption and MAC algorithms
+can be added to TLS and used in SSH3 without impacting the specification or
+adding new code points in SSH3 for these new algorithms.<a href="#section-1-4" class="pilcrow">¶</a></p>
+<span id="name-the-proposed-ssh3-architect"></span><div id="ssh3-architecture-goal">
+<figure id="figure-2">
+        <div class="alignLeft art-text artwork" id="section-1-5.1">
+<pre>
             +-----------------------------------------------+
             |                     SSH3                      |
             |          +-------------------------+          |
@@ -1292,7 +1303,7 @@ ________________________________________________________________________
                 | - URL multiplexing         | - secure channel
                 v                            |    establishment
              +-----------------------+       | - streams multiplexing
-             |          HTTP         |       |            &amp; datagrams
+             |        HTTP/3         |       |            &amp; datagrams
              +-----------------------+       v
              +----------------------------------------------+
              |                 QUIC / TLS                   |
@@ -1300,40 +1311,40 @@ ________________________________________________________________________
 
 </pre>
 </div>
-<figcaption><a href="#figure-1" class="selfRef">Figure 1</a>:
-<a href="#name-top-sshv2-architecture-bott" class="selfRef">Top: SSHv2 architecture. Bottom: SSH3 proposed architecture.</a>
+<figcaption><a href="#figure-2" class="selfRef">Figure 2</a>:
+<a href="#name-the-proposed-ssh3-architect" class="selfRef">The proposed SSH3 architecture.</a>
         </figcaption></figure>
 </div>
-<p id="section-1-3">The mechanisms used for establishing an SSH3 conversation
+<p id="section-1-6">The mechanisms used for establishing an SSH3 conversation
 are similar to the WebTransport session establishment <span>[<a href="#WEBTRANSPORT-H3" class="cite xref">WEBTRANSPORT-H3</a>]</span>.
 WebTransport is also a good transport layer candidate for SSH3. The current
 SSH3 prototype is built directly over HTTP/3 since there is no public
 WebTransport implementation meeting all our requirements as of now.
 The semantics of HTTP/2 being comparable to HTTP/3, the mechanisms
-defined in this document may be implemented using HTTP/2 if using TCP is
-required. A promising alternative is running HTTP/3 over QUIC on Streams
+defined in this document could be implemented using HTTP/2 if a fallback
+to TCP is required. There is an ongoing effort to be able to run HTTP/3 over QUIC on TCP Streams
 <span>[<a href="#QUIC-ON-STREAMS" class="cite xref">QUIC-ON-STREAMS</a>]</span>. This document
 is a first introductory document and we limit its current scope to HTTP/3
-using the classical QUIC.<a href="#section-1-3" class="pilcrow">¶</a></p>
+using the classical QUIC.<a href="#section-1-6" class="pilcrow">¶</a></p>
 <div id="how-ssh-benefits-from-http3">
 <section id="section-1.1">
         <h3 id="name-how-ssh-benefits-from-http-">
 <a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-how-ssh-benefits-from-http-" class="section-name selfRef">How SSH benefits from HTTP/3</a>
         </h3>
-<p id="section-1.1-1">Using HTTP/3 and QUIC as a substrate for SSH brings several different benefits. This section highlights
-these benefits.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
+<p id="section-1.1-1">Using HTTP/3 and QUIC as a substrate for SSH brings several different benefits that are
+highlighted in this section.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
 <div id="quic-datagrams-support-streams-multiplexing-and-connection-migration">
 <section id="section-1.1.1">
           <h4 id="name-quic-datagrams-support-stre">
 <a href="#section-1.1.1" class="section-number selfRef">1.1.1. </a><a href="#name-quic-datagrams-support-stre" class="section-name selfRef">QUIC: datagrams support, streams multiplexing and connection migration</a>
           </h4>
 <p id="section-1.1.1-1">Using QUIC, SSH3 can send data through both reliable streams and unreliable datagrams. This makes SSH3
-able to support port forwarding for both TCP and UDP-based protocols. Being based exclusively on TCP, SSHv2 does not offer UDP port forwarding and therefore provides no support to UDP-based protocols such RTP or the QUIC protocol.
-This lack of UDP support in SSHv2 may become problematic as the use of QUIC applications (HTTP/3, MOQT <span>[<a href="#MOQT" class="cite xref">MOQT</a>]</span>) grows in the Internet. Support for UDP port forwarding with SSH3 also allows accessing real-time media content such as low-latency live video available on the server.
-The stream multiplexing capabilities of QUIC allow reducing the head-of-line blocking SSHv2 encounters when multiplexing several SSH channels over the same TCP connection.<a href="#section-1.1.1-1" class="pilcrow">¶</a></p>
-<p id="section-1.1.1-2">QUIC also defines the concept of connection migration (<span><a href="https://rfc-editor.org/rfc/rfc9000#section-9" class="relref">Section 9</a> of [<a href="#QUIC" class="cite xref">QUIC</a>]</span>).
+able to support port forwarding for both TCP and UDP-based protocols. Being based exclusively on TCP, SSHv2 does not offer UDP port forwarding and therefore provides no support to UDP-based protocols such RTP or QUIC.
+This lack of UDP support in SSHv2 may become problematic as the use of QUIC applications (HTTP/3, MOQT <span>[<a href="#MOQT" class="cite xref">MOQT</a>]</span>, DOQ <span>[<a href="#DOQ" class="cite xref">DOQ</a>]</span>) grows. Support for UDP port forwarding with SSH3 also allows accessing real-time media content such as low-latency live video available on the server.
+The stream multiplexing capabilities of QUIC allow reducing the head-of-line blocking that SSHv2 encounters when multiplexing several SSH channels over the same TCP connection.<a href="#section-1.1.1-1" class="pilcrow">¶</a></p>
+<p id="section-1.1.1-2">QUIC also supports connection migration (<span><a href="https://rfc-editor.org/rfc/rfc9000#section-9" class="relref">Section 9</a> of [<a href="#QUIC" class="cite xref">QUIC</a>]</span>).
 Using connection migrations, mobile hosts roaming between networks can
-maintain the connection alive across these networks by migrating the connection
+maintain established connections alive across different networks by migrating them
 on their newly acquired IP address. This avoids disrupting the SSH conversation
 upon network changes.
 Finally, QUIC also offers a significantly reduced connection establishment
@@ -1347,25 +1358,26 @@ time compared to the SSHv2 session establishment.<a href="#section-1.1.1-2" clas
           </h4>
 <p id="section-1.1.2-1">Since QUIC integrates authentication and encryption as part of its transport
 features, it makes SSH3 robust to transport-layer attacks that were possible
-with TCP, such as spoofing or reset attacks <span>[<a href="#RFC5961" class="cite xref">RFC5961</a>]</span>. For instance, the
+with TCP, such as packet injections or reset attacks <span>[<a href="#RFC5961" class="cite xref">RFC5961</a>]</span>. For instance, the
 recent Terrapin attack <span>[<a href="#TERRAPIN" class="cite xref">TERRAPIN</a>]</span> manipulates the TCP
 sequence number to alter the SSH extension negotiation mechanism <span>[<a href="#RFC8308" class="cite xref">RFC8308</a>]</span>
-and downgrade the client authentication algorithms. QUIC control informations
+and downgrade the client authentication algorithms. QUIC control information
 such as packet numbers and frame formats are all
-authenticated and encrypted starting from the Handshake encryption level.<a href="#section-1.1.2-1" class="pilcrow">¶</a></p>
+authenticated and encrypted starting from the Handshake encryption level.
+Furthermore, QUIC prevents middlebox interference.<a href="#section-1.1.2-1" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="accessing-the-x509-ecosystem">
+<div id="leveraging-the-x509-ecosystem">
 <section id="section-1.1.3">
-          <h4 id="name-accessing-the-x509-ecosyste">
-<a href="#section-1.1.3" class="section-number selfRef">1.1.3. </a><a href="#name-accessing-the-x509-ecosyste" class="section-name selfRef">Accessing the X.509 ecosystem</a>
+          <h4 id="name-leveraging-the-x509-ecosyst">
+<a href="#section-1.1.3" class="section-number selfRef">1.1.3. </a><a href="#name-leveraging-the-x509-ecosyst" class="section-name selfRef">Leveraging the X.509 ecosystem</a>
           </h4>
-<p id="section-1.1.3-1">Using TLS for its secure channel establishment, HTTPS and QUIC offer access to the X.509 certificates
+<p id="section-1.1.3-1">By using TLS for their secure channel establishment, HTTPS and QUIC leverage the X.509 certificates
 ecosystem with low implementation effort. TLS and QUIC libraries already implement support
 for generating, parsing and verifying X.509 certificates. Similarly to classical OpenSSH certificates,
-this avoids SSH users to rely on the Trust On First Use pattern when connecting to their
+this avoids encouraging SSH users to rely on the Trust On First Use pattern when connecting to their
 remote hosts. Relying on the X.509 certificates ecosystem additionally enables SSH3 servers to use
-ACME <span>[<a href="#ACME" class="cite xref">ACME</a>]</span> and automatically (with no additional user action) generate X.509 certificates for their
+ACME <span>[<a href="#ACME" class="cite xref">ACME</a>]</span> to automatically (with no additional user action) generate X.509 certificates for their
 domain names using well-known certificate authorities such as Let's Encrypt. These certificates are publicly valid and can be verified like classical HTTPS certificates. Client certificates can also be issued
 and used as an authentication method for the client.<a href="#section-1.1.3-1" class="pilcrow">¶</a></p>
 </section>
@@ -1385,10 +1397,10 @@ web authentication mechanisms such as OpenID Connect <span>[<a href="#OpenID.Cor
 for managing access to critical resources in different organizations. Sharing
 computing resources
 using SSHv2 through these mechanisms generally requires the deployment of
-middlewares managing the
+a middleware managing the
 mapping between identities and SSH keys or certificates. Adding HTTP
 authentication to SSH allows welcoming these authentication methods directly
-and interface SSH3 more naturally with existing architectures. As a
+and interfaces SSH3 more naturally with existing architectures. As a
 proof-of-concept, OpenID Connect has been implemented in our SSH3 prototype.
 Other web authentication standards such as Passkeys/WebAuthn <span>[<a href="#WebAuthn" class="cite xref">WebAuthn</a>]</span>
 allow administrators to restrict remote access to specific client devices in addition to users.<a href="#section-1.1.4-1" class="pilcrow">¶</a></p>
@@ -1400,14 +1412,14 @@ allow administrators to restrict remote access to specific client devices in add
 <a href="#section-1.1.5" class="section-number selfRef">1.1.5. </a><a href="#name-url-multiplexing-and-undisc" class="section-name selfRef">URL multiplexing and undiscoverability</a>
           </h4>
 <p id="section-1.1.5-1">Relying on HTTP allows easily placing SSH endpoints as resources accessible through specific URLs.
-First, it makes it easier to integrate SSH endpoints to existing web servers that already perform
-user authentication and authorization. Second, it allows placing several SSH server instances on the same physical machine on the same port. This instances can run in different virtual machines, containers or
+First, this makes it easier to integrate SSH endpoints on web servers that already perform
+user authentication and authorization. Second, it allows placing several SSH server instances on the same physical machine on the same port. These instances can run in different virtual machines, containers or
 simply different users and be multiplexed on a URL-basis.
-Finally, it allows placing SSH endpoints behind secret URLs, reducing the exposure of SSH hosts to
-scanning and bruteforce attacks. This goes in line with the will of having undiscoverable resources
+Finally, SSH3 endpoints can be placed behind secret URLs, reducing the exposure of SSH3 hosts to
+scanning and brute force attacks. This goes in line with the will of having undiscoverable resources
 also tackled by other IETF working groups <span>[<a href="#HTTP-SIGNATURE" class="cite xref">HTTP-SIGNATURE</a>]</span>. This property is not provided by SSHv2 since
 the SSHv2 server announces its SSH version string to any connected TCP client. If wanted, SSH3 hosts can be made
-undistinguishable from any HTTP server.<a href="#section-1.1.5-1" class="pilcrow">¶</a></p>
+indistinguishable from any HTTP server.<a href="#section-1.1.5-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1427,8 +1439,8 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
 </div>
 <div id="establishing">
 <section id="section-3">
-      <h2 id="name-estalishing-an-ssh3-convers">
-<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-estalishing-an-ssh3-convers" class="section-name selfRef">Estalishing an SSH3 conversation</a>
+      <h2 id="name-establishing-an-ssh3-conver">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-establishing-an-ssh3-conver" class="section-name selfRef">Establishing an SSH3 conversation</a>
       </h2>
 <p id="section-3-1">We choose the term "conversation" to avoid ambiguities with the existing
 concepts of SSH shell session and QUIC connection.
@@ -1447,10 +1459,10 @@ https://proxy.example.org:4443/ssh3{?username}
 </pre><a href="#section-3-3" class="pilcrow">¶</a>
 </div>
 <p id="section-3-4">[[Note: In the current prototype, percent-encoding is used for characters outside the allowed set of <span>[<a href="#URI" class="cite xref">URI</a>]</span>. An alternative can be to perform base64url encoding of the username instead.]]<a href="#section-3-4" class="pilcrow">¶</a></p>
-<p id="section-3-5"><a href="#ssh3-conversation-establishment" class="auto internal xref">Figure 2</a> illustrates a successful SSH3 conversation
+<p id="section-3-5"><a href="#ssh3-conversation-establishment" class="auto internal xref">Figure 3</a> illustrates a successful SSH3 conversation
 establishment.<a href="#section-3-5" class="pilcrow">¶</a></p>
 <span id="name-ssh3-successful-conversatio"></span><div id="ssh3-conversation-establishment">
-<figure id="figure-2">
+<figure id="figure-3">
         <div class="alignLeft art-text artwork" id="section-3-6.1">
 <pre>
        Client
@@ -1473,7 +1485,7 @@ establishment.<a href="#section-3-5" class="pilcrow">¶</a></p>
           |                                               |
 </pre>
 </div>
-<figcaption><a href="#figure-2" class="selfRef">Figure 2</a>:
+<figcaption><a href="#figure-3" class="selfRef">Figure 3</a>:
 <a href="#name-ssh3-successful-conversatio" class="selfRef">SSH3 successful conversation establishment.</a>
         </figcaption></figure>
 </div>
@@ -1577,9 +1589,9 @@ being replayed.<a href="#section-3.1.2-5" class="pilcrow">¶</a></p>
           </h4>
 <p id="section-3.1.3-1">Public key authentication can also be performed using the HTTP Signature
 Authentication scheme <span>[<a href="#HTTP-SIGNATURE" class="cite xref">HTTP-SIGNATURE</a>]</span>. The <code>&lt;k&gt;</code> parameter designates
-the key ID of the public key used the the authentication process.
+the key ID of the public key used by the authentication process.
 Classical SSH implementations usually do not assign IDs to public keys.
-The value of <code>&lt;k&gt;</code> can therefore be set to the cryptographic hash of
+The value <code>&lt;k&gt;</code> can therefore be set to the cryptographic hash of
 the public key instead.<a href="#section-3.1.3-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-3.1.3-2">
 <pre>
@@ -1652,7 +1664,7 @@ Channel {
 Channel Type is a UTF-8-encoded string whose length is defined
 by the Channel Type Length field.<a href="#section-4.1.1-3" class="pilcrow">¶</a></p>
 <p id="section-4.1.1-4">[[Note: SSHv2 uses text-based channel IDs. Should we keep that or
-use somthing else instead ? If we change, we loose a 1-1 mapping with SSHv2.]]<a href="#section-4.1.1-4" class="pilcrow">¶</a></p>
+use something else instead ? If we change, we loose a 1-1 mapping with SSHv2.]]<a href="#section-4.1.1-4" class="pilcrow">¶</a></p>
 <p id="section-4.1.1-5">The Maximum Message Size field defines the maximum size in bytes of
 SSH messages.<a href="#section-4.1.1-5" class="pilcrow">¶</a></p>
 <p id="section-4.1.1-6">The remaining bytes of the stream are interpreted as a sequence of SSH
@@ -1701,7 +1713,7 @@ on the remote host to the client.<a href="#section-4.1.2-3" class="pilcrow">¶</
 <a href="#section-4.1.3" class="section-number selfRef">4.1.3. </a><a href="#name-messages" class="section-name selfRef">Messages</a>
           </h4>
 <p id="section-4.1.3-1">Messages are exchanged over channels similarly to SSHv2. The same
-messages
+message
 format as the one defined in <span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]</span> applies, with channel
 numbers removed from the messages headers as channel run over dedicated
 HTTP streams. Hereunder is an example showing the wire format of the
@@ -1780,7 +1792,7 @@ key authentication should be preferred to passwords.<a href="#section-8-1" class
 servers in a similar way to classical HTTPS servers. Using valid TLS certificates on the server allows their
 automatic verification on the client with no explicit user action
 required. Connecting an SSH3 client to a server with no valid
-cerificate exposes the user to the same risk incurred by SSHv2
+certificate exposes the user to the same risk incurred by SSHv2
 endpoints relying on Host keys: the user needs to manually validate the
 certificate before connecting to avoid an attacker to impersonate the
 server and access the keystrokes typed by the user during the
@@ -1815,6 +1827,10 @@ HTTP/3 only.]]<a href="#section-9.1-2" class="pilcrow">¶</a></p>
 <a href="#section-10.1" class="section-number selfRef">10.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
         </h3>
 <dl class="references">
+<dt id="DOQ">[DOQ]</dt>
+        <dd>
+<span class="refAuthor">Huitema, C.</span>, <span class="refAuthor">Dickinson, S.</span>, and <span class="refAuthor">A. Mankin</span>, <span class="refTitle">"DNS over Dedicated QUIC Connections"</span>, <span class="seriesInfo">RFC 9250</span>, <span class="seriesInfo">DOI 10.17487/RFC9250</span>, <time datetime="2022-05" class="refDate">May 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9250">https://www.rfc-editor.org/rfc/rfc9250</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="EXTENDED-CONNECT">[EXTENDED-CONNECT]</dt>
         <dd>
 <span class="refAuthor">McManus, P.</span>, <span class="refTitle">"Bootstrapping WebSockets with HTTP/2"</span>, <span class="seriesInfo">RFC 8441</span>, <span class="seriesInfo">DOI 10.17487/RFC8441</span>, <time datetime="2018-09" class="refDate">September 2018</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8441">https://www.rfc-editor.org/rfc/rfc8441</a>&gt;</span>. </dd>
@@ -1984,7 +2000,7 @@ comments on the document before the submission.<a href="#appendix-A-1" class="pi
 </address>
 <address class="vcard">
         <div dir="auto" class="left"><span class="fn nameRole">Olivier Bonaventure</span></div>
-<div dir="auto" class="left"><span class="org">UCLouvain</span></div>
+<div dir="auto" class="left"><span class="org">UCLouvain and WELRI</span></div>
 <div class="email">
 <span>Email:</span>
 <a href="mailto:olivier.bonaventure@uclouvain.be" class="email">olivier.bonaventure@uclouvain.be</a>
