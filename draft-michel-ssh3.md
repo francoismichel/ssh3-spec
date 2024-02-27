@@ -139,6 +139,13 @@ informative:
       author:
       seriesinfo:
         Web: https://www.w3.org/TR/webauthn-3/
+  SSH3-PROTOTYPE:
+      title: "SSH3: faster and rich secure shell using HTTP/3"
+      author:
+        - ins: F. Michel
+          name: François Michel
+      seriesinfo:
+        Web: https://github.com/francoismichel/ssh3
 
 
 --- abstract
@@ -221,7 +228,7 @@ adding new code points in SSH3 for these new algorithms.
 The mechanisms used for establishing an SSH3 conversation
 are similar to the WebTransport session establishment {{WEBTRANSPORT-H3}}.
 WebTransport is also a good transport layer candidate for SSH3. The current
-SSH3 prototype is built directly over HTTP/3 since there is no public
+SSH3 prototype {{SSH3-PROTOTYPE}} is built directly over HTTP/3 since there is no public
 WebTransport implementation meeting all our requirements as of now.
 The semantics of HTTP/2 being comparable to HTTP/3, the mechanisms
 defined in this document could be implemented using HTTP/2 if a fallback
@@ -298,13 +305,10 @@ a middleware managing the
 mapping between identities and SSH keys or certificates. Adding HTTP
 authentication to SSH allows welcoming these authentication methods directly
 and interfaces SSH3 more naturally with existing architectures. As a
-proof-of-concept, OpenID Connect has been implemented in our SSH3 prototype.
+proof-of-concept, OpenID Connect has been implemented in our SSH3 prototype {{SSH3-PROTOTYPE}}.
 Other web authentication standards such as Passkeys/WebAuthn {{WebAuthn}}
 allow administrators to restrict remote access to specific client devices in addition to users.
 
-{::comment}
-référence vers le prototype ?
-{:/comment}
 
 ### URL multiplexing and undiscoverability
 
@@ -342,7 +346,7 @@ https://example.org:4443/ssh3?user={username}
 https://proxy.example.org:4443/ssh3{?username}
 ~~~~
 
-\[\[Note: In the current prototype, percent-encoding is used for characters outside the allowed set of {{URI}}. An alternative can be to perform base64url encoding of the username instead.]]
+\[\[Note: In the current prototype {{SSH3-PROTOTYPE}}, percent-encoding is used for characters outside the allowed set of {{URI}}. An alternative can be to perform base64url encoding of the username instead.]]
 
 {{ssh3-conversation-establishment}} illustrates a successful SSH3 conversation
 establishment.
@@ -385,7 +389,7 @@ scheme is not supported by the server, the server SHOULD respond with a
 401 (Unauthorized) response message. Once the user authentication is successful, the SSH3 server can process the request and start the conversation. This section only provides example user authentication
 mechanisms. Other mechanisms may be proposed in the future in separate
 documents. The two first examples are implemented by our current
-prototype. The third example leverages the Signature authentication
+prototype {{SSH3-PROTOTYPE}}. The third example leverages the Signature authentication
 scheme {{HTTP-SIGNATURE}} and will be preferred for public key
 authentication in future versions of our prototype.
 
