@@ -38,6 +38,7 @@ author:
 
 normative:
   QUIC-RECOVERY: RFC9002
+  HTTP2: RFC9113
   HTTP3: RFC9114
   SSH-ARCH: RFC4251
   SSH-AUTH: rfc4252
@@ -567,6 +568,14 @@ HTTP header in the CONNECT request.
 Upon receiving this header, the server chooses a version from the ones
 supported by the client. It then sets this single version as the value
 of the "`ssh-version`" header.
+
+## Compatibility with SSHv2 and TCP-only networks
+
+While the protocol described in this document is not directly compatible with SSHv2,
+mechanisms can be defined in the future to announce the availability of SSH3 and upgrade
+to SSH3 from SSHv2 sessions. Such upgrades can also be achieved on networks supporting only TCP
+using either HTTP/2 {{HTTP2}} or HTTP/3 {{HTTP3}} with QUIC on Streams {{QUIC-ON-STREAMS}}
+as a substrate for SSH3.
 
 # Security Considerations
 
