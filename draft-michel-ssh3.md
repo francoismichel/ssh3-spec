@@ -246,7 +246,7 @@ The stream multiplexing capabilities of QUIC allow reducing the head-of-line blo
 
 QUIC also supports connection migration ({{Section 9 of QUIC}}).
 Using connection migrations, mobile hosts roaming between networks can
-maintain established connection alive across different networks by migrating them
+maintain established connections alive across different networks by migrating them
 on their newly acquired IP address. This avoids disrupting the SSH conversation
 upon network changes.
 Finally, QUIC also offers a significantly reduced connection establishment
