@@ -539,11 +539,11 @@ also defined in {{SSH-CONNECT}}:
 - direct-udp
 - reverse-udp
 
-The direct-tcp and direct-udp channels request TCP and UDP port
+The direct-tcp and direct-udp channels offer TCP and UDP port
 forwarding from a local port on the client towards a remote address
 accessible from the remote host.
-The reverse-tcp and reverse-udp channels are used to request
-the forwarding of UDP packets and TCP connections from a specific port
+The reverse-tcp and reverse-udp channels offer
+the forwarding of UDP packets and TCP connections arriving on a specific port
 on the remote host to the client.
 
 ### Port forwarding
