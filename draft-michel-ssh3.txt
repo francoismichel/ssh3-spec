@@ -146,37 +146,37 @@ Table of Contents
    and used in SSH3 without impacting the specification or adding new
    code points in SSH3 for these new algorithms.
 
-                   +---------------------------------+
-                   |              SSH3               |
-                   |   +-------------------------+   |
-                   |   |     SSH Connection      |   |
-                   |   |       (~RFC4254)        |   |
-                   |   +-------------------------+   |
-                   |          SSH services           |
-                   +---------------------------------+
-                     | - user authentication    | - reliable transport
-                     | - URL multiplexing       | - secure channel
-                     v                          |    establishment
-               +-----------------------+        | - streams multiplexing
-               |        HTTP/3         |        |            & datagrams
-               +-----------------------+        v
-               +----------------------------------------------+
-               |                 QUIC / TLS                   |
-               +----------------------------------------------+
+                    +---------------------------------+
+                    |              SSH3               |
+                    |   +-------------------------+   |
+                    |   |     SSH Connection      |   |
+                    |   |       (~RFC4254)        |   |
+                    |   +-------------------------+   |
+                    |          SSH services           |
+                    +---------------------------------+
+                      | - user authentication   | - reliable transport
+                      | - URL multiplexing      | - secure channel
+                      v                         |    establishment
+                +-----------------------+       | - streams multiplexing
+                |        HTTP/3         |       |            & datagrams
+                +-----------------------+       v
+                +----------------------------------------------+
+                |                 QUIC / TLS                   |
+                +----------------------------------------------+
 
-                Figure 2: The proposed SSH3 architecture.
+                 Figure 2: The proposed SSH3 architecture.
 
    The mechanisms used for establishing an SSH3 conversation are similar
    to the WebTransport session establishment [WEBTRANSPORT-H3].
    WebTransport is also a good transport layer candidate for SSH3.  The
-   current SSH3 prototype is built directly over HTTP/3 since there is
-   no public WebTransport implementation meeting all our requirements as
-   of now.  The semantics of HTTP/2 being comparable to HTTP/3, the
-   mechanisms defined in this document could be implemented using HTTP/2
-   if a fallback to TCP is required.  There is an ongoing effort to be
-   able to run HTTP/3 over QUIC on TCP Streams [QUIC-ON-STREAMS].  This
-   document is a first introductory document and we limit its current
-   scope to HTTP/3 using the classical QUIC.
+   current SSH3 prototype [SSH3-PROTOTYPE] is built directly over HTTP/3
+   since there is no public WebTransport implementation meeting all our
+   requirements as of now.  The semantics of HTTP/2 being comparable to
+   HTTP/3, the mechanisms defined in this document could be implemented
+   using HTTP/2 if a fallback to TCP is required.  There is an ongoing
+   effort to be able to run HTTP/3 over QUIC on TCP Streams
+   [QUIC-ON-STREAMS].  This document is a first introductory document
+   and we limit its current scope to HTTP/3 using the classical QUIC.
 
 1.1.  How SSH benefits from HTTP/3
 
@@ -252,10 +252,10 @@ Table of Contents
    authentication to SSH allows welcoming these authentication methods
    directly and interfaces SSH3 more naturally with existing
    architectures.  As a proof-of-concept, OpenID Connect has been
-   implemented in our SSH3 prototype.  Other web authentication
-   standards such as Passkeys/WebAuthn [WebAuthn] allow administrators
-   to restrict remote access to specific client devices in addition to
-   users.
+   implemented in our SSH3 prototype [SSH3-PROTOTYPE].  Other web
+   authentication standards such as Passkeys/WebAuthn [WebAuthn] allow
+   administrators to restrict remote access to specific client devices
+   in addition to users.
 
 1.1.5.  URL multiplexing and undiscoverability
 
@@ -291,8 +291,8 @@ Table of Contents
    and the :scheme pseudo-header MUST be set to https.  If an SSH3
    client or server supports the UDP forwarding feature, it MUST
    indicate support for HTTP/3 datagrams by sending a
-   SETTINGS_H3_DATAGRAM value set to 1 in their SETTINGS frame (see
-   Section 2.1.1 of [HTTP-DATAGRAM]).
+   SETTINGS_H3_DATAGRAM value set to 1 in their SETTINGS frame
+   Section 2.1.1 of [HTTP-DATAGRAM].
 
    An SSH3 server listens for CONNECT requests with the ssh3 protocol on
    URI templates having the username variable.  Example URIs can be
@@ -301,9 +301,10 @@ Table of Contents
    https://example.org:4443/ssh3?user={username}
    https://proxy.example.org:4443/ssh3{?username}
 
-   [[Note: In the current prototype, percent-encoding is used for
-   characters outside the allowed set of [URI].  An alternative can be
-   to perform base64url encoding of the username instead.]]
+   [[Note: In the current prototype [SSH3-PROTOTYPE], percent-encoding
+   is used for characters outside the allowed set of [URI].  An
+   alternative can be to perform base64url encoding of the username
+   instead.]]
 
    Figure 3 illustrates a successful SSH3 conversation establishment.
 
@@ -351,10 +352,10 @@ Table of Contents
    can process the request and start the conversation.  This section
    only provides example user authentication mechanisms.  Other
    mechanisms may be proposed in the future in separate documents.  The
-   two first examples are implemented by our current prototype.  The
-   third example leverages the Signature authentication scheme
-   [HTTP-SIGNATURE] and will be preferred for public key authentication
-   in future versions of our prototype.
+   two first examples are implemented by our current prototype
+   [SSH3-PROTOTYPE].  The third example leverages the Signature
+   authentication scheme [HTTP-SIGNATURE] and will be preferred for
+   public key authentication in future versions of our prototype.
 
 3.1.1.  Password authentication using HTTP Basic Authentication
 
@@ -449,8 +450,7 @@ Table of Contents
    streams and carry SSH messages.  The boolean and string data types
    defined in [SSH-ARCH] are reused.  The byte, uint32 and uint64 data
    types are replaced by variable-length integers as defined in
-   Section 16 (https://datatracker.ietf.org/doc/html/rfc9000#name-
-   variable-length-integer-enc) of [QUIC].
+   Section 16 of [QUIC].
 
 4.1.  Channels
 
@@ -541,8 +541,7 @@ Table of Contents
    channel numbers removed from the messages headers as channel run over
    dedicated HTTP streams.  Hereunder is an example showing the wire
    format of the exit-status SSH message for SSH3.  Its SSHv2 variant is
-   described in Section 6.10 (https://datatracker.ietf.org/doc/html/
-   rfc4254#section-6.10) of [SSH-CONNECT].
+   described in Section 6.10 of [SSH-CONNECT].
 
    ExitStatusMessage {
        Message Type (string) = "exit-status",
@@ -774,6 +773,10 @@ Table of Contents
    [RFC8308]  Bider, D., "Extension Negotiation in the Secure Shell
               (SSH) Protocol", RFC 8308, DOI 10.17487/RFC8308, March
               2018, <https://www.rfc-editor.org/rfc/rfc8308>.
+
+   [SSH3-PROTOTYPE]
+              Michel, F., "SSH3: faster and rich secure shell using
+              HTTP/3", Web https://github.com/francoismichel/ssh3, n.d..
 
    [TECTIA-CERTIFICATES]
               "Tectia Certificates", Web 
