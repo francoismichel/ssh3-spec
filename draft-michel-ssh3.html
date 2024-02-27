@@ -1205,39 +1205,37 @@ multiplexing, relying on TLS for secure channel establishment and the use of X.5
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
             <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-version-negotiation" class="internal xref">Version Negotiation</a></p>
-<ul class="compact toc ulBare ulEmpty">
-<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.1">
-                <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="auto internal xref">6.1</a>.  <a href="#name-compatibility-with-sshv2-an" class="internal xref">Compatibility with SSHv2 and TCP-only networks</a></p>
-</li>
-            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
-            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-compatibility-with-sshv2-an" class="internal xref">Compatibility with SSHv2 and TCP-only networks</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
-            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
-<ul class="compact toc ulBare ulEmpty">
-<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.1">
-                <p id="section-toc.1-1.8.2.1.1"><a href="#section-8.1" class="auto internal xref">8.1</a>.  <a href="#name-http-upgrade-token" class="internal xref">HTTP Upgrade Token</a></p>
-</li>
-            </ul>
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
-            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-references" class="internal xref">References</a></p>
+            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.1">
-                <p id="section-toc.1-1.9.2.1.1"><a href="#section-9.1" class="auto internal xref">9.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.2">
-                <p id="section-toc.1-1.9.2.2.1"><a href="#section-9.2" class="auto internal xref">9.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+                <p id="section-toc.1-1.9.2.1.1"><a href="#section-9.1" class="auto internal xref">9.1</a>.  <a href="#name-http-upgrade-token" class="internal xref">HTTP Upgrade Token</a></p>
 </li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
-            <p id="section-toc.1-1.10.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
+            <p id="section-toc.1-1.10.1"><a href="#section-10" class="auto internal xref">10</a>. <a href="#name-references" class="internal xref">References</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.1">
+                <p id="section-toc.1-1.10.2.1.1"><a href="#section-10.1" class="auto internal xref">10.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.2">
+                <p id="section-toc.1-1.10.2.2.1"><a href="#section-10.2" class="auto internal xref">10.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+</li>
+            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
-            <p id="section-toc.1-1.11.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
+            <p id="section-toc.1-1.11.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
+            <p id="section-toc.1-1.12.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
 </li>
         </ul>
 </nav>
@@ -1754,31 +1752,31 @@ HTTP header in the CONNECT request.
 Upon receiving this header, the server chooses a version from the ones
 supported by the client. It then sets this single version as the value
 of the "<code>ssh-version</code>" header.<a href="#section-6-1" class="pilcrow">¶</a></p>
+</section>
+</div>
 <div id="compatibility-with-sshv2-and-tcp-only-networks">
-<section id="section-6.1">
-        <h3 id="name-compatibility-with-sshv2-an">
-<a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-compatibility-with-sshv2-an" class="section-name selfRef">Compatibility with SSHv2 and TCP-only networks</a>
-        </h3>
-<p id="section-6.1-1">While the protocol described in this document is not directly compatible with SSHv2,
+<section id="section-7">
+      <h2 id="name-compatibility-with-sshv2-an">
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-compatibility-with-sshv2-an" class="section-name selfRef">Compatibility with SSHv2 and TCP-only networks</a>
+      </h2>
+<p id="section-7-1">While the protocol described in this document is not directly compatible with SSHv2,
 mechanisms can be defined in the future to announce the availability of SSH3 and upgrade
 to SSH3 from SSHv2 sessions. Such upgrades can also be achieved on networks supporting only TCP
 using either HTTP/2 <span>[<a href="#HTTP2" class="cite xref">HTTP2</a>]</span> or HTTP/3 <span>[<a href="#HTTP3" class="cite xref">HTTP3</a>]</span> with QUIC on Streams <span>[<a href="#QUIC-ON-STREAMS" class="cite xref">QUIC-ON-STREAMS</a>]</span>
-as a substrate for SSH3.<a href="#section-6.1-1" class="pilcrow">¶</a></p>
-</section>
-</div>
+as a substrate for SSH3.<a href="#section-7-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="security-considerations">
-<section id="section-7">
+<section id="section-8">
       <h2 id="name-security-considerations">
-<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
       </h2>
-<p id="section-7-1">Running an SSH3 endpoint with weak or no authentication methods exposes
+<p id="section-8-1">Running an SSH3 endpoint with weak or no authentication methods exposes
 the host to non-negligible risks allowing attackers to gain full control
 of the server. SSH3 servers should not be run without authentication
 and user authentication material should be verified thoroughly. Public
-key authentication should be preferred to passwords.<a href="#section-7-1" class="pilcrow">¶</a></p>
-<p id="section-7-2">It is strongly recommended to deploy public TLS certificates on SSH3
+key authentication should be preferred to passwords.<a href="#section-8-1" class="pilcrow">¶</a></p>
+<p id="section-8-2">It is strongly recommended to deploy public TLS certificates on SSH3
 servers in a similar way to classical HTTPS servers. Using valid TLS certificates on the server allows their
 automatic verification on the client with no explicit user action
 required. Connecting an SSH3 client to a server with no valid
@@ -1786,35 +1784,35 @@ cerificate exposes the user to the same risk incurred by SSHv2
 endpoints relying on Host keys: the user needs to manually validate the
 certificate before connecting to avoid an attacker to impersonate the
 server and access the keystrokes typed by the user during the
-conversation.<a href="#section-7-2" class="pilcrow">¶</a></p>
+conversation.<a href="#section-8-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="iana-considerations">
-<section id="section-8">
+<section id="section-9">
       <h2 id="name-iana-considerations">
-<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
       </h2>
 <div id="http-upgrade-token">
-<section id="section-8.1">
+<section id="section-9.1">
         <h3 id="name-http-upgrade-token">
-<a href="#section-8.1" class="section-number selfRef">8.1. </a><a href="#name-http-upgrade-token" class="section-name selfRef">HTTP Upgrade Token</a>
+<a href="#section-9.1" class="section-number selfRef">9.1. </a><a href="#name-http-upgrade-token" class="section-name selfRef">HTTP Upgrade Token</a>
         </h3>
-<p id="section-8.1-1">This document will request IANA to register "ssh3" in the "HTTP Upgrade
-Tokens" registry maintained at <a href="https://www.iana.org/assignments/http-upgrade-tokens">https://www.iana.org/assignments/http-upgrade-tokens</a>.<a href="#section-8.1-1" class="pilcrow">¶</a></p>
-<p id="section-8.1-2">[[Note: This may be removed if we decide to run SSH3 atop WebTransport instead of
-HTTP/3 only.]]<a href="#section-8.1-2" class="pilcrow">¶</a></p>
+<p id="section-9.1-1">This document will request IANA to register "ssh3" in the "HTTP Upgrade
+Tokens" registry maintained at <a href="https://www.iana.org/assignments/http-upgrade-tokens">https://www.iana.org/assignments/http-upgrade-tokens</a>.<a href="#section-9.1-1" class="pilcrow">¶</a></p>
+<p id="section-9.1-2">[[Note: This may be removed if we decide to run SSH3 atop WebTransport instead of
+HTTP/3 only.]]<a href="#section-9.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
 </div>
-<section id="section-9">
+<section id="section-10">
       <h2 id="name-references">
-<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-references" class="section-name selfRef">References</a>
+<a href="#section-10" class="section-number selfRef">10. </a><a href="#name-references" class="section-name selfRef">References</a>
       </h2>
 <div id="sec-normative-references">
-<section id="section-9.1">
+<section id="section-10.1">
         <h3 id="name-normative-references">
-<a href="#section-9.1" class="section-number selfRef">9.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+<a href="#section-10.1" class="section-number selfRef">10.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
         </h3>
 <dl class="references">
 <dt id="EXTENDED-CONNECT">[EXTENDED-CONNECT]</dt>
@@ -1897,9 +1895,9 @@ HTTP/3 only.]]<a href="#section-8.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="sec-informative-references">
-<section id="section-9.2">
+<section id="section-10.2">
         <h3 id="name-informative-references">
-<a href="#section-9.2" class="section-number selfRef">9.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+<a href="#section-10.2" class="section-number selfRef">10.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
         </h3>
 <dl class="references">
 <dt id="ACME">[ACME]</dt>
