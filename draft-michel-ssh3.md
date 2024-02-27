@@ -294,7 +294,7 @@ web authentication mechanisms such as OpenID Connect {{OpenID.Core}}, SAML2
 for managing access to critical resources in different organizations. Sharing
 computing resources
 using SSHv2 through these mechanisms generally requires the deployment of
-middleware managing the
+a middleware managing the
 mapping between identities and SSH keys or certificates. Adding HTTP
 authentication to SSH allows welcoming these authentication methods directly
 and interfaces SSH3 more naturally with existing architectures. As a
