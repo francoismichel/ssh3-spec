@@ -197,20 +197,20 @@ adding new code points in SSH3 for these new algorithms.
 
 ~~~~
 
-            +-----------------------------------------------+
-            |                     SSH3                      |
-            |          +-------------------------+          |
-            |          |     SSH Connection      |          |
-            |          |       (~RFC4254)        |          |
-            |          +-------------------------+          |
-            |                 SSH services                  |
-            +-----------------------------------------------+
-                | - user authentication      | - reliable transport
-                | - URL multiplexing         | - secure channel
-                v                            |    establishment
-             +-----------------------+       | - streams multiplexing
-             |        HTTP/3         |       |            & datagrams
-             +-----------------------+       v
+                 +---------------------------------+
+                 |              SSH3               |
+                 |   +-------------------------+   |
+                 |   |     SSH Connection      |   |
+                 |   |       (~RFC4254)        |   |
+                 |   +-------------------------+   |
+                 |          SSH services           |
+                 +---------------------------------+
+                   | - user authentication    | - reliable transport
+                   | - URL multiplexing       | - secure channel
+                   v                          |    establishment
+             +-----------------------+        | - streams multiplexing
+             |        HTTP/3         |        |            & datagrams
+             +-----------------------+        v
              +----------------------------------------------+
              |                 QUIC / TLS                   |
              +----------------------------------------------+
