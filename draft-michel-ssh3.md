@@ -38,6 +38,7 @@ author:
 
 normative:
   QUIC-RECOVERY: RFC9002
+  HTTP2: RFC9113
   HTTP3: RFC9114
   SSH-ARCH: RFC4251
   SSH-AUTH: rfc4252
@@ -182,13 +183,11 @@ Among others, SSH provides different services such as remote program execution, 
 {: #ssh2-architecture title="The SSHv2 architecture protocol stack."}
 
 This document defines mechanisms to run the SSH Connection protocol
-
-
-
 {{SSH-CONNECT}} over HTTP/3 and uses the name "SSH3" to refer to
 this solution. The secure channel establishment uses TLS included in QUIC while user authentication
 is performed using existing HTTP authentication schemes, simplifying significantly the design of the protocol. {{ssh3-architecture-goal}}
 provides a graphical representation of the architecture proposed in this document. 
+
 One benefit of the approach is that the HTTP3 and QUIC layers can
 evolve independently of SSH. For instance, new encryption and MAC algorithms
 can be added to TLS and used in SSH3 without impacting the specification or
@@ -208,7 +207,7 @@ adding new code points in SSH3 for these new algorithms.
                 | - URL multiplexing         | - secure channel
                 v                            |    establishment
              +-----------------------+       | - streams multiplexing
-             |        HTTP 3         |       |            & datagrams
+             |        HTTP/3         |       |            & datagrams
              +-----------------------+       v
              +----------------------------------------------+
              |                 QUIC / TLS                   |
@@ -245,7 +244,7 @@ The stream multiplexing capabilities of QUIC allow reducing the head-of-line blo
 
 QUIC also supports connection migration ({{Section 9 of QUIC}}).
 Using connection migrations, mobile hosts roaming between networks can
-maintain established connection alive across different networks by migrating them
+maintain established connections alive across different networks by migrating them
 on their newly acquired IP address. This avoids disrupting the SSH conversation
 upon network changes.
 Finally, QUIC also offers a significantly reduced connection establishment
@@ -293,7 +292,7 @@ web authentication mechanisms such as OpenID Connect {{OpenID.Core}}, SAML2
 for managing access to critical resources in different organizations. Sharing
 computing resources
 using SSHv2 through these mechanisms generally requires the deployment of
-middleware managing the
+a middleware managing the
 mapping between identities and SSH keys or certificates. Adding HTTP
 authentication to SSH allows welcoming these authentication methods directly
 and interfaces SSH3 more naturally with existing architectures. As a
@@ -587,6 +586,16 @@ Upon receiving this header, the server chooses a version from the ones
 supported by the client. It then sets this single version as the value
 of the "`ssh-version`" header.
 
+# Compatibility with SSHv2 and TCP-only networks
+
+While the protocol described in this document is not directly compatible with SSHv2,
+mechanisms could be defined in the future to announce the availability of SSH3 and upgrade
+to SSH3 when creating SSHv2 sessions.
+
+In networks where UDP and thus QUIC is blocked, such upgrades could be achieved using only TCP
+with either HTTP/2 {{HTTP2}} or HTTP/3 {{HTTP3}} with QUIC on Streams {{QUIC-ON-STREAMS}}
+as a substrate for SSH3.
+
 # Security Considerations
 
 Running an SSH3 endpoint with weak or no authentication methods exposes
@@ -596,7 +605,8 @@ and user authentication material should be verified thoroughly. Public
 key authentication should be preferred to passwords.
 
 It is strongly recommended to deploy public TLS certificates on SSH3
-servers in a similar way to classical HTTPS servers. Using valid TLS certificates on the server allows their
+servers in a similar way to classical HTTPS servers.
+Using valid TLS certificates on the server allows their
 automatic verification on the client with no explicit user action
 required. Connecting an SSH3 client to a server with no valid
 certificate exposes the user to the same risk incurred by SSHv2
