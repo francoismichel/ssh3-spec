@@ -569,7 +569,7 @@ Upon receiving this header, the server chooses a version from the ones
 supported by the client. It then sets this single version as the value
 of the "`ssh-version`" header.
 
-## Compatibility with SSHv2 and TCP-only networks
+# Compatibility with SSHv2 and TCP-only networks
 
 While the protocol described in this document is not directly compatible with SSHv2,
 mechanisms can be defined in the future to announce the availability of SSH3 and upgrade
