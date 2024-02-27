@@ -335,7 +335,7 @@ An SSH3 conversation can be started using the HTTP/3 Extended CONNECT
 method {{EXTENDED-CONNECT}}. The `:protocol` pseudo-header MUST be set
 to `ssh3` and the `:scheme` pseudo-header MUST be set to `https`.
 If an SSH3 client or server supports the UDP forwarding feature, it MUST indicate support for HTTP/3 datagrams by sending a SETTINGS_H3_DATAGRAM value set to 1 in their
-SETTINGS frame {{Section 2.1.1 of HTTP-DATAGRAM}}.
+SETTINGS frame ({{Section 2.1.1 of HTTP-DATAGRAM}}).
 
 An SSH3 server listens for CONNECT requests with the `ssh3`
 protocol on URI templates having the `username` variable. Example URIs can be
@@ -555,7 +555,7 @@ The HTTP bidirectional stream attached to the `direct-tcp` or `reverse-tcp`
 channel directly carries the TCP payload to forward.
 
 For UDP forwarding, UDP packets are carried through HTTP Datagrams
-{{Section 2 of HTTP-DATAGRAM}} whose Quarter Stream IDs refer directly to the
+({{Section 2 of HTTP-DATAGRAM}}) whose Quarter Stream IDs refer directly to the
 HTTP Stream ID of the corresponding `direct-udp` or `reverse-udp` channel.
 
 Forwarding of other layers (e.g. IP) is left for future
