@@ -1,0 +1,2020 @@
+<!DOCTYPE html>
+<html lang="en" class="Internet-Draft">
+<head>
+<meta charset="utf-8">
+<meta content="Common,Latin" name="scripts">
+<meta content="initial-scale=1.0" name="viewport">
+<title>Secure shell over HTTP/3 connections</title>
+<meta content="François Michel" name="author">
+<meta content="Olivier Bonaventure" name="author">
+<meta content="
+       The secure shell (SSH) traditionally offers its secure services over an insecure network using the TCP transport protocol. This document defines mechanisms
+to run the SSH protocol and provide a comparable set of services using HTTP/3.
+Running SSH over HTTP/3 allows several benefits such as the scalability offered by HTTP
+multiplexing, relying on TLS for secure channel establishment leveraging X.509 certificates, HTTP Authentication schemes for client and server authentication
+and stronger resilience against packet injection attacks and middlebox interference. 
+    " name="description">
+<meta content="xml2rfc 3.19.4" name="generator">
+<meta content="ssh" name="keyword">
+<meta content="ssh3" name="keyword">
+<meta content="http" name="keyword">
+<meta content="h3" name="keyword">
+<meta content="quic" name="keyword">
+<meta content="tls" name="keyword">
+<meta content="draft-michel-ssh3-latest" name="ietf.draft">
+<!-- Generator version information:
+  xml2rfc 3.19.4
+    Python 3.11.6
+    ConfigArgParse 1.7
+    google-i18n-address 3.1.0
+    intervaltree 3.1.0
+    Jinja2 3.1.2
+    lxml 4.9.3
+    platformdirs 4.2.0
+    pycountry 22.3.5
+    PyYAML 6.0.1
+    requests 2.31.0
+    setuptools 68.2.2
+    six 1.16.0
+    wcwidth 0.2.13
+-->
+<link href="draft-michel-ssh3.xml" rel="alternate" type="application/rfc+xml">
+<link href="#copyright" rel="license">
+<style type="text/css">@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Lora SemiBold'), local('Lora-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-semibold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Cabin Condensed';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Cabin Condensed SemiBold'), local('CabinCondensed-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/cabincondensed-semibold-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Cabin Condensed';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Cabin Condensed SemiBold'), local('CabinCondensed-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/cabincondensed-semibold-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Cabin Condensed';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Cabin Condensed SemiBold'), local('CabinCondensed-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/cabincondensed-semibold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  color-scheme: light dark;
+  --background-color: #fff;
+  --text-color: #222;
+  --title-color: #191919;
+  --link-color: #2a6496;
+  --highlight-color: #f9f9f9;
+  --line-color: #eee;
+  --pilcrow-weak: #ddd;
+  --pilcrow-strong: #bbb;
+  --small-font-size: 14.5px;
+  --font-mono: 'Oxygen Mono', monospace;
+  scrollbar-color: #bbb #eee;
+}
+body {
+  max-width: 600px;
+  margin: 75px auto;
+  padding: 0 5px;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  font: 16px/22px "Lora", serif;
+  scroll-behavior: smooth;
+}
+
+.ears {
+  display: none;
+}
+
+/* headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Cabin Condensed", sans-serif;
+  font-weight: 600;
+  margin: 0.8em 0 0.3em;
+  font-size-adjust: 0.5;
+  color: var(--title-color);
+}
+h1#title {
+  font-size: 32px;
+  line-height: 40px;
+  clear: both;
+}
+h1#title, h1#rfcnum {
+  margin: 1.5em 0 0.2em;
+}
+h1#rfcnum + h1#title {
+  margin: 0.2em 0;
+}
+
+h1, h2, h3 {
+  font-size: 22px;
+  line-height: 27px;
+}
+h4, h5, h6 {
+  font-size: 20px;
+  line-height: 24px;
+}
+
+/* general structure */
+.author {
+  padding-bottom: 0.3em;
+}
+#abstract+p {
+  font-size: 18px;
+  line-height: 24px;
+}
+#abstract+p code, #abstract+p samp, #abstract+p tt {
+  font-size: 16px;
+  line-height: 0;
+}
+
+p {
+  padding: 0;
+  margin: 0.5em 0;
+  text-align: left;
+}
+div {
+  margin: 0;
+}
+.alignRight.art-text {
+  background-color: var(--highlight-color);
+  border: 1px solid var(--line-color);
+  border-radius: 3px;
+  padding: 0.5em 1em 0;
+  margin-bottom: 0.5em;
+}
+.alignRight.art-text pre {
+  padding: 0;
+  width: auto;
+}
+.alignRight {
+  margin: 1em 0;
+}
+.alignRight > *:first-child {
+  border: none;
+  margin: 0;
+  float: right;
+  clear: both;
+}
+.alignRight > *:nth-child(2) {
+  clear: both;
+  display: block;
+  border: none;
+}
+svg {
+  display: block;
+}
+/* font-family isn't space-separated, but =~ will have to do */
+svg[font-family~="monospace" i], svg [font-family~="monospace" i] {
+  font-family: var(--font-mono);
+}
+.alignCenter.art-text {
+  background-color: var(--highlight-color);
+  border: 1px solid var(--line-color);
+  border-radius: 3px;
+  padding: 0.5em 1em 0;
+  margin-bottom: 0.5em;
+}
+.alignCenter.art-text pre {
+  padding: 0;
+  width: auto;
+}
+.alignCenter {
+  margin: 1em 0;
+}
+.alignCenter > *:first-child {
+  border: none;
+  /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
+     support flexbox yet.
+  */
+  display: table;
+  margin: 0 auto;
+}
+
+/* lists */
+ol, ul {
+  padding: 0;
+  margin: 0 0 0.5em 2em;
+}
+:is(ol, ul) :is(ol, ul) {
+  margin-left: 1em;
+}
+li {
+  margin: 0 0 0.25em 0;
+}
+.ulCompact li {
+  margin: 0;
+}
+ul.empty, .ulEmpty {
+  list-style-type: none;
+}
+ul.empty li, .ulEmpty li {
+  margin-top: 0.5em;
+}
+:is(ul, ol).compact, .ulCompact, .olCompact {
+  line-height: 1;
+  margin: 0 0 0 2em;
+}
+
+/* definition lists */
+dl {
+  clear: left;
+  --indent: 3ch;
+  /* --indent: attr(indent ch); not supported in any browser, but we can dream */
+}
+dl.olPercent {
+  --indent: 5ch;
+}
+dl > dt {
+  float: left;
+  margin-right: 2ch;
+  min-width: 8ch;
+}
+dl.dlNewline > dt {
+  float: none;
+}
+dl > dd {
+  margin-bottom: .8em;
+  margin-left: var(--indent) !important; /* stupid element overrides */
+  min-height: 2ex;
+}
+dl.olPercent > dt {
+  min-width: calc(var(--indent) - 2ch);
+}
+:is(dl.compact, .dlCompact) > dd {
+  margin-bottom: 0;
+}
+:is(dl.compact, .dlCompact) > dd > :is(:first-child, .break:first-child + *) {
+  margin-top: 0;
+}
+:is(dl.compact, .dlCompact) > dd > :is(:last-child) {
+  margin-bottom: 0;
+}
+dl > dd > dl {
+  margin-top: 0.5em;
+  margin-bottom: 0;
+}
+:is(dd, span).break {
+  display: none;
+}
+
+/* links */
+a, a[href].selfRef:hover {
+  text-decoration: none;
+}
+a[href] {
+  color: var(--link-color);
+}
+a[href].selfRef, .iref + a[href].internal {
+  color: var(--text-color);
+}
+a[href]:hover {
+  text-decoration: underline;
+}
+a[href].selfRef:hover {
+  background-color: var(--highlight-color);
+}
+a.xref:is(.cite, .auto), :is(#status-of-memo, #copyright) a {
+  white-space: nowrap;
+}
+
+/* Figures */
+tt, code, pre {
+  background-color: var(--highlight-color);
+  font: 14px/22px var(--font-mono);
+}
+tt, code {
+  /* changing the font for inline elements leads to different ascender
+     and descender heights; as we want to retain baseline alignment,
+     remove leading to avoid altering the final height of lines
+     note: this fails if these blocks take an entire line,
+     a different solution would be great */
+  line-height: 0;
+}
+:is(h1, h2, h3, h4, h5, h6) :is(tt, code) {
+  font-size: 84%;
+}
+pre {
+  border: 1px solid var(--line-color);
+  font-size: 13.5px;
+  line-height: 16px;
+  letter-spacing: -0.2px;
+  margin: 5px;
+  padding: 5px;
+}
+img {
+  max-width: 100%;
+}
+figure {
+  margin: 0.5em 0;
+  padding: 0;
+}
+figure blockquote {
+  margin: 0.8em 0.4em 0.4em;
+}
+figcaption, caption {
+  font-style: italic;
+  margin: 0.5em 1.5em;
+  text-align: left;
+}
+@media screen {
+  /* Auto-collapse boilerplate. */
+  :is(#status-of-memo, #copyright) p {
+    margin: -2px 0;
+    max-height: 0;
+    transition: max-height 2s ease, margin 0.5s ease 0.5s;
+    overflow: hidden;
+  }
+  :is(#status-of-memo, #copyright):hover p,
+  :is(#status-of-memo, #copyright) h2:target ~ p {
+    margin: 0.5em 0;
+    max-height: 500px;
+    overflow: auto;
+  }
+  pre, svg {
+    display: inline-block;
+    overflow-x: auto;
+  }
+  pre {
+    max-width: 100%;
+    width: calc(100% - 22px - 1em);
+  }
+  svg {
+    max-width: calc(100% - 22px - 1em);
+  }
+  figure pre {
+    display: block;
+    width: calc(100% - 25px);
+  }
+  :is(pre, svg) + .pilcrow {
+    display: inline-block;
+    vertical-align: text-bottom;
+    padding-bottom: 8px;
+  }
+}
+
+/* aside, blockquote */
+aside, blockquote {
+  margin-left: 0;
+  padding: 0 2em;
+  font-style: italic;
+}
+blockquote {
+  margin: 1em 0;
+}
+cite {
+  display: block;
+  text-align: right;
+  font-style: italic;
+}
+
+/* tables */
+table {
+  max-width: 100%;
+  margin: 0 0 1em;
+  border-collapse: collapse;
+}
+table.right {
+  margin-left: auto;
+}
+table.center {
+  margin-left: auto;
+  margin-right: auto;
+}
+table.left {
+  margin-right: auto;
+}
+thead, tbody {
+  border: 1px solid var(--line-color);
+}
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: 5px 10px;
+}
+th {
+  background-color: var(--line-color);
+}
+:is(tr:nth-child(2n), thead+tbody > tr:nth-child(2n+1)) > td {
+  background-color: var(--background-color);
+}
+:is(tr:nth-child(2n+1), thead+tbody > tr:nth-child(2n)) > td {
+  background-color: var(--highlight-color);
+}
+table caption {
+  margin: 0;
+  padding: 3px 0 3px 1em;
+}
+table p {
+  margin: 0;
+}
+
+/* pilcrow */
+a.pilcrow {
+  margin-left: 3px;
+  opacity: 0.2;
+  user-select: none;
+}
+a.pilcrow[href] { color: var(--pilcrow-weak); }
+a.pilcrow[href]:hover { text-decoration: none; }
+@media not print {
+  :hover > a.pilcrow {
+    opacity: 1;
+  }
+  a.pilcrow[href]:hover {
+    color: var(--pilcrow-strong);
+    background-color: transparent;
+  }
+}
+@media print {
+  a.pilcrow {
+    display: none;
+  }
+}
+
+/* misc */
+hr {
+  border: 0;
+  border-top: 1px solid var(--line-color);
+}
+.bcp14 {
+  font-variant: small-caps;
+  font-weight: 600;
+  font-size: var(--small-font-size);
+}
+.role {
+  font-variant: all-small-caps;
+}
+sub, sup {
+  line-height: 1;
+  font-size: 80%;
+}
+
+/* info block */
+#identifiers {
+  margin: 0;
+  font-size: var(--small-font-size);
+  line-height: 18px;
+  --identifier-width: 15ch;
+}
+#identifiers dt {
+  width: var(--identifier-width);
+  min-width: var(--identifier-width);
+  clear: left;
+  float: left;
+  text-align: right;
+  margin-right: 1ch;
+}
+#identifiers dd {
+  margin: 0;
+  margin-left: calc(1em + var(--identifier-width)) !important;
+  min-width: 5em;
+}
+#identifiers .authors .author {
+  display: inline-block;
+  margin-right: 1.5em;
+}
+#identifiers .authors .org {
+  font-style: italic;
+}
+
+/* The prepared/rendered info at the very bottom of the page */
+.docInfo {
+  color: #999;
+  font-size: 0.9em;
+  font-style: italic;
+  margin-top: 2em;
+}
+.docInfo .prepared {
+  float: left;
+}
+.docInfo .prepared {
+  float: right;
+}
+
+/* table of contents */
+#toc {
+  padding: 0.75em 0 2em 0;
+  margin-bottom: 1em;
+}
+#toc nav ul {
+  margin: 0 0.5em 0 0;
+  padding: 0;
+  list-style: none;
+}
+#toc nav li {
+  line-height: 1.3em;
+  margin: 2px 0;
+  padding-left: 1.2em;
+  text-indent: -1.2em;
+}
+#toc a.xref {
+  white-space: normal;
+}
+/* references */
+.references dt {
+  text-align: right;
+  font-weight: bold;
+  min-width: 10ch;
+  margin-right: 1.5ch;
+}
+.references dt:target::before {
+  content: "⇒";
+  width: 15px;
+  margin: 0 10px 0 -25px;
+}
+.references dd {
+  margin-left: 12ch !important;
+  overflow: auto;
+}
+
+.refInstance {
+  margin-bottom: 1.25em;
+}
+
+.references .ascii {
+  margin-bottom: 0.25em;
+}
+
+/* index */
+#rfc\.index\.index + ul {
+  margin-left: 0;
+}
+
+/* authors */
+address.vcard {
+  font-style: normal;
+  margin: 1em 0;
+}
+address.vcard .nameRole {
+  font-weight: 700;
+  margin-left: 0;
+}
+address.vcard .label {
+  margin: 0.5em 0;
+}
+address.vcard .type {
+  display: none;
+}
+.alternative-contact {
+  margin: 1.5em 0 1em;
+}
+hr.addr {
+  border-top: 1px dashed;
+  margin: 0;
+  color: #ddd;
+  max-width: calc(100% - 16px);
+}
+@media (min-width: 500px) {
+  #authors-addresses > section {
+    column-count: 2;
+    column-gap: 20px;
+  }
+  #authors-addresses > section > h2 {
+    column-span: all;
+  }
+  /* hack for break-inside: avoid-column */
+  #authors-addresses address {
+    display: inline-block;
+    break-inside: avoid-column;
+  }
+}
+
+.rfcEditorRemove p:first-of-type {
+  font-style: italic;
+}
+.cref {
+  background-color: rgba(249, 232, 105, 0.3);
+  padding: 2px 4px;
+}
+.crefSource {
+  font-style: italic;
+}
+/* alternative layout for smaller screens */
+@media screen and (max-width: 929px) {
+  #toc {
+    position: fixed;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    padding: 1px 0 0 0;
+    margin: 0;
+    border-bottom: 1px solid #ccc;
+    opacity: 0.6;
+  }
+  #toc.active {
+      opacity: 1;
+  }
+  #toc h2 {
+    margin: 0;
+    padding: 2px 0 2px 6px;
+    padding-right: 1em;
+    font-size: 18px;
+    line-height: 24px;
+    min-width: 190px;
+    text-align: right;
+    background-color: #444;
+    color: white;
+    cursor: pointer;
+  }
+  #toc h2::before { /* css hamburger */
+    float: right;
+    position: relative;
+    width: 1em;
+    height: 1px;
+    left: -164px;
+    margin: 8px 0 0 0;
+    background: white none repeat scroll 0 0;
+    box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+    content: "";
+  }
+  #toc nav {
+    display: none;
+    background-color: var(--background-color);
+    padding: 0.5em 1em 1em;
+    overflow: auto;
+    overscroll-behavior: contain;
+    height: calc(100vh - 48px);
+    border-left: 1px solid #ddd;
+  }
+  #toc.active nav {
+    display: block;
+  }
+  /* Make the collapsed ToC header render white on gray also when it's a link */
+  #toc h2 a,
+  #toc h2 a:link,
+  #toc h2 a:focus,
+  #toc h2 a:hover,
+  #toc a.toplink,
+  #toc a.toplink:hover {
+    color: white;
+    background-color: #444;
+    text-decoration: none;
+  }
+  #toc a.toplink {
+    margin-top: 2px;
+  }
+}
+
+/* alternative layout for wide screens */
+@media screen and (min-width: 930px) {
+  body {
+    padding-right: 360px;
+    padding-right: calc(min(180px + 20%, 500px));
+  }
+  #toc {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    right: calc(50vw - 480px);
+    width: 312px;
+    margin: 0;
+    padding: 0;
+    z-index: 1;
+  }
+  #toc h2 {
+    margin: 0;
+    padding: 0.25em 1em 1em 0;
+  }
+  #toc nav {
+    display: block;
+    height: calc(90vh - 84px);
+    bottom: 0;
+    padding: 0.5em 0 2em;
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+  #toc nav > ul  {
+    margin-bottom: 2em;
+  }
+  #toc ul {
+    margin: 0 0 0 4px;
+    font-size: var(--small-font-size);
+  }
+  #toc ul :is(p, li) {
+    margin: 2px 0;
+    line-height: 22px;
+  }
+  img { /* future proofing */
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* pagination */
+@media print {
+  body {
+    width: 100%;
+  }
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+  #n-copyright-notice {
+    border-bottom: none;
+  }
+  #toc, #n-introduction {
+    page-break-before: always;
+  }
+  #toc {
+    border-top: none;
+    padding-top: 0;
+  }
+  figure, pre, .vcard {
+    page-break-inside: avoid;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+  :is(h2, h3, h4, h5, h6)+*, dd {
+    page-break-before: avoid;
+  }
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 10pt;
+  }
+  table {
+    border: 1px solid #ddd;
+  }
+  td {
+    border-top: 1px solid #ddd;
+  }
+  .toplink {
+    display: none;
+  }
+}
+
+@page :first {
+  padding-top: 0;
+  @top-left {
+    content: normal;
+    border: none;
+  }
+  @top-center {
+    content: normal;
+    border: none;
+  }
+  @top-right {
+    content: normal;
+    border: none;
+  }
+}
+
+@page {
+  size: A4;
+  margin-bottom: 45mm;
+  padding-top: 20px;
+}
+
+/* Changes introduced to fix issues found during implementation */
+
+/* Separate body from document info even without intervening H1 */
+section {
+  clear: both;
+}
+
+/* Top align author divs, to avoid names without organization dropping level with org names */
+.author {
+  vertical-align: top;
+}
+
+/* Style section numbers with more space between number and title */
+.section-number {
+  padding-right: 0.5em;
+}
+
+/* Add styling for a link in the ToC that points to the top of the document */
+a.toplink {
+  float: right;
+  margin: 8px 0.5em 0;
+}
+
+/* Provide styling for table cell text alignment */
+table .text-left {
+  text-align: left;
+}
+table .text-center {
+  text-align: center;
+}
+table .text-right {
+  text-align: right;
+}
+
+/* Make the alternative author contact information look less like just another
+   author, and group it closer with the primary author contact information */
+.alternative-contact {
+  margin: 0.5em 0 0.25em 0;
+}
+address .non-ascii {
+  margin: 0 0 0 2em;
+}
+
+/* With it being possible to set tables with alignment
+  left, center, and right, { width: 100%; } does not make sense */
+table {
+  width: auto;
+}
+
+/* Avoid reference text that sits in a block with very wide left margin,
+   because of a long floating dt label.*/
+.references dd {
+  overflow: visible;
+}
+
+/* Control caption placement */
+caption {
+  caption-side: bottom;
+}
+
+/* Limit the width of the author address vcard, so names in right-to-left
+   script don't end up on the other side of the page. */
+
+address.vcard {
+  max-width: 20em;
+  margin-right: auto;
+}
+
+/* For address alignment dependent on LTR or RTL scripts */
+address div.left {
+  text-align: left;
+}
+address div.right {
+  text-align: right;
+}
+
+/* Dark mode. */
+@media (prefers-color-scheme: dark) {
+:root {
+  --background-color: #121212;
+  --text-color: #f0f0f0;
+  --title-color: #fff;
+  --link-color: #4da4f0;
+  --highlight-color: #282828;
+  --line-color: #444;
+  --pilcrow-weak: #444;
+  --pilcrow-strong: #666;
+  scrollbar-color: #777 #333;
+}
+}
+
+/* SVG Trick: a prefix match works because only black and white are allowed */
+svg :is([stroke="black"], [stroke^="#000"]) {
+  stroke: var(--text-color);
+}
+svg :is([stroke="white"], [stroke^="#fff"]) {
+  stroke: var(--background-color);
+}
+svg :is([fill="black"], [fill^="#000"], :not([fill])) {
+  fill: var(--text-color);
+}
+svg :is([fill="white"], [fill^="#fff"]) {
+  fill: var(--background-color);
+}
+</style>
+
+</head>
+<body class="xml2rfc">
+<table class="ears">
+<thead><tr>
+<td class="left">Internet-Draft</td>
+<td class="center">SSH3</td>
+<td class="right">February 2024</td>
+</tr></thead>
+<tfoot><tr>
+<td class="left">Michel &amp; Bonaventure</td>
+<td class="center">Expires 30 August 2024</td>
+<td class="right">[Page]</td>
+</tr></tfoot>
+</table>
+<div id="external-metadata" class="document-information"></div>
+<div id="internal-metadata" class="document-information">
+<dl id="identifiers">
+<dt class="label-workgroup">Workgroup:</dt>
+<dd class="workgroup">Network Working Group</dd>
+<dt class="label-internet-draft">Internet-Draft:</dt>
+<dd class="internet-draft">draft-michel-ssh3-latest</dd>
+<dt class="label-published">Published:</dt>
+<dd class="published">
+<time datetime="2024-02-27" class="published">27 February 2024</time>
+    </dd>
+<dt class="label-intended-status">Intended Status:</dt>
+<dd class="intended-status">Experimental</dd>
+<dt class="label-expires">Expires:</dt>
+<dd class="expires"><time datetime="2024-08-30">30 August 2024</time></dd>
+<dt class="label-authors">Authors:</dt>
+<dd class="authors">
+<div class="author">
+      <div class="author-name">F. Michel</div>
+<div class="org">UCLouvain</div>
+</div>
+<div class="author">
+      <div class="author-name">O. Bonaventure</div>
+<div class="org">UCLouvain and WELRI</div>
+</div>
+</dd>
+</dl>
+</div>
+<h1 id="title">Secure shell over HTTP/3 connections</h1>
+<section id="section-abstract">
+      <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
+<p id="section-abstract-1">The secure shell (SSH) traditionally offers its secure services over an insecure network using the TCP transport protocol. This document defines mechanisms
+to run the SSH protocol and provide a comparable set of services using HTTP/3.
+Running SSH over HTTP/3 allows several benefits such as the scalability offered by HTTP
+multiplexing, relying on TLS for secure channel establishment leveraging X.509 certificates, HTTP Authentication schemes for client and server authentication
+and stronger resilience against packet injection attacks and middlebox interference.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+</section>
+<section class="note rfcEditorRemove" id="section-note.1">
+      <h2 id="name-about-this-document">
+<a href="#name-about-this-document" class="section-name selfRef">About This Document</a>
+      </h2>
+<p id="section-note.1-1">This note is to be removed before publishing as an RFC.<a href="#section-note.1-1" class="pilcrow">¶</a></p>
+<p id="section-note.1-2">
+        The latest revision of this draft can be found at <span><a href="https://francoismichel.github.io/ssh3-spec/draft-michel-ssh3.html">https://francoismichel.github.io/ssh3-spec/draft-michel-ssh3.html</a></span>.
+        Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-michel-ssh3/">https://datatracker.ietf.org/doc/draft-michel-ssh3/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
+<p id="section-note.1-3">Source for this draft and an issue tracker can be found at
+        <span><a href="https://github.com/francoismichel/ssh3-spec">https://github.com/francoismichel/ssh3-spec</a></span>.<a href="#section-note.1-3" class="pilcrow">¶</a></p>
+</section>
+<div id="status-of-memo">
+<section id="section-boilerplate.1">
+        <h2 id="name-status-of-this-memo">
+<a href="#name-status-of-this-memo" class="section-name selfRef">Status of This Memo</a>
+        </h2>
+<p id="section-boilerplate.1-1">
+        This Internet-Draft is submitted in full conformance with the
+        provisions of BCP 78 and BCP 79.<a href="#section-boilerplate.1-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-2">
+        Internet-Drafts are working documents of the Internet Engineering Task
+        Force (IETF). Note that other groups may also distribute working
+        documents as Internet-Drafts. The list of current Internet-Drafts is
+        at <span><a href="https://datatracker.ietf.org/drafts/current/">https://datatracker.ietf.org/drafts/current/</a></span>.<a href="#section-boilerplate.1-2" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-3">
+        Internet-Drafts are draft documents valid for a maximum of six months
+        and may be updated, replaced, or obsoleted by other documents at any
+        time. It is inappropriate to use Internet-Drafts as reference
+        material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-4">
+        This Internet-Draft will expire on 30 August 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="copyright">
+<section id="section-boilerplate.2">
+        <h2 id="name-copyright-notice">
+<a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
+        </h2>
+<p id="section-boilerplate.2-1">
+            Copyright (c) 2024 IETF Trust and the persons identified as the
+            document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.2-2">
+            This document is subject to BCP 78 and the IETF Trust's Legal
+            Provisions Relating to IETF Documents
+            (<span><a href="https://trustee.ietf.org/license-info">https://trustee.ietf.org/license-info</a></span>) in effect on the date of
+            publication of this document. Please review these documents
+            carefully, as they describe your rights and restrictions with
+            respect to this document.<a href="#section-boilerplate.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="toc">
+<section id="section-toc.1">
+        <a href="#" onclick="scroll(0,0)" class="toplink">▲</a><h2 id="name-table-of-contents">
+<a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
+        </h2>
+<nav class="toc"><ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1">
+            <p id="section-toc.1-1.1.1"><a href="#section-1" class="auto internal xref">1</a>.  <a href="#name-introduction" class="internal xref">Introduction</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1">
+                <p id="section-toc.1-1.1.2.1.1"><a href="#section-1.1" class="auto internal xref">1.1</a>.  <a href="#name-how-ssh-benefits-from-http-" class="internal xref">How SSH benefits from HTTP/3</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1.2.1">
+                    <p id="section-toc.1-1.1.2.1.2.1.1" class="keepWithNext"><a href="#section-1.1.1" class="auto internal xref">1.1.1</a>.  <a href="#name-quic-datagrams-support-stre" class="internal xref">QUIC: datagrams support, streams multiplexing and connection migration</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1.2.2">
+                    <p id="section-toc.1-1.1.2.1.2.2.1" class="keepWithNext"><a href="#section-1.1.2" class="auto internal xref">1.1.2</a>.  <a href="#name-protecting-transport-layer-" class="internal xref">Protecting transport-layer control fields</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1.2.3">
+                    <p id="section-toc.1-1.1.2.1.2.3.1" class="keepWithNext"><a href="#section-1.1.3" class="auto internal xref">1.1.3</a>.  <a href="#name-leveraging-the-x509-ecosyst" class="internal xref">Leveraging the X.509 ecosystem</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1.2.4">
+                    <p id="section-toc.1-1.1.2.1.2.4.1"><a href="#section-1.1.4" class="auto internal xref">1.1.4</a>.  <a href="#name-http-authentication-compati" class="internal xref">HTTP authentication: compatibility with existing authentication systems</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1.2.5">
+                    <p id="section-toc.1-1.1.2.1.2.5.1"><a href="#section-1.1.5" class="auto internal xref">1.1.5</a>.  <a href="#name-url-multiplexing-and-undisc" class="internal xref">URL multiplexing and undiscoverability</a></p>
+</li>
+                </ul>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
+            <p id="section-toc.1-1.2.1"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-conventions-and-definitions" class="internal xref">Conventions and Definitions</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-establishing-an-ssh3-conver" class="internal xref">Establishing an SSH3 conversation</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1">
+                <p id="section-toc.1-1.3.2.1.1"><a href="#section-3.1" class="auto internal xref">3.1</a>.  <a href="#name-authenticating-the-client" class="internal xref">Authenticating the client</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1.2.1">
+                    <p id="section-toc.1-1.3.2.1.2.1.1"><a href="#section-3.1.1" class="auto internal xref">3.1.1</a>.  <a href="#name-password-authentication-usi" class="internal xref">Password authentication using HTTP Basic Authentication</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1.2.2">
+                    <p id="section-toc.1-1.3.2.1.2.2.1"><a href="#section-3.1.2" class="auto internal xref">3.1.2</a>.  <a href="#name-public-key-authentication-u" class="internal xref">Public key authentication using OAUTH2 and JWTs</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1.2.3">
+                    <p id="section-toc.1-1.3.2.1.2.3.1"><a href="#section-3.1.3" class="auto internal xref">3.1.3</a>.  <a href="#name-public-key-authentication-us" class="internal xref">Public key authentication using HTTP Signature authentication</a></p>
+</li>
+                </ul>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-ssh-connection-protocol" class="internal xref">SSH Connection protocol</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1">
+                <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-channels" class="internal xref">Channels</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1.2.1">
+                    <p id="section-toc.1-1.4.2.1.2.1.1"><a href="#section-4.1.1" class="auto internal xref">4.1.1</a>.  <a href="#name-opening-a-channel" class="internal xref">Opening a channel</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1.2.2">
+                    <p id="section-toc.1-1.4.2.1.2.2.1"><a href="#section-4.1.2" class="auto internal xref">4.1.2</a>.  <a href="#name-channel-types" class="internal xref">Channel types</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1.2.3">
+                    <p id="section-toc.1-1.4.2.1.2.3.1"><a href="#section-4.1.3" class="auto internal xref">4.1.3</a>.  <a href="#name-messages" class="internal xref">Messages</a></p>
+</li>
+                </ul>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-ssh3-and-masque" class="internal xref">SSH3 and MASQUE</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-version-negotiation" class="internal xref">Version Negotiation</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-compatibility-with-sshv2-an" class="internal xref">Compatibility with SSHv2 and TCP-only networks</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
+            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.1">
+                <p id="section-toc.1-1.9.2.1.1"><a href="#section-9.1" class="auto internal xref">9.1</a>.  <a href="#name-http-upgrade-token" class="internal xref">HTTP Upgrade Token</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
+            <p id="section-toc.1-1.10.1"><a href="#section-10" class="auto internal xref">10</a>. <a href="#name-references" class="internal xref">References</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.1">
+                <p id="section-toc.1-1.10.2.1.1"><a href="#section-10.1" class="auto internal xref">10.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.2">
+                <p id="section-toc.1-1.10.2.2.1"><a href="#section-10.2" class="auto internal xref">10.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
+            <p id="section-toc.1-1.11.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
+            <p id="section-toc.1-1.12.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
+</li>
+        </ul>
+</nav>
+</section>
+</div>
+<div id="introduction">
+<section id="section-1">
+      <h2 id="name-introduction">
+<a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
+      </h2>
+<p id="section-1-1">The SSH protocol <span>[<a href="#SSH-ARCH" class="cite xref">SSH-ARCH</a>]</span> provides a secure way to access computers remotely over an untrusted network. SSH is currently the most popular way to access Unix hosts and network equipment remotely. Built atop the unencrypted TCP protocol, SSH proposes its own mechanisms to establish a secure channel <span>[<a href="#SSH-TRANSPORT" class="cite xref">SSH-TRANSPORT</a>]</span> and perform user authentication <span>[<a href="#SSH-AUTH" class="cite xref">SSH-AUTH</a>]</span>. Once the secure session is established
+and the user is authenticated and authorized, SSH uses the Connection protocol to run and manage
+remote processes and functionalities executed on the remote host <span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]</span>.
+Among others, SSH provides different services such as remote program execution, shell access and TCP port forwarding.
+<a href="#ssh2-architecture" class="auto internal xref">Figure 1</a> provides a graphical representation of the SSHv2 protocol stack.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<span id="name-the-sshv2-architecture-prot"></span><div id="ssh2-architecture">
+<figure id="figure-1">
+        <div class="alignLeft art-text artwork" id="section-1-2.1">
+<pre>
+     +------------------------------------------------------------+
+     |                           SSHv2                            |
+     | +---------------+   +---------------+   +----------------+ |
+     | | SSH Transport |   |   SSH Auth.   |   | SSH Connection | |
+     | |   (RFC4253)   |   |   (RFC4252)   |   |   (RFC4254)    | |
+     | +---------------+   +---------------+   +----------------+ |
+     |  secure channel            user            SSH services    |
+     |   establishment       authentication                       |
+     +------------------------------------------------------------+
+                                   |
+                                   |  - reliable transport
+                                   v
+               +----------------------------------------+
+               |                  TCP                   |
+               +----------------------------------------+
+</pre>
+</div>
+<figcaption><a href="#figure-1" class="selfRef">Figure 1</a>:
+<a href="#name-the-sshv2-architecture-prot" class="selfRef">The SSHv2 architecture protocol stack.</a>
+        </figcaption></figure>
+</div>
+<p id="section-1-3">This document defines mechanisms to run the SSH Connection protocol<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-4"><span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]</span> over HTTP/3 and uses the name "SSH3" to refer to
+this solution. The secure channel establishment uses TLS included in QUIC while user authentication
+is performed using existing HTTP authentication schemes, simplifying significantly the design of the protocol. <a href="#ssh3-architecture-goal" class="auto internal xref">Figure 2</a>
+provides a graphical representation of the architecture proposed in this document.
+One benefit of the approach is that the HTTP3 and QUIC layers can
+evolve independently of SSH. For instance, new encryption and MAC algorithms
+can be added to TLS and used in SSH3 without impacting the specification or
+adding new code points in SSH3 for these new algorithms.<a href="#section-1-4" class="pilcrow">¶</a></p>
+<span id="name-the-proposed-ssh3-architect"></span><div id="ssh3-architecture-goal">
+<figure id="figure-2">
+        <div class="alignLeft art-text artwork" id="section-1-5.1">
+<pre>
+            +-----------------------------------------------+
+            |                     SSH3                      |
+            |          +-------------------------+          |
+            |          |     SSH Connection      |          |
+            |          |       (~RFC4254)        |          |
+            |          +-------------------------+          |
+            |                 SSH services                  |
+            +-----------------------------------------------+
+                | - user authentication      | - reliable transport
+                | - URL multiplexing         | - secure channel
+                v                            |    establishment
+             +-----------------------+       | - streams multiplexing
+             |        HTTP/3         |       |            &amp; datagrams
+             +-----------------------+       v
+             +----------------------------------------------+
+             |                 QUIC / TLS                   |
+             +----------------------------------------------+
+
+</pre>
+</div>
+<figcaption><a href="#figure-2" class="selfRef">Figure 2</a>:
+<a href="#name-the-proposed-ssh3-architect" class="selfRef">The proposed SSH3 architecture.</a>
+        </figcaption></figure>
+</div>
+<p id="section-1-6">The mechanisms used for establishing an SSH3 conversation
+are similar to the WebTransport session establishment <span>[<a href="#WEBTRANSPORT-H3" class="cite xref">WEBTRANSPORT-H3</a>]</span>.
+WebTransport is also a good transport layer candidate for SSH3. The current
+SSH3 prototype is built directly over HTTP/3 since there is no public
+WebTransport implementation meeting all our requirements as of now.
+The semantics of HTTP/2 being comparable to HTTP/3, the mechanisms
+defined in this document could be implemented using HTTP/2 if a fallback
+to TCP is required. There is an ongoing effort to be able to run HTTP/3 over QUIC on TCP Streams
+<span>[<a href="#QUIC-ON-STREAMS" class="cite xref">QUIC-ON-STREAMS</a>]</span>. This document
+is a first introductory document and we limit its current scope to HTTP/3
+using the classical QUIC.<a href="#section-1-6" class="pilcrow">¶</a></p>
+<div id="how-ssh-benefits-from-http3">
+<section id="section-1.1">
+        <h3 id="name-how-ssh-benefits-from-http-">
+<a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-how-ssh-benefits-from-http-" class="section-name selfRef">How SSH benefits from HTTP/3</a>
+        </h3>
+<p id="section-1.1-1">Using HTTP/3 and QUIC as a substrate for SSH brings several different benefits that are
+highlighted in this section.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
+<div id="quic-datagrams-support-streams-multiplexing-and-connection-migration">
+<section id="section-1.1.1">
+          <h4 id="name-quic-datagrams-support-stre">
+<a href="#section-1.1.1" class="section-number selfRef">1.1.1. </a><a href="#name-quic-datagrams-support-stre" class="section-name selfRef">QUIC: datagrams support, streams multiplexing and connection migration</a>
+          </h4>
+<p id="section-1.1.1-1">Using QUIC, SSH3 can send data through both reliable streams and unreliable datagrams. This makes SSH3
+able to support port forwarding for both TCP and UDP-based protocols. Being based exclusively on TCP, SSHv2 does not offer UDP port forwarding and therefore provides no support to UDP-based protocols such RTP or QUIC.
+This lack of UDP support in SSHv2 may become problematic as the use of QUIC applications (HTTP/3, MOQT <span>[<a href="#MOQT" class="cite xref">MOQT</a>]</span>, DOQ <span>[<a href="#DOQ" class="cite xref">DOQ</a>]</span>) grows. Support for UDP port forwarding with SSH3 also allows accessing real-time media content such as low-latency live video available on the server.
+The stream multiplexing capabilities of QUIC allow reducing the head-of-line blocking that SSHv2 encounters when multiplexing several SSH channels over the same TCP connection.<a href="#section-1.1.1-1" class="pilcrow">¶</a></p>
+<p id="section-1.1.1-2">QUIC also supports connection migration (<span><a href="https://rfc-editor.org/rfc/rfc9000#section-9" class="relref">Section 9</a> of [<a href="#QUIC" class="cite xref">QUIC</a>]</span>).
+Using connection migrations, mobile hosts roaming between networks can
+maintain established connections alive across different networks by migrating them
+on their newly acquired IP address. This avoids disrupting the SSH conversation
+upon network changes.
+Finally, QUIC also offers a significantly reduced connection establishment
+time compared to the SSHv2 session establishment.<a href="#section-1.1.1-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="protecting-transport-layer-control-fields">
+<section id="section-1.1.2">
+          <h4 id="name-protecting-transport-layer-">
+<a href="#section-1.1.2" class="section-number selfRef">1.1.2. </a><a href="#name-protecting-transport-layer-" class="section-name selfRef">Protecting transport-layer control fields</a>
+          </h4>
+<p id="section-1.1.2-1">Since QUIC integrates authentication and encryption as part of its transport
+features, it makes SSH3 robust to transport-layer attacks that were possible
+with TCP, such as packet injections or reset attacks <span>[<a href="#RFC5961" class="cite xref">RFC5961</a>]</span>. For instance, the
+recent Terrapin attack <span>[<a href="#TERRAPIN" class="cite xref">TERRAPIN</a>]</span> manipulates the TCP
+sequence number to alter the SSH extension negotiation mechanism <span>[<a href="#RFC8308" class="cite xref">RFC8308</a>]</span>
+and downgrade the client authentication algorithms. QUIC control information
+such as packet numbers and frame formats are all
+authenticated and encrypted starting from the Handshake encryption level.
+Furthermore, QUIC prevents middlebox interference.<a href="#section-1.1.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="leveraging-the-x509-ecosystem">
+<section id="section-1.1.3">
+          <h4 id="name-leveraging-the-x509-ecosyst">
+<a href="#section-1.1.3" class="section-number selfRef">1.1.3. </a><a href="#name-leveraging-the-x509-ecosyst" class="section-name selfRef">Leveraging the X.509 ecosystem</a>
+          </h4>
+<p id="section-1.1.3-1">By using TLS for their secure channel establishment, HTTPS and QUIC leverage the X.509 certificates
+ecosystem with low implementation effort. TLS and QUIC libraries already implement support
+for generating, parsing and verifying X.509 certificates. Similarly to classical OpenSSH certificates,
+this avoids encouraging SSH users to rely on the Trust On First Use pattern when connecting to their
+remote hosts. Relying on the X.509 certificates ecosystem additionally enables SSH3 servers to use
+ACME <span>[<a href="#ACME" class="cite xref">ACME</a>]</span> to automatically (with no additional user action) generate X.509 certificates for their
+domain names using well-known certificate authorities such as Let's Encrypt. These certificates are publicly valid and can be verified like classical HTTPS certificates. Client certificates can also be issued
+and used as an authentication method for the client.<a href="#section-1.1.3-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="http-authentication-compatibility-with-existing-authentication-systems">
+<section id="section-1.1.4">
+          <h4 id="name-http-authentication-compati">
+<a href="#section-1.1.4" class="section-number selfRef">1.1.4. </a><a href="#name-http-authentication-compati" class="section-name selfRef">HTTP authentication: compatibility with existing authentication systems</a>
+          </h4>
+<p id="section-1.1.4-1">Using HTTP authentication schemes for user authentication allows implementing
+diverse authentication
+mechanisms such as the classical password-based and public key authentication,
+but also popular
+web authentication mechanisms such as OpenID Connect <span>[<a href="#OpenID.Core" class="cite xref">OpenID.Core</a>]</span>, SAML2
+<span>[<a href="#OASIS.saml-core-2.0-os" class="cite xref">OASIS.saml-core-2.0-os</a>]</span> or the recent Passkeys/WebAuthn standard
+<span>[<a href="#WebAuthn" class="cite xref">WebAuthn</a>]</span>. All these authentication schemes are already deployed
+for managing access to critical resources in different organizations. Sharing
+computing resources
+using SSHv2 through these mechanisms generally requires the deployment of
+a middleware managing the
+mapping between identities and SSH keys or certificates. Adding HTTP
+authentication to SSH allows welcoming these authentication methods directly
+and interfaces SSH3 more naturally with existing architectures. As a
+proof-of-concept, OpenID Connect has been implemented in our SSH3 prototype.
+Other web authentication standards such as Passkeys/WebAuthn <span>[<a href="#WebAuthn" class="cite xref">WebAuthn</a>]</span>
+allow administrators to restrict remote access to specific client devices in addition to users.<a href="#section-1.1.4-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="url-multiplexing-and-undiscoverability">
+<section id="section-1.1.5">
+          <h4 id="name-url-multiplexing-and-undisc">
+<a href="#section-1.1.5" class="section-number selfRef">1.1.5. </a><a href="#name-url-multiplexing-and-undisc" class="section-name selfRef">URL multiplexing and undiscoverability</a>
+          </h4>
+<p id="section-1.1.5-1">Relying on HTTP allows easily placing SSH endpoints as resources accessible through specific URLs.
+First, this makes it easier to integrate SSH endpoints on web servers that already perform
+user authentication and authorization. Second, it allows placing several SSH server instances on the same physical machine on the same port. These instances can run in different virtual machines, containers or
+simply different users and be multiplexed on a URL-basis.
+Finally, SSH3 endpoints can be placed behind secret URLs, reducing the exposure of SSH3 hosts to
+scanning and brute force attacks. This goes in line with the will of having undiscoverable resources
+also tackled by other IETF working groups <span>[<a href="#HTTP-SIGNATURE" class="cite xref">HTTP-SIGNATURE</a>]</span>. This property is not provided by SSHv2 since
+the SSHv2 server announces its SSH version string to any connected TCP client. If wanted, SSH3 hosts can be made
+indistinguishable from any HTTP server.<a href="#section-1.1.5-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+</section>
+</div>
+<div id="conventions-and-definitions">
+<section id="section-2">
+      <h2 id="name-conventions-and-definitions">
+<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-conventions-and-definitions" class="section-name selfRef">Conventions and Definitions</a>
+      </h2>
+<p id="section-2-1">The key words "<span class="bcp14">MUST</span>", "<span class="bcp14">MUST NOT</span>", "<span class="bcp14">REQUIRED</span>", "<span class="bcp14">SHALL</span>", "<span class="bcp14">SHALL NOT</span>", "<span class="bcp14">SHOULD</span>", "<span class="bcp14">SHOULD NOT</span>", "<span class="bcp14">RECOMMENDED</span>", "<span class="bcp14">NOT RECOMMENDED</span>",
+"<span class="bcp14">MAY</span>", and "<span class="bcp14">OPTIONAL</span>" in this document are to be interpreted as
+described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span> <span>[<a href="#RFC8174" class="cite xref">RFC8174</a>]</span> when, and only when, they
+appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="establishing">
+<section id="section-3">
+      <h2 id="name-establishing-an-ssh3-conver">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-establishing-an-ssh3-conver" class="section-name selfRef">Establishing an SSH3 conversation</a>
+      </h2>
+<p id="section-3-1">We choose the term "conversation" to avoid ambiguities with the existing
+concepts of SSH shell session and QUIC connection.
+An SSH3 conversation can be started using the HTTP/3 Extended CONNECT
+method <span>[<a href="#EXTENDED-CONNECT" class="cite xref">EXTENDED-CONNECT</a>]</span>. The <code>:protocol</code> pseudo-header <span class="bcp14">MUST</span> be set
+to <code>ssh3</code> and the <code>:scheme</code> pseudo-header <span class="bcp14">MUST</span> be set to <code>https</code>.
+If an SSH3 client or server supports the UDP forwarding feature, it <span class="bcp14">MUST</span> indicate support for HTTP/3 datagrams by sending a SETTINGS_H3_DATAGRAM value set to 1 in their
+SETTINGS frame (see <a href="">Section 2.1.1</a> of <span>[<a href="#HTTP-DATAGRAM" class="cite xref">HTTP-DATAGRAM</a>]</span>).<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-3-2">An SSH3 server listens for CONNECT requests with the <code>ssh3</code>
+protocol on URI templates having the <code>username</code> variable. Example URIs can be
+found below.<a href="#section-3-2" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3-3">
+<pre>
+https://example.org:4443/ssh3?user={username}
+https://proxy.example.org:4443/ssh3{?username}
+</pre><a href="#section-3-3" class="pilcrow">¶</a>
+</div>
+<p id="section-3-4">[[Note: In the current prototype, percent-encoding is used for characters outside the allowed set of <span>[<a href="#URI" class="cite xref">URI</a>]</span>. An alternative can be to perform base64url encoding of the username instead.]]<a href="#section-3-4" class="pilcrow">¶</a></p>
+<p id="section-3-5"><a href="#ssh3-conversation-establishment" class="auto internal xref">Figure 3</a> illustrates a successful SSH3 conversation
+establishment.<a href="#section-3-5" class="pilcrow">¶</a></p>
+<span id="name-ssh3-successful-conversatio"></span><div id="ssh3-conversation-establishment">
+<figure id="figure-3">
+        <div class="alignLeft art-text artwork" id="section-3-6.1">
+<pre>
+       Client
+          |                QUIC HANDSHAKE                 |
+          |&lt;---------------------------------------------&gt;|
+          |                                               |
+          | HTTP/3, Stream x CONNECT /&lt;path&gt;?user=&lt;user&gt;  |
+          |         :protocol="ssh3"                      |
+          |         Authorization=&lt;auth_material&gt;         |
+          |----------------------------------------------&gt;|
+          |                                               |
+          |               HTTP/3, Stream x 200 OK         |
+          |&lt;----------------------------------------------|
+          |                                               |
+          |           Conversation established            |
+        --+-----------------------------------------------+--
+          |                                               |
+          |    (endpoints now run the SSH Connection)     |
+          |    (protocol over QUIC streams          )     |
+          |                                               |
+</pre>
+</div>
+<figcaption><a href="#figure-3" class="selfRef">Figure 3</a>:
+<a href="#name-ssh3-successful-conversatio" class="selfRef">SSH3 successful conversation establishment.</a>
+        </figcaption></figure>
+</div>
+<p id="section-3-7">Authentication material is placed inside the <code>Authorization</code> header of the Extended CONNECT request. The format and value of <code>&lt;auth_material&gt;</code> depends on the used HTTP authentication scheme (<a href="#ssh3-authenticating-the-client" class="auto internal xref">Section 3.1</a> explores several examples of authentication mechanisms). If an SSH3 endpoint is available to the HTTP/3 server and if the user is successfully authenticated and authorized, the server responds with a 2xx HTTP status code and the conversation is established.<a href="#section-3-7" class="pilcrow">¶</a></p>
+<p id="section-3-8">The stream ID used for the Extended CONNECT request is then remembered by each endpoint as the SSH conversation ID, uniquely identifying this SSH conversation.<a href="#section-3-8" class="pilcrow">¶</a></p>
+<div id="ssh3-authenticating-the-client">
+<section id="section-3.1">
+        <h3 id="name-authenticating-the-client">
+<a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-authenticating-the-client" class="section-name selfRef">Authenticating the client</a>
+        </h3>
+<p id="section-3.1-1">Authorization of the CONNECT request is done using HTTP Authorization
+as defined in <span>[<a href="#HTTP-SEMANTICS" class="cite xref">HTTP-SEMANTICS</a>]</span>, with no restriction on the
+authentication scheme used. If no Authorization header is present in the
+request or if the authentication
+scheme is not supported by the server, the server <span class="bcp14">SHOULD</span> respond with a
+401 (Unauthorized) response message. Once the user authentication is successful, the SSH3 server can process the request and start the conversation. This section only provides example user authentication
+mechanisms. Other mechanisms may be proposed in the future in separate
+documents. The two first examples are implemented by our current
+prototype. The third example leverages the Signature authentication
+scheme <span>[<a href="#HTTP-SIGNATURE" class="cite xref">HTTP-SIGNATURE</a>]</span> and will be preferred for public key
+authentication in future versions of our prototype.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+<div id="password-authentication-using-http-basic-authentication">
+<section id="section-3.1.1">
+          <h4 id="name-password-authentication-usi">
+<a href="#section-3.1.1" class="section-number selfRef">3.1.1. </a><a href="#name-password-authentication-usi" class="section-name selfRef">Password authentication using HTTP Basic Authentication</a>
+          </h4>
+<p id="section-3.1.1-1">Password-based authentication is performed using the HTTP
+Basic authentication scheme <span>[<a href="#HTTP-BASIC" class="cite xref">HTTP-BASIC</a>]</span>. The user-id part of the
+<code>&lt;credentials&gt;</code> in the Authorization header defined in <span>[<a href="#HTTP-BASIC" class="cite xref">HTTP-BASIC</a>]</span>
+            <span class="bcp14">MUST</span> be equivalent to
+the <code>username</code> variable in the request URI defined in <a href="#establishing" class="auto internal xref">Section 3</a>.<a href="#section-3.1.1-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.1.1-2">
+<pre>
+  Client
+     |                QUIC HANDSHAKE                 |
+     |&lt;---------------------------------------------&gt;|
+     |                                               |
+     | HTTP/3, Stream x CONNECT /&lt;path&gt;?user=&lt;user&gt;  |
+     |         :protocol="ssh3"                      |
+     |         Authorization="Basic &lt;credentials&gt;"   |
+     |----------------------------------------------&gt;|
+     |                                               |
+     |               HTTP/3, Stream x 200 OK         |
+     |&lt;----------------------------------------------|
+     |                                               |
+     |           Conversation established            |
+     +-----------------------------------------------+
+     |                                               |
+</pre><a href="#section-3.1.1-2" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="public-key-authentication-using-oauth2-and-jwts">
+<section id="section-3.1.2">
+          <h4 id="name-public-key-authentication-u">
+<a href="#section-3.1.2" class="section-number selfRef">3.1.2. </a><a href="#name-public-key-authentication-u" class="section-name selfRef">Public key authentication using OAUTH2 and JWTs</a>
+          </h4>
+<p id="section-3.1.2-1">Classical public key authentication can be performed using the OAUTH2 framework <span>[<a href="#OAUTH2" class="cite xref">OAUTH2</a>]</span>:
+the HTTP Bearer authentication scheme is used to carry an OAUTH access token encoded in the JWT <span>[<a href="#JWT" class="cite xref">JWT</a>]</span> format <span>[<a href="#OAUTH2-JWT" class="cite xref">OAUTH2-JWT</a>]</span>.<a href="#section-3.1.2-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.1.2-2">
+<pre>
+  Client
+     |                QUIC HANDSHAKE                 |
+     |&lt;---------------------------------------------&gt;|
+     |                                               |
+     | HTTP/3, Stream x CONNECT /&lt;path&gt;?user=&lt;user&gt;  |
+     |         :protocol="ssh3"                      |
+     |         Authorization="Bearer &lt;JWT token&gt;"    |
+     |----------------------------------------------&gt;|
+     |                                               |
+     |               HTTP/3, Stream x 200 OK         |
+     |&lt;----------------------------------------------|
+     |                                               |
+     |           Conversation established            |
+     +-----------------------------------------------+
+     |                                               |
+</pre><a href="#section-3.1.2-2" class="pilcrow">¶</a>
+</div>
+<p id="section-3.1.2-3">For classical client-server public key authentication with no
+third-party involved, only the following claims are required (see
+<span>[<a href="#JWT" class="cite xref">JWT</a>]</span> for their definition):<a href="#section-3.1.2-3" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.1.2-4.1">
+              <p id="section-3.1.2-4.1.1"><code>sub</code>: set to <code>ssh3-&lt;user&gt;</code><a href="#section-3.1.2-4.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-3.1.2-4.2">
+              <p id="section-3.1.2-4.2.1"><code>iat</code>: set to the date of issuance of the JWT<a href="#section-3.1.2-4.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-3.1.2-4.3">
+              <p id="section-3.1.2-4.3.1"><code>exp</code>: set to a short expiration value to limit the token replay window<a href="#section-3.1.2-4.3.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+<p id="section-3.1.2-5">The <code>jti</code> claim may also be used to prevent the token from
+being replayed.<a href="#section-3.1.2-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="public-key-authentication-using-http-signature-authentication">
+<section id="section-3.1.3">
+          <h4 id="name-public-key-authentication-us">
+<a href="#section-3.1.3" class="section-number selfRef">3.1.3. </a><a href="#name-public-key-authentication-us" class="section-name selfRef">Public key authentication using HTTP Signature authentication</a>
+          </h4>
+<p id="section-3.1.3-1">Public key authentication can also be performed using the HTTP Signature
+Authentication scheme <span>[<a href="#HTTP-SIGNATURE" class="cite xref">HTTP-SIGNATURE</a>]</span>. The <code>&lt;k&gt;</code> parameter designates
+the key ID of the public key used by the authentication process.
+Classical SSH implementations usually do not assign IDs to public keys.
+The value <code>&lt;k&gt;</code> can therefore be set to the cryptographic hash of
+the public key instead.<a href="#section-3.1.3-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.1.3-2">
+<pre>
+  Client
+     |                QUIC HANDSHAKE                 |
+     |&lt;---------------------------------------------&gt;|
+     |                                               |
+     | HTTP/3, Stream x CONNECT /&lt;path&gt;?user=&lt;user&gt;  |
+     |    :protocol="ssh3"                           |
+     |    Signature k=&lt;k&gt;, a=&lt;a&gt;,s=&lt;s&gt;,v=&lt;v&gt;,p=&lt;p&gt;   |
+     |----------------------------------------------&gt;|
+     |                                               |
+     |               HTTP/3, Stream x 200 OK         |
+     |&lt;----------------------------------------------|
+     |                                               |
+     |           Conversation established            |
+     +-----------------------------------------------+
+     |                                               |
+</pre><a href="#section-3.1.3-2" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+</section>
+</div>
+</section>
+</div>
+<div id="ssh-connection-protocol">
+<section id="section-4">
+      <h2 id="name-ssh-connection-protocol">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-ssh-connection-protocol" class="section-name selfRef">SSH Connection protocol</a>
+      </h2>
+<p id="section-4-1">This document reuses the SSH connection protocol defined in <span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]</span>. SSH Channels are run over their dedicated HTTP streams and carry SSH messages. The <code>boolean</code> and <code>string</code> data types defined in <span>[<a href="#SSH-ARCH" class="cite xref">SSH-ARCH</a>]</span> are reused. The <code>byte</code>, <code>uint32</code> and <code>uint64</code> data types are replaced by variable-length integers as defined in <a href="https://datatracker.ietf.org/doc/html/rfc9000#name-variable-length-integer-enc">Section 16</a> of <span>[<a href="#QUIC" class="cite xref">QUIC</a>]</span>.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<div id="channels">
+<section id="section-4.1">
+        <h3 id="name-channels">
+<a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-channels" class="section-name selfRef">Channels</a>
+        </h3>
+<p id="section-4.1-1">Similarly to <span>[<a href="#SSH-TRANSPORT" class="cite xref">SSH-TRANSPORT</a>]</span>, SSH3 defines bidirectional channels over
+which the endpoints exchange SSH messages. Each channel runs over a bidirectional
+HTTP/3 stream and is attached to a single SSH conversation. In this document,
+channels are therefore not assigned a channel number conversely to SSHv2.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
+<div id="opening-a-channel">
+<section id="section-4.1.1">
+          <h4 id="name-opening-a-channel">
+<a href="#section-4.1.1" class="section-number selfRef">4.1.1. </a><a href="#name-opening-a-channel" class="section-name selfRef">Opening a channel</a>
+          </h4>
+<p id="section-4.1.1-1">SSH channels can be opened on HTTP/3 client-initiated bidirectional
+streams. By default, HTTP/3 considers every client-initiated
+bidirectional stream as a request stream. Similarly to WebTransport,
+SSH3 extends HTTP/3 using a specific signal value. An SSH3 client can open a stream with
+this signal value to indicate that it is not a request stream and that
+the remaining stream bytes will be used arbitrarily by the SSH3 protocol
+to carry the content of a channel.
+For experimental purpose, the signal value is chosen at random and will
+change over time. The current signal value is <code>0xaf3627e6</code>. The content of an HTTP/3 stream carrying an SSH3
+channel is illustrated below.<a href="#section-4.1.1-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.1.1-2">
+<pre>
+Channel {
+    Signal Value (i) = 0xaf3627e6,
+    Conversation ID (i),
+    Channel Type Length (i)
+    Channel Type (..)
+    Maximum Message Size (i)
+    SSH messages (..)
+}
+</pre><a href="#section-4.1.1-2" class="pilcrow">¶</a>
+</div>
+<p id="section-4.1.1-3">The first value sent on the HTTP/3 stream is the Signal Value. The
+Channel Type is a UTF-8-encoded string whose length is defined
+by the Channel Type Length field.<a href="#section-4.1.1-3" class="pilcrow">¶</a></p>
+<p id="section-4.1.1-4">[[Note: SSHv2 uses text-based channel IDs. Should we keep that or
+use something else instead ? If we change, we loose a 1-1 mapping with SSHv2.]]<a href="#section-4.1.1-4" class="pilcrow">¶</a></p>
+<p id="section-4.1.1-5">The Maximum Message Size field defines the maximum size in bytes of
+SSH messages.<a href="#section-4.1.1-5" class="pilcrow">¶</a></p>
+<p id="section-4.1.1-6">The remaining bytes of the stream are interpreted as a sequence of SSH
+messages. Their format and length can vary depending on the message type
+(see <a href="#messages" class="auto internal xref">Section 4.1.3</a>).<a href="#section-4.1.1-6" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="channel-types">
+<section id="section-4.1.2">
+          <h4 id="name-channel-types">
+<a href="#section-4.1.2" class="section-number selfRef">4.1.2. </a><a href="#name-channel-types" class="section-name selfRef">Channel types</a>
+          </h4>
+<p id="section-4.1.2-1">This document defines the following channel types, the four first being
+also defined in <span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]</span>:<a href="#section-4.1.2-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.1.2-2.1">
+              <p id="section-4.1.2-2.1.1">session<a href="#section-4.1.2-2.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-4.1.2-2.2">
+              <p id="section-4.1.2-2.2.1">x11<a href="#section-4.1.2-2.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-4.1.2-2.3">
+              <p id="section-4.1.2-2.3.1">direct-tcp<a href="#section-4.1.2-2.3.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-4.1.2-2.4">
+              <p id="section-4.1.2-2.4.1">reverse-tcp<a href="#section-4.1.2-2.4.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-4.1.2-2.5">
+              <p id="section-4.1.2-2.5.1">direct-udp<a href="#section-4.1.2-2.5.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-4.1.2-2.6">
+              <p id="section-4.1.2-2.6.1">reverse-udp<a href="#section-4.1.2-2.6.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+<p id="section-4.1.2-3">The direct-tcp and direct-udp channels request TCP and UDP port
+forwarding from a local port on the client towards a remote address
+accessible from the remote host.
+The reverse-tcp and reverse-udp channels are used to request
+the forwarding of UDP packets and TCP connections from a specific port
+on the remote host to the client.<a href="#section-4.1.2-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="messages">
+<section id="section-4.1.3">
+          <h4 id="name-messages">
+<a href="#section-4.1.3" class="section-number selfRef">4.1.3. </a><a href="#name-messages" class="section-name selfRef">Messages</a>
+          </h4>
+<p id="section-4.1.3-1">Messages are exchanged over channels similarly to SSHv2. The same
+message
+format as the one defined in <span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]</span> applies, with channel
+numbers removed from the messages headers as channel run over dedicated
+HTTP streams. Hereunder is an example showing the wire format of the
+<code>exit-status</code> SSH message for SSH3. Its SSHv2 variant is described in
+<a href="https://datatracker.ietf.org/doc/html/rfc4254#section-6.10">Section 6.10</a> of <span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]</span>.<a href="#section-4.1.3-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.1.3-2">
+<pre>
+ExitStatusMessage {
+    Message Type (string) = "exit-status",
+    Want Reply (bool) = false,
+    Exit Status (i)
+}
+</pre><a href="#section-4.1.3-2" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+</section>
+</div>
+</section>
+</div>
+<div id="ssh3-and-masque">
+<section id="section-5">
+      <h2 id="name-ssh3-and-masque">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-ssh3-and-masque" class="section-name selfRef">SSH3 and MASQUE</a>
+      </h2>
+<p id="section-5-1">SSH3 shares common objectives with the MASQUE proxy <span>[<a href="#MASQUE" class="cite xref">MASQUE</a>]</span> and while it
+is currently out of scope of this introductory document, interactions between
+the two protocols may exist in the future. For instance, a MASQUE endpoint
+can be integrated with SSH3 to provide diverse forwarding services.
+Another possible outcome is the integration of SSH3 in the MASQUE
+family of proxies in the form of a "<code>CONNECT-SHELL</code>" endpoint.<a href="#section-5-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="version-negotiation">
+<section id="section-6">
+      <h2 id="name-version-negotiation">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-version-negotiation" class="section-name selfRef">Version Negotiation</a>
+      </h2>
+<p id="section-6-1">For SSH3 implementations to be able to follow the versions of this draft
+while being interoperable with a large amount of peers, we define the
+"<code>ssh-version</code>" header to list the supported draft versions. The value
+of this field sent by the client is a comma-separated list of strings
+representing the filenames of the supported drafts without the "<code>draft-</code>"
+prefix.
+For instance, SSH3 clients implementing this draft in versions 00 and 01
+send the "<code>ssh-version: michel-ssh3-00,michel-ssh3-01</code>"
+HTTP header in the CONNECT request.
+Upon receiving this header, the server chooses a version from the ones
+supported by the client. It then sets this single version as the value
+of the "<code>ssh-version</code>" header.<a href="#section-6-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="compatibility-with-sshv2-and-tcp-only-networks">
+<section id="section-7">
+      <h2 id="name-compatibility-with-sshv2-an">
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-compatibility-with-sshv2-an" class="section-name selfRef">Compatibility with SSHv2 and TCP-only networks</a>
+      </h2>
+<p id="section-7-1">While the protocol described in this document is not directly compatible with SSHv2,
+mechanisms can be defined in the future to announce the availability of SSH3 and upgrade
+to SSH3 from SSHv2 sessions. Such upgrades can also be achieved on networks supporting only TCP
+using either HTTP/2 <span>[<a href="#HTTP2" class="cite xref">HTTP2</a>]</span> or HTTP/3 <span>[<a href="#HTTP3" class="cite xref">HTTP3</a>]</span> with QUIC on Streams <span>[<a href="#QUIC-ON-STREAMS" class="cite xref">QUIC-ON-STREAMS</a>]</span>
+as a substrate for SSH3.<a href="#section-7-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="security-considerations">
+<section id="section-8">
+      <h2 id="name-security-considerations">
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      </h2>
+<p id="section-8-1">Running an SSH3 endpoint with weak or no authentication methods exposes
+the host to non-negligible risks allowing attackers to gain full control
+of the server. SSH3 servers should not be run without authentication
+and user authentication material should be verified thoroughly. Public
+key authentication should be preferred to passwords.<a href="#section-8-1" class="pilcrow">¶</a></p>
+<p id="section-8-2">It is strongly recommended to deploy public TLS certificates on SSH3
+servers in a similar way to classical HTTPS servers. Using valid TLS certificates on the server allows their
+automatic verification on the client with no explicit user action
+required. Connecting an SSH3 client to a server with no valid
+certificate exposes the user to the same risk incurred by SSHv2
+endpoints relying on Host keys: the user needs to manually validate the
+certificate before connecting to avoid an attacker to impersonate the
+server and access the keystrokes typed by the user during the
+conversation.<a href="#section-8-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="iana-considerations">
+<section id="section-9">
+      <h2 id="name-iana-considerations">
+<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+      </h2>
+<div id="http-upgrade-token">
+<section id="section-9.1">
+        <h3 id="name-http-upgrade-token">
+<a href="#section-9.1" class="section-number selfRef">9.1. </a><a href="#name-http-upgrade-token" class="section-name selfRef">HTTP Upgrade Token</a>
+        </h3>
+<p id="section-9.1-1">This document will request IANA to register "ssh3" in the "HTTP Upgrade
+Tokens" registry maintained at <a href="https://www.iana.org/assignments/http-upgrade-tokens">https://www.iana.org/assignments/http-upgrade-tokens</a>.<a href="#section-9.1-1" class="pilcrow">¶</a></p>
+<p id="section-9.1-2">[[Note: This may be removed if we decide to run SSH3 atop WebTransport instead of
+HTTP/3 only.]]<a href="#section-9.1-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<section id="section-10">
+      <h2 id="name-references">
+<a href="#section-10" class="section-number selfRef">10. </a><a href="#name-references" class="section-name selfRef">References</a>
+      </h2>
+<div id="sec-normative-references">
+<section id="section-10.1">
+        <h3 id="name-normative-references">
+<a href="#section-10.1" class="section-number selfRef">10.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+        </h3>
+<dl class="references">
+<dt id="DOQ">[DOQ]</dt>
+        <dd>
+<span class="refAuthor">Huitema, C.</span>, <span class="refAuthor">Dickinson, S.</span>, and <span class="refAuthor">A. Mankin</span>, <span class="refTitle">"DNS over Dedicated QUIC Connections"</span>, <span class="seriesInfo">RFC 9250</span>, <span class="seriesInfo">DOI 10.17487/RFC9250</span>, <time datetime="2022-05" class="refDate">May 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9250">https://www.rfc-editor.org/rfc/rfc9250</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="EXTENDED-CONNECT">[EXTENDED-CONNECT]</dt>
+        <dd>
+<span class="refAuthor">McManus, P.</span>, <span class="refTitle">"Bootstrapping WebSockets with HTTP/2"</span>, <span class="seriesInfo">RFC 8441</span>, <span class="seriesInfo">DOI 10.17487/RFC8441</span>, <time datetime="2018-09" class="refDate">September 2018</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8441">https://www.rfc-editor.org/rfc/rfc8441</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="HTTP-BASIC">[HTTP-BASIC]</dt>
+        <dd>
+<span class="refAuthor">Reschke, J.</span>, <span class="refTitle">"The 'Basic' HTTP Authentication Scheme"</span>, <span class="seriesInfo">RFC 7617</span>, <span class="seriesInfo">DOI 10.17487/RFC7617</span>, <time datetime="2015-09" class="refDate">September 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7617">https://www.rfc-editor.org/rfc/rfc7617</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="HTTP-DATAGRAM">[HTTP-DATAGRAM]</dt>
+        <dd>
+<span class="refAuthor">Schinazi, D.</span> and <span class="refAuthor">L. Pardue</span>, <span class="refTitle">"HTTP Datagrams and the Capsule Protocol"</span>, <span class="seriesInfo">RFC 9297</span>, <span class="seriesInfo">DOI 10.17487/RFC9297</span>, <time datetime="2022-08" class="refDate">August 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9297">https://www.rfc-editor.org/rfc/rfc9297</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="HTTP-SEMANTICS">[HTTP-SEMANTICS]</dt>
+        <dd>
+<span class="refAuthor">Fielding, R., Ed.</span>, <span class="refAuthor">Nottingham, M., Ed.</span>, and <span class="refAuthor">J. Reschke, Ed.</span>, <span class="refTitle">"HTTP Semantics"</span>, <span class="seriesInfo">STD 97</span>, <span class="seriesInfo">RFC 9110</span>, <span class="seriesInfo">DOI 10.17487/RFC9110</span>, <time datetime="2022-06" class="refDate">June 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9110">https://www.rfc-editor.org/rfc/rfc9110</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="HTTP-SIGNATURE">[HTTP-SIGNATURE]</dt>
+        <dd>
+<span class="refAuthor">Schinazi, D.</span>, <span class="refAuthor">Oliver, D.</span>, and <span class="refAuthor">J. Hoyland</span>, <span class="refTitle">"The Signature HTTP Authentication Scheme"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-httpbis-unprompted-auth-06</span>, <time datetime="2024-01-23" class="refDate">23 January 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-unprompted-auth-06">https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-unprompted-auth-06</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="HTTP2">[HTTP2]</dt>
+        <dd>
+<span class="refAuthor">Thomson, M., Ed.</span> and <span class="refAuthor">C. Benfield, Ed.</span>, <span class="refTitle">"HTTP/2"</span>, <span class="seriesInfo">RFC 9113</span>, <span class="seriesInfo">DOI 10.17487/RFC9113</span>, <time datetime="2022-06" class="refDate">June 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9113">https://www.rfc-editor.org/rfc/rfc9113</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="HTTP3">[HTTP3]</dt>
+        <dd>
+<span class="refAuthor">Bishop, M., Ed.</span>, <span class="refTitle">"HTTP/3"</span>, <span class="seriesInfo">RFC 9114</span>, <span class="seriesInfo">DOI 10.17487/RFC9114</span>, <time datetime="2022-06" class="refDate">June 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9114">https://www.rfc-editor.org/rfc/rfc9114</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="JWT">[JWT]</dt>
+        <dd>
+<span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">N. Sakimura</span>, <span class="refTitle">"JSON Web Token (JWT)"</span>, <span class="seriesInfo">RFC 7519</span>, <span class="seriesInfo">DOI 10.17487/RFC7519</span>, <time datetime="2015-05" class="refDate">May 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7519">https://www.rfc-editor.org/rfc/rfc7519</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="OAUTH2-JWT">[OAUTH2-JWT]</dt>
+        <dd>
+<span class="refAuthor">Bertocci, V.</span>, <span class="refTitle">"JSON Web Token (JWT) Profile for OAuth 2.0 Access Tokens"</span>, <span class="seriesInfo">RFC 9068</span>, <span class="seriesInfo">DOI 10.17487/RFC9068</span>, <time datetime="2021-10" class="refDate">October 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9068">https://www.rfc-editor.org/rfc/rfc9068</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="QUIC">[QUIC]</dt>
+        <dd>
+<span class="refAuthor">Iyengar, J., Ed.</span> and <span class="refAuthor">M. Thomson, Ed.</span>, <span class="refTitle">"QUIC: A UDP-Based Multiplexed and Secure Transport"</span>, <span class="seriesInfo">RFC 9000</span>, <span class="seriesInfo">DOI 10.17487/RFC9000</span>, <time datetime="2021-05" class="refDate">May 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9000">https://www.rfc-editor.org/rfc/rfc9000</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="QUIC-RECOVERY">[QUIC-RECOVERY]</dt>
+        <dd>
+<span class="refAuthor">Iyengar, J., Ed.</span> and <span class="refAuthor">I. Swett, Ed.</span>, <span class="refTitle">"QUIC Loss Detection and Congestion Control"</span>, <span class="seriesInfo">RFC 9002</span>, <span class="seriesInfo">DOI 10.17487/RFC9002</span>, <time datetime="2021-05" class="refDate">May 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9002">https://www.rfc-editor.org/rfc/rfc9002</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC2119">[RFC2119]</dt>
+        <dd>
+<span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2119">https://www.rfc-editor.org/rfc/rfc2119</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8174">[RFC8174]</dt>
+        <dd>
+<span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8174">https://www.rfc-editor.org/rfc/rfc8174</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="SSH-ARCH">[SSH-ARCH]</dt>
+        <dd>
+<span class="refAuthor">Ylonen, T.</span> and <span class="refAuthor">C. Lonvick, Ed.</span>, <span class="refTitle">"The Secure Shell (SSH) Protocol Architecture"</span>, <span class="seriesInfo">RFC 4251</span>, <span class="seriesInfo">DOI 10.17487/RFC4251</span>, <time datetime="2006-01" class="refDate">January 2006</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc4251">https://www.rfc-editor.org/rfc/rfc4251</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="SSH-AUTH">[SSH-AUTH]</dt>
+        <dd>
+<span class="refAuthor">Ylonen, T.</span> and <span class="refAuthor">C. Lonvick, Ed.</span>, <span class="refTitle">"The Secure Shell (SSH) Authentication Protocol"</span>, <span class="seriesInfo">RFC 4252</span>, <span class="seriesInfo">DOI 10.17487/RFC4252</span>, <time datetime="2006-01" class="refDate">January 2006</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc4252">https://www.rfc-editor.org/rfc/rfc4252</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="SSH-CONNECT">[SSH-CONNECT]</dt>
+        <dd>
+<span class="refAuthor">Ylonen, T.</span> and <span class="refAuthor">C. Lonvick, Ed.</span>, <span class="refTitle">"The Secure Shell (SSH) Connection Protocol"</span>, <span class="seriesInfo">RFC 4254</span>, <span class="seriesInfo">DOI 10.17487/RFC4254</span>, <time datetime="2006-01" class="refDate">January 2006</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc4254">https://www.rfc-editor.org/rfc/rfc4254</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="SSH-TRANSPORT">[SSH-TRANSPORT]</dt>
+        <dd>
+<span class="refAuthor">Ylonen, T.</span> and <span class="refAuthor">C. Lonvick, Ed.</span>, <span class="refTitle">"The Secure Shell (SSH) Transport Layer Protocol"</span>, <span class="seriesInfo">RFC 4253</span>, <span class="seriesInfo">DOI 10.17487/RFC4253</span>, <time datetime="2006-01" class="refDate">January 2006</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc4253">https://www.rfc-editor.org/rfc/rfc4253</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="URI">[URI]</dt>
+        <dd>
+<span class="refAuthor">Berners-Lee, T.</span>, <span class="refAuthor">Fielding, R.</span>, and <span class="refAuthor">L. Masinter</span>, <span class="refTitle">"Uniform Resource Identifier (URI): Generic Syntax"</span>, <span class="seriesInfo">STD 66</span>, <span class="seriesInfo">RFC 3986</span>, <span class="seriesInfo">DOI 10.17487/RFC3986</span>, <time datetime="2005-01" class="refDate">January 2005</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc3986">https://www.rfc-editor.org/rfc/rfc3986</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="WEBTRANSPORT-H3">[WEBTRANSPORT-H3]</dt>
+      <dd>
+<span class="refAuthor">Frindell, A.</span>, <span class="refAuthor">Kinnear, E.</span>, and <span class="refAuthor">V. Vasiliev</span>, <span class="refTitle">"WebTransport over HTTP/3"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-webtrans-http3-08</span>, <time datetime="2023-10-23" class="refDate">23 October 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-webtrans-http3-08">https://datatracker.ietf.org/doc/html/draft-ietf-webtrans-http3-08</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="sec-informative-references">
+<section id="section-10.2">
+        <h3 id="name-informative-references">
+<a href="#section-10.2" class="section-number selfRef">10.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+        </h3>
+<dl class="references">
+<dt id="ACME">[ACME]</dt>
+        <dd>
+<span class="refAuthor">Barnes, R.</span>, <span class="refAuthor">Hoffman-Andrews, J.</span>, <span class="refAuthor">McCarney, D.</span>, and <span class="refAuthor">J. Kasten</span>, <span class="refTitle">"Automatic Certificate Management Environment (ACME)"</span>, <span class="seriesInfo">RFC 8555</span>, <span class="seriesInfo">DOI 10.17487/RFC8555</span>, <time datetime="2019-03" class="refDate">March 2019</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8555">https://www.rfc-editor.org/rfc/rfc8555</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="MASQUE">[MASQUE]</dt>
+        <dd>
+<span class="refAuthor">Schinazi, D.</span>, <span class="refTitle">"The MASQUE Proxy"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-schinazi-masque-proxy-01</span>, <time datetime="2023-09-07" class="refDate">7 September 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-schinazi-masque-proxy-01">https://datatracker.ietf.org/doc/html/draft-schinazi-masque-proxy-01</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="MOQT">[MOQT]</dt>
+        <dd>
+<span class="refAuthor">Curley, L.</span>, <span class="refAuthor">Pugin, K.</span>, <span class="refAuthor">Nandakumar, S.</span>, <span class="refAuthor">Vasiliev, V.</span>, and <span class="refAuthor">I. Swett</span>, <span class="refTitle">"Media over QUIC Transport"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-moq-transport-02</span>, <time datetime="2024-01-24" class="refDate">24 January 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-moq-transport-02">https://datatracker.ietf.org/doc/html/draft-ietf-moq-transport-02</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="OASIS.saml-core-2.0-os">[OASIS.saml-core-2.0-os]</dt>
+        <dd>
+<span class="refAuthor">Cantor, S.</span>, <span class="refAuthor">Kemp, J.</span>, <span class="refAuthor">Philpott, R.</span>, and <span class="refAuthor">E. Maler</span>, <span class="refTitle">"Assertions and Protocols for the OASIS Security Assertion Markup Language (SAML) V2.0"</span>, <span class="seriesInfo">Web http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf</span>, <span>n.d.</span>. </dd>
+<dd class="break"></dd>
+<dt id="OAUTH2">[OAUTH2]</dt>
+        <dd>
+<span class="refAuthor">Hardt, D., Ed.</span>, <span class="refTitle">"The OAuth 2.0 Authorization Framework"</span>, <span class="seriesInfo">RFC 6749</span>, <span class="seriesInfo">DOI 10.17487/RFC6749</span>, <time datetime="2012-10" class="refDate">October 2012</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6749">https://www.rfc-editor.org/rfc/rfc6749</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="OpenID.Core">[OpenID.Core]</dt>
+        <dd>
+<span class="refAuthor">Sakimura, N.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">de Medeiros, B.</span>, and <span class="refAuthor">C. Mortimore</span>, <span class="refTitle">"OpenID Connect Core 1.0"</span>, <span class="seriesInfo">Web http://openid.net/specs/openid-connect-core-1_0.html</span>, <span>n.d.</span>. </dd>
+<dd class="break"></dd>
+<dt id="OPENSSH-5.4">[OPENSSH-5.4]</dt>
+        <dd>
+<span class="refTitle">"OpenSSH release 5.4"</span>, <span class="seriesInfo">Web https://www.openssh.com/txt/release-5.4</span>. </dd>
+<dd class="break"></dd>
+<dt id="PUTTY-CERTIFICATES">[PUTTY-CERTIFICATES]</dt>
+        <dd>
+<span class="refTitle">"PuTTY Certificates"</span>, <span class="seriesInfo">Web https://www.chiark.greenend.org.uk/~sgtatham/quasiblog/putty-certificates/</span>. </dd>
+<dd class="break"></dd>
+<dt id="QUIC-ON-STREAMS">[QUIC-ON-STREAMS]</dt>
+        <dd>
+<span class="refAuthor">Oku, K.</span> and <span class="refAuthor">L. Pardue</span>, <span class="refTitle">"QUIC on Streams"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-kazuho-quic-quic-on-streams-00</span>, <time datetime="2024-02-16" class="refDate">16 February 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-kazuho-quic-quic-on-streams-00">https://datatracker.ietf.org/doc/html/draft-kazuho-quic-quic-on-streams-00</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC5961">[RFC5961]</dt>
+        <dd>
+<span class="refAuthor">Ramaiah, A.</span>, <span class="refAuthor">Stewart, R.</span>, and <span class="refAuthor">M. Dalal</span>, <span class="refTitle">"Improving TCP's Robustness to Blind In-Window Attacks"</span>, <span class="seriesInfo">RFC 5961</span>, <span class="seriesInfo">DOI 10.17487/RFC5961</span>, <time datetime="2010-08" class="refDate">August 2010</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc5961">https://www.rfc-editor.org/rfc/rfc5961</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8308">[RFC8308]</dt>
+        <dd>
+<span class="refAuthor">Bider, D.</span>, <span class="refTitle">"Extension Negotiation in the Secure Shell (SSH) Protocol"</span>, <span class="seriesInfo">RFC 8308</span>, <span class="seriesInfo">DOI 10.17487/RFC8308</span>, <time datetime="2018-03" class="refDate">March 2018</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8308">https://www.rfc-editor.org/rfc/rfc8308</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="TECTIA-CERTIFICATES">[TECTIA-CERTIFICATES]</dt>
+        <dd>
+<span class="refTitle">"Tectia Certificates"</span>, <span class="seriesInfo">Web https://privx.docs.ssh.com/docs/enabling-certificate-based-authentication-for-ssh-connections</span>. </dd>
+<dd class="break"></dd>
+<dt id="TERRAPIN">[TERRAPIN]</dt>
+        <dd>
+<span class="refAuthor">Bäumer, F.</span>, <span class="refAuthor">Brinkmann, M.</span>, and <span class="refAuthor">J. Schwenk</span>, <span class="refTitle">"Terrapin Attack: Breaking SSH Channel Integrity By Sequence Number Manipulation"</span>, <span class="seriesInfo">DOI 10.48550/arXiv.2312.12422</span>, <time datetime="2023" class="refDate">2023</time>, <span>&lt;<a href="https://doi.org/10.48550/arXiv.2312.12422">https://doi.org/10.48550/arXiv.2312.12422</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="WebAuthn">[WebAuthn]</dt>
+      <dd>
+<span class="refTitle">"Web Authentication: An API for accessing Public Key Credentials Level 3"</span>, <span class="seriesInfo">Web https://www.w3.org/TR/webauthn-3/</span>, <span>n.d.</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+</section>
+<div id="acknowledgments">
+<section id="appendix-A">
+      <h2 id="name-acknowledgments">
+<a href="#name-acknowledgments" class="section-name selfRef">Acknowledgments</a>
+      </h2>
+<p id="appendix-A-1">We warmly thank Maxime Piraux, Lucas Pardue and David Schinazi for their precious
+comments on the document before the submission.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="authors-addresses">
+<section id="appendix-B">
+      <h2 id="name-authors-addresses">
+<a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
+      </h2>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">François Michel</span></div>
+<div dir="auto" class="left"><span class="org">UCLouvain</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:francois.michel@uclouvain.be" class="email">francois.michel@uclouvain.be</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Olivier Bonaventure</span></div>
+<div dir="auto" class="left"><span class="org">UCLouvain and WELRI</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:olivier.bonaventure@uclouvain.be" class="email">olivier.bonaventure@uclouvain.be</a>
+</div>
+</address>
+</section>
+</div>
+<script>const toc = document.getElementById("toc");
+toc.querySelector("h2").addEventListener("click", e => {
+  toc.classList.toggle("active");
+});
+toc.querySelector("nav").addEventListener("click", e => {
+  toc.classList.remove("active");
+});
+</script>
+</body>
+</html>
