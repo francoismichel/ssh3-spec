@@ -546,6 +546,17 @@ The reverse-tcp and reverse-udp channels are used to request
 the forwarding of UDP packets and TCP connections from a specific port
 on the remote host to the client.
 
+### Port forwarding
+The HTTP bidirectional stream attached to the `direct-tcp` or `reverse-tcp`
+channel directly carries the TCP payload to forward.
+
+For UDP forwarding, UDP packets are carried through HTTP Datagrams
+{{Section 2 of HTTP-DATAGRAM}} whose Quarter Stream ID refers directly to the
+HTTP Stream ID of the corresponding `direct-udp` or `reverse-udp` channel.
+
+Forwarding of other layers (e.g. IP) is left for future
+versions of the document.
+
 ### Messages {#messages}
 
 Messages are exchanged over channels similarly to SSHv2. The same
