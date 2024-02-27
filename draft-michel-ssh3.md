@@ -212,12 +212,12 @@ adding new code points in SSH3 for these new algorithms.
                  |   +-------------------------+   |
                  |          SSH services           |
                  +---------------------------------+
-                   | - user authentication    | - reliable transport
-                   | - URL multiplexing       | - secure channel
-                   v                          |    establishment
-             +-----------------------+        | - streams multiplexing
-             |        HTTP/3         |        |            & datagrams
-             +-----------------------+        v
+                   | - user authentication   | - reliable transport
+                   | - URL multiplexing      | - secure channel
+                   v                         |    establishment
+             +-----------------------+       | - streams multiplexing
+             |        HTTP/3         |       |            & datagrams
+             +-----------------------+       v
              +----------------------------------------------+
              |                 QUIC / TLS                   |
              +----------------------------------------------+
