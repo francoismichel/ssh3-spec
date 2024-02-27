@@ -21,8 +21,8 @@ Abstract
    benefits such as the scalability offered by HTTP multiplexing,
    relying on TLS for secure channel establishment leveraging X.509
    certificates, HTTP Authentication schemes for client and server
-   authentication and stronger resilience against packet injection
-   attacks and middlebox interference.
+   authentication, UDP port forwarding and stronger resilience against
+   packet injection attacks and middlebox interference.
 
 About This Document
 
