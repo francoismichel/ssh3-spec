@@ -151,8 +151,8 @@ informative:
 --- abstract
 
 The secure shell (SSH) traditionally offers its secure services over an insecure network using the TCP transport protocol. This document defines mechanisms
-to run the SSH protocol and provide a comparable set of services using HTTP/3.
-Running SSH over HTTP/3 allows several benefits such as the scalability offered by HTTP
+to run the SSH protocol over HTTP/3 using Extended CONNECT.
+Running SSH over HTTP/3 enables additional benefits such as the scalability offered by HTTP
 multiplexing, relying on TLS for secure channel establishment leveraging X.509 certificates, HTTP Authentication schemes for client and server authentication, UDP port forwarding
 and stronger resilience against packet injection attacks and middlebox interference.
 
@@ -163,7 +163,7 @@ and stronger resilience against packet injection attacks and middlebox interfere
 
 # Introduction
 
-The SSH protocol {{SSH-ARCH}} provides a secure way to access computers remotely over an untrusted network. SSH is currently the most popular way to access Unix hosts and network equipment remotely. Built atop the unencrypted TCP protocol, SSH proposes its own mechanisms to establish a secure channel {{SSH-TRANSPORT}} and perform user authentication {{SSH-AUTH}}. Once the secure session is established
+The SSH protocol {{SSH-ARCH}} provides a secure way to access computers remotely over an untrusted network. SSH is currently the most popular way to access Unix hosts and network equipments remotely. Built atop the unencrypted TCP protocol, SSH proposes its own mechanisms to establish a secure channel {{SSH-TRANSPORT}} and perform user authentication {{SSH-AUTH}}. Once the secure session is established
 and the user is authenticated and authorized, SSH uses the Connection protocol to run and manage
 remote processes and functionalities executed on the remote host {{SSH-CONNECT}}.
 Among others, SSH provides different services such as remote program execution, shell access and TCP port forwarding.
@@ -244,12 +244,12 @@ highlighted in this section.
 ### QUIC: datagrams support, streams multiplexing and connection migration
 
 Using QUIC, SSH3 can send data through both reliable streams and unreliable datagrams. This makes SSH3
-able to support port forwarding for both TCP and UDP-based protocols. Being based exclusively on TCP, SSHv2 does not offer UDP port forwarding and therefore provides no support to UDP-based protocols such RTP or QUIC.
-This lack of UDP support in SSHv2 may become problematic as the use of QUIC applications (HTTP/3, MOQT {{MOQT}}, DOQ {{DOQ}}) grows. Support for UDP port forwarding with SSH3 also allows accessing real-time media content such as low-latency live video available on the server.
+able to support port forwarding for both TCP and UDP-based protocols. Being based exclusively on TCP, SSHv2 does not offer UDP port forwarding and therefore provides no support to UDP-based protocols such as RTP or QUIC.
+This lack of UDP support in SSHv2 may become problematic as the use of QUIC-based applications (HTTP/3, MOQT {{MOQT}}, DOQ {{DOQ}}) grows. Support for UDP port forwarding with SSH3 also allows accessing real-time media content such as low-latency live video available on the server.
 The stream multiplexing capabilities of QUIC allow reducing the head-of-line blocking that SSHv2 encounters when multiplexing several SSH channels over the same TCP connection.
 
 QUIC also supports connection migration ({{Section 9 of QUIC}}).
-Using connection migrations, mobile hosts roaming between networks can
+Using connection migration, a mobile host roaming between networks can
 maintain established connections alive across different networks by migrating them
 on their newly acquired IP address. This avoids disrupting the SSH conversation
 upon network changes.
@@ -371,7 +371,7 @@ establishment.
 {: #ssh3-conversation-establishment title="SSH3 successful conversation establishment."}
 
 
-Authentication material is placed inside the `Authorization` header of the Extended CONNECT request. The format and value of `<auth_material>` depends on the used HTTP authentication scheme ({{ssh3-authenticating-the-client}} explores several examples of authentication mechanisms). If an SSH3 endpoint is available to the HTTP/3 server and if the user is successfully authenticated and authorized, the server responds with a 2xx HTTP status code and the conversation is established.
+Authentication material is placed inside the `Authorization` header of the Extended CONNECT request. The format and value of `<auth_material>` depends on the HTTP authentication scheme used ({{ssh3-authenticating-the-client}} explores several examples of authentication mechanisms). If an SSH3 endpoint is available to the HTTP/3 server and if the user is successfully authenticated and authorized, the server responds with a 2xx HTTP status code and the conversation is established.
 
 The stream ID used for the Extended CONNECT request is then remembered by each endpoint as the SSH conversation ID, uniquely identifying this SSH conversation.
 
@@ -478,9 +478,9 @@ the public key instead.
      |                                               |
 ~~~~
 
-# SSH Connection protocol
+# Mapping the SSH Connection protocol
 
-This document reuses the SSH connection protocol defined in {{SSH-CONNECT}}. SSH Channels are run over their dedicated HTTP streams and carry SSH messages. The `boolean` and `string` data types defined in {{SSH-ARCH}} are reused. The `byte`, `uint32` and `uint64` data types are replaced by variable-length integers as defined in {{Section 16 of QUIC}}.
+This document reuses the SSH Connection protocol defined in {{SSH-CONNECT}}. SSH Channels are run over their dedicated HTTP streams and carry SSH messages. The `boolean` and `string` data types defined in {{SSH-ARCH}} are reused. The `byte`, `uint32` and `uint64` data types are replaced by variable-length integers as defined in {{Section 16 of QUIC}}.
 
 ## Channels
 
