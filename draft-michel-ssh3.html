@@ -1291,20 +1291,20 @@ adding new code points in SSH3 for these new algorithms.<a href="#section-1-4" c
 <figure id="figure-2">
         <div class="alignLeft art-text artwork" id="section-1-5.1">
 <pre>
-            +-----------------------------------------------+
-            |                     SSH3                      |
-            |          +-------------------------+          |
-            |          |     SSH Connection      |          |
-            |          |       (~RFC4254)        |          |
-            |          +-------------------------+          |
-            |                 SSH services                  |
-            +-----------------------------------------------+
-                | - user authentication      | - reliable transport
-                | - URL multiplexing         | - secure channel
-                v                            |    establishment
-             +-----------------------+       | - streams multiplexing
-             |        HTTP/3         |       |            &amp; datagrams
-             +-----------------------+       v
+                 +---------------------------------+
+                 |              SSH3               |
+                 |   +-------------------------+   |
+                 |   |     SSH Connection      |   |
+                 |   |       (~RFC4254)        |   |
+                 |   +-------------------------+   |
+                 |          SSH services           |
+                 +---------------------------------+
+                   | - user authentication    | - reliable transport
+                   | - URL multiplexing       | - secure channel
+                   v                          |    establishment
+             +-----------------------+        | - streams multiplexing
+             |        HTTP/3         |        |            &amp; datagrams
+             +-----------------------+        v
              +----------------------------------------------+
              |                 QUIC / TLS                   |
              +----------------------------------------------+

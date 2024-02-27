@@ -145,25 +145,25 @@ Table of Contents
    and used in SSH3 without impacting the specification or adding new
    code points in SSH3 for these new algorithms.
 
-               +-----------------------------------------------+
-               |                     SSH3                      |
-               |          +-------------------------+          |
-               |          |     SSH Connection      |          |
-               |          |       (~RFC4254)        |          |
-               |          +-------------------------+          |
-               |                 SSH services                  |
-               +-----------------------------------------------+
-                   | - user authentication      | - reliable transport
-                   | - URL multiplexing         | - secure channel
-                   v                            |    establishment
-                +-----------------------+       | - streams multiplexing
-                |        HTTP/3         |       |            & datagrams
-                +-----------------------+       v
-                +----------------------------------------------+
-                |                 QUIC / TLS                   |
-                +----------------------------------------------+
+                   +---------------------------------+
+                   |              SSH3               |
+                   |   +-------------------------+   |
+                   |   |     SSH Connection      |   |
+                   |   |       (~RFC4254)        |   |
+                   |   +-------------------------+   |
+                   |          SSH services           |
+                   +---------------------------------+
+                     | - user authentication    | - reliable transport
+                     | - URL multiplexing       | - secure channel
+                     v                          |    establishment
+               +-----------------------+        | - streams multiplexing
+               |        HTTP/3         |        |            & datagrams
+               +-----------------------+        v
+               +----------------------------------------------+
+               |                 QUIC / TLS                   |
+               +----------------------------------------------+
 
-                 Figure 2: The proposed SSH3 architecture.
+                Figure 2: The proposed SSH3 architecture.
 
    The mechanisms used for establishing an SSH3 conversation are similar
    to the WebTransport session establishment [WEBTRANSPORT-H3].
