@@ -134,7 +134,6 @@ Table of Contents
               Figure 1: The SSHv2 architecture protocol stack.
 
    This document defines mechanisms to run the SSH Connection protocol
-
    [SSH-CONNECT] over HTTP/3 and uses the name "SSH3" to refer to this
    solution.  The secure channel establishment uses TLS included in QUIC
    while user authentication is performed using existing HTTP

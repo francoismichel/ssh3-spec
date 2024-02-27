@@ -1281,18 +1281,18 @@ Among others, SSH provides different services such as remote program execution, 
 <a href="#name-the-sshv2-architecture-prot" class="selfRef">The SSHv2 architecture protocol stack.</a>
         </figcaption></figure>
 </div>
-<p id="section-1-3">This document defines mechanisms to run the SSH Connection protocol<a href="#section-1-3" class="pilcrow">¶</a></p>
-<p id="section-1-4"><span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]</span> over HTTP/3 and uses the name "SSH3" to refer to
+<p id="section-1-3">This document defines mechanisms to run the SSH Connection protocol
+<span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]</span> over HTTP/3 and uses the name "SSH3" to refer to
 this solution. The secure channel establishment uses TLS included in QUIC while user authentication
 is performed using existing HTTP authentication schemes, simplifying significantly the design of the protocol. <a href="#ssh3-architecture-goal" class="auto internal xref">Figure 2</a>
 provides a graphical representation of the architecture proposed in this document.
 One benefit of the approach is that the HTTP3 and QUIC layers can
 evolve independently of SSH. For instance, new encryption and MAC algorithms
 can be added to TLS and used in SSH3 without impacting the specification or
-adding new code points in SSH3 for these new algorithms.<a href="#section-1-4" class="pilcrow">¶</a></p>
+adding new code points in SSH3 for these new algorithms.<a href="#section-1-3" class="pilcrow">¶</a></p>
 <span id="name-the-proposed-ssh3-architect"></span><div id="ssh3-architecture-goal">
 <figure id="figure-2">
-        <div class="alignLeft art-text artwork" id="section-1-5.1">
+        <div class="alignLeft art-text artwork" id="section-1-4.1">
 <pre>
                  +---------------------------------+
                  |              SSH3               |
@@ -1318,7 +1318,7 @@ adding new code points in SSH3 for these new algorithms.<a href="#section-1-4" c
 <a href="#name-the-proposed-ssh3-architect" class="selfRef">The proposed SSH3 architecture.</a>
         </figcaption></figure>
 </div>
-<p id="section-1-6">The mechanisms used for establishing an SSH3 conversation
+<p id="section-1-5">The mechanisms used for establishing an SSH3 conversation
 are similar to the WebTransport session establishment <span>[<a href="#WEBTRANSPORT-H3" class="cite xref">WEBTRANSPORT-H3</a>]</span>.
 WebTransport is also a good transport layer candidate for SSH3. The current
 SSH3 prototype <span>[<a href="#SSH3-PROTOTYPE" class="cite xref">SSH3-PROTOTYPE</a>]</span> is built directly over HTTP/3 since there is no public
@@ -1328,7 +1328,7 @@ defined in this document could be implemented using HTTP/2 if a fallback
 to TCP is required. There is an ongoing effort to be able to run HTTP/3 over QUIC on TCP Streams
 <span>[<a href="#QUIC-ON-STREAMS" class="cite xref">QUIC-ON-STREAMS</a>]</span>. This document
 is a first introductory document and we limit its current scope to HTTP/3
-using the classical QUIC.<a href="#section-1-6" class="pilcrow">¶</a></p>
+using the classical QUIC.<a href="#section-1-5" class="pilcrow">¶</a></p>
 <div id="how-ssh-benefits-from-http3">
 <section id="section-1.1">
         <h3 id="name-how-ssh-benefits-from-http-">
