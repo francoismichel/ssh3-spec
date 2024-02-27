@@ -139,7 +139,7 @@ informative:
       author:
       seriesinfo:
         Web: https://www.w3.org/TR/webauthn-3/
-   
+
 
 --- abstract
 
@@ -189,7 +189,7 @@ This document defines mechanisms to run the SSH Connection protocol
 {{SSH-CONNECT}} over HTTP/3 and uses the name "SSH3" to refer to
 this solution. The secure channel establishment uses TLS included in QUIC while user authentication
 is performed using existing HTTP authentication schemes, simplifying significantly the design of the protocol. {{ssh3-architecture-goal}}
-provides a graphical representation of the architecture proposed in this document. 
+provides a graphical representation of the architecture proposed in this document.
 One benefit of the approach is that the HTTP3 and QUIC layers can
 evolve independently of SSH. For instance, new encryption and MAC algorithms
 can be added to TLS and used in SSH3 without impacting the specification or
@@ -234,7 +234,7 @@ using the classical QUIC.
 ## How SSH benefits from HTTP/3
 
 Using HTTP/3 and QUIC as a substrate for SSH brings several different benefits that are
-highlighted in this section. 
+highlighted in this section.
 
 
 ### QUIC: datagrams support, streams multiplexing and connection migration
