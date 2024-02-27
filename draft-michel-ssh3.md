@@ -335,7 +335,7 @@ An SSH3 conversation can be started using the HTTP/3 Extended CONNECT
 method {{EXTENDED-CONNECT}}. The `:protocol` pseudo-header MUST be set
 to `ssh3` and the `:scheme` pseudo-header MUST be set to `https`.
 If an SSH3 client or server supports the UDP forwarding feature, it MUST indicate support for HTTP/3 datagrams by sending a SETTINGS_H3_DATAGRAM value set to 1 in their
-SETTINGS frame (see [Section 2.1.1]() of [HTTP-DATAGRAM]).
+SETTINGS frame {{Section 2.1.1 of HTTP-DATAGRAM}}.
 
 An SSH3 server listens for CONNECT requests with the `ssh3`
 protocol on URI templates having the `username` variable. Example URIs can be
@@ -483,7 +483,7 @@ the public key instead.
 
 # SSH Connection protocol
 
-This document reuses the SSH connection protocol defined in {{SSH-CONNECT}}. SSH Channels are run over their dedicated HTTP streams and carry SSH messages. The `boolean` and `string` data types defined in {{SSH-ARCH}} are reused. The `byte`, `uint32` and `uint64` data types are replaced by variable-length integers as defined in [Section 16](https://datatracker.ietf.org/doc/html/rfc9000#name-variable-length-integer-enc) of {{QUIC}}.
+This document reuses the SSH connection protocol defined in {{SSH-CONNECT}}. SSH Channels are run over their dedicated HTTP streams and carry SSH messages. The `boolean` and `string` data types defined in {{SSH-ARCH}} are reused. The `byte`, `uint32` and `uint64` data types are replaced by variable-length integers as defined in {{Section 16 of QUIC}}.
 
 ## Channels
 
@@ -569,7 +569,7 @@ format as the one defined in {{SSH-CONNECT}} applies, with channel
 numbers removed from the messages headers as channel run over dedicated
 HTTP streams. Hereunder is an example showing the wire format of the
 `exit-status` SSH message for SSH3. Its SSHv2 variant is described in
-[Section 6.10](https://datatracker.ietf.org/doc/html/rfc4254#section-6.10) of {{SSH-CONNECT}}.
+{{Section 6.10 of SSH-CONNECT}}.
 
 ~~~~
 ExitStatusMessage {
