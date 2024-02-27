@@ -225,7 +225,7 @@ The semantics of HTTP/2 being comparable to HTTP/3, the mechanisms
 defined in this document could be implemented using HTTP/2 if a fallback
 to TCP is required. There is an ongoing effort to be able to run HTTP/3 over QUIC on TCP Streams
 {{QUIC-ON-STREAMS}}. This document
-is a first introductory document and we limit its current scope to HTTP/3
+is a first introductory document. We limit its current scope to HTTP/3
 using the classical QUIC.
 
 
@@ -605,7 +605,7 @@ and user authentication material should be verified thoroughly. Public
 key authentication should be preferred to passwords.
 
 It is strongly recommended to deploy public TLS certificates on SSH3
-servers in a similar way to classical HTTPS servers.
+servers similarly to classical HTTPS servers.
 Using valid TLS certificates on the server allows their
 automatic verification on the client with no explicit user action
 required. Connecting an SSH3 client to a server with no valid
