@@ -209,7 +209,7 @@ adding new code points in SSH3 for these new algorithms.
                 | - URL multiplexing         | - secure channel
                 v                            |    establishment
              +-----------------------+       | - streams multiplexing
-             |        HTTP 3         |       |            & datagrams
+             |        HTTP/3         |       |            & datagrams
              +-----------------------+       v
              +----------------------------------------------+
              |                 QUIC / TLS                   |
