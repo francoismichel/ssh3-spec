@@ -153,7 +153,7 @@ informative:
 The secure shell (SSH) traditionally offers its secure services over an insecure network using the TCP transport protocol. This document defines mechanisms
 to run the SSH protocol and provide a comparable set of services using HTTP/3.
 Running SSH over HTTP/3 allows several benefits such as the scalability offered by HTTP
-multiplexing, relying on TLS for secure channel establishment leveraging X.509 certificates, HTTP Authentication schemes for client and server authentication
+multiplexing, relying on TLS for secure channel establishment leveraging X.509 certificates, HTTP Authentication schemes for client and server authentication, UDP port forwarding
 and stronger resilience against packet injection attacks and middlebox interference.
 
 
