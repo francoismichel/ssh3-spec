@@ -555,7 +555,7 @@ The HTTP bidirectional stream attached to the `direct-tcp` or `reverse-tcp`
 channel directly carries the TCP payload to forward.
 
 For UDP forwarding, UDP packets are carried through HTTP Datagrams
-{{Section 2 of HTTP-DATAGRAM}} whose Quarter Stream ID refers directly to the
+{{Section 2 of HTTP-DATAGRAM}} whose Quarter Stream IDs refer directly to the
 HTTP Stream ID of the corresponding `direct-udp` or `reverse-udp` channel.
 
 Forwarding of other layers (e.g. IP) is left for future
