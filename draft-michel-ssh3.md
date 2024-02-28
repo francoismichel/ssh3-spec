@@ -313,7 +313,7 @@ allow administrators to restrict remote access to specific client devices in add
 Relying on HTTP allows easily placing SSH endpoints as resources accessible through specific URLs.
 First, this makes it easier to integrate SSH endpoints on web servers that already perform
 user authentication and authorization. Second, it allows placing several SSH server instances on the same physical machine on the same port. These instances can run in different virtual machines, containers or
-simply different users and be multiplexed on a URL-basis.
+simply different users with user's priviledges and be multiplexed on a URL-basis.
 Finally, SSH3 endpoints can be placed behind secret URLs, reducing the exposure of SSH3 hosts to
 scanning and brute force attacks. This goes in line with the will of having undiscoverable resources
 also tackled by other IETF working groups {{HTTP-SIGNATURE}}. This property is not provided by SSHv2 since
