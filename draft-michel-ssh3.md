@@ -605,7 +605,7 @@ of the "`ssh-version`" header.
 
 While the protocol described in this document is not directly compatible with SSHv2,
 mechanisms can be defined in the future to announce the availability of SSH3 and upgrade
-to SSH3 from SSHv2 sessions. Such upgrades can also be achieved on networks supporting only TCP
+to SSH3 from SSHv2 sessions. SSH3 can also be made available on networks supporting only TCP
 using either HTTP/2 {{HTTP2}} or HTTP/3 {{HTTP3}} with QUIC on Streams {{QUIC-ON-STREAMS}}
 as a substrate for SSH3.
 
