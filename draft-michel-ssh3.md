@@ -304,7 +304,7 @@ a middleware managing the
 mapping between identities and SSH keys or certificates. Adding HTTP
 authentication to SSH allows welcoming these authentication methods directly
 and interfaces SSH3 more naturally with existing architectures. As a
-proof-of-concept, OpenID Connect has been implemented in our SSH3 prototype {{SSH3-PROTOTYPE}}.
+proof-of-concept, OpenID Connect support has been added to our SSH3 prototype {{SSH3-PROTOTYPE}}.
 Other web authentication standards such as Passkeys/WebAuthn {{WebAuthn}}
 allow administrators to restrict remote access to specific client devices in addition to users.
 
