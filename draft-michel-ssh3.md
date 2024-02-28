@@ -9,8 +9,8 @@ number:
 date:
 consensus: false
 v: 3
-# area: AREA
-# workgroup: WG Working Group
+area: sec
+workgroup: Security Dispatch
 keyword:
   - ssh
   - ssh3
