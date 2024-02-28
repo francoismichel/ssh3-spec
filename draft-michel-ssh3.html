@@ -1283,7 +1283,7 @@ Among others, SSH provides different services such as remote program execution, 
 <p id="section-1-3">This document defines mechanisms to run the SSH Connection protocol
 <span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]</span> over HTTP/3 and uses the name "SSH3" to refer to
 this solution. The secure channel establishment uses TLS included in QUIC <span>[<a href="#QUIC" class="cite xref">QUIC</a>]</span> <span>[<a href="#QUIC-TLS" class="cite xref">QUIC-TLS</a>]</span> while user authentication
-is performed using existing HTTP authentication schemes, focusing the design of SSH on the Connection protocol.
+is performed using existing HTTP authentication schemes, focusing the design of SSH on the Connection protocol itself.
 <a href="#ssh3-architecture-goal" class="auto internal xref">Figure 2</a> provides a graphical representation of the architecture proposed in this document.
 One benefit of the approach is that the HTTP3 and QUIC layers can
 evolve independently of SSH. For instance, new encryption and MAC algorithms

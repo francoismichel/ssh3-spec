@@ -138,7 +138,7 @@ Table of Contents
    solution.  The secure channel establishment uses TLS included in QUIC
    [QUIC] [QUIC-TLS] while user authentication is performed using
    existing HTTP authentication schemes, focusing the design of SSH on
-   the Connection protocol.  Figure 2 provides a graphical
+   the Connection protocol itself.  Figure 2 provides a graphical
    representation of the architecture proposed in this document.  One
    benefit of the approach is that the HTTP3 and QUIC layers can evolve
    independently of SSH.  For instance, new encryption and MAC
