@@ -166,8 +166,7 @@ and stronger resilience against packet injection attacks and middlebox interfere
 
 # Introduction
 
-The SSH protocol {{SSH-ARCH}} provides a secure way to access computers remotely over an untrusted network. SSH is currently the most popular way to access Unix hosts and network equipments remotely. Built atop the unencrypted TCP protocol  {{TCP}}, SSH proposes its own mechanisms to establish a secure channel {{SSH-TRANSPORT}} and perform user authentication {{SSH-AUTH}}. Once the secure session is established
-and the user is authenticated and authorized, SSH uses the Connection protocol to run and manage
+The SSH protocol {{SSH-ARCH}} provides a secure way to access computers remotely over an untrusted network. SSH is currently the most popular way to access Unix hosts and network equipments remotely. Built atop the unencrypted TCP protocol  {{TCP}}, SSH proposes its own mechanisms to establish a secure channel {{SSH-TRANSPORT}} and perform user authentication {{SSH-AUTH}}. Once the secure session is established and the user is authenticated and authorized, SSH uses the Connection protocol to run and manage
 remote processes and functionalities executed on the remote host {{SSH-CONNECT}}.
 Among others, SSH provides different services such as remote program execution, shell access and TCP port forwarding.
 {{ssh2-architecture}} provides a graphical representation of the SSHv2 protocol stack.
@@ -195,8 +194,8 @@ Among others, SSH provides different services such as remote program execution, 
 This document defines mechanisms to run the SSH Connection protocol
 {{SSH-CONNECT}} over HTTP/3 and uses the name "SSH3" to refer to
 this solution. The secure channel establishment uses TLS included in QUIC {{QUIC}} {{QUIC-TLS}} while user authentication
-is performed using existing HTTP authentication schemes, simplifying significantly the design of the protocol. {{ssh3-architecture-goal}}
-provides a graphical representation of the architecture proposed in this document.
+is performed using existing HTTP authentication schemes, focusing the design of SSH on the Connection protocol.
+{{ssh3-architecture-goal}} provides a graphical representation of the architecture proposed in this document.
 One benefit of the approach is that the HTTP3 and QUIC layers can
 evolve independently of SSH. For instance, new encryption and MAC algorithms
 can be added to TLS and used in SSH3 without impacting the specification or
