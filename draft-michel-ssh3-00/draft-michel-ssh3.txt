@@ -1,0 +1,827 @@
+
+
+
+
+Security Dispatch                                              F. Michel
+Internet-Draft                                                 UCLouvain
+Intended status: Experimental                             O. Bonaventure
+Expires: 31 August 2024                              UCLouvain and WELRI
+                                                        28 February 2024
+
+
+                  Secure shell over HTTP/3 connections
+                        draft-michel-ssh3-latest
+
+Abstract
+
+   The secure shell (SSH) traditionally offers its secure services over
+   an insecure network using the TCP transport protocol.  This document
+   defines mechanisms to run the SSH protocol over HTTP/3 using Extended
+   CONNECT.  Running SSH over HTTP/3 enables additional benefits such as
+   the scalability offered by HTTP multiplexing, relying on TLS for
+   secure channel establishment leveraging X.509 certificates, HTTP
+   Authentication schemes for client and server authentication, UDP port
+   forwarding and stronger resilience against packet injection attacks
+   and middlebox interference.
+
+About This Document
+
+   This note is to be removed before publishing as an RFC.
+
+   The latest revision of this draft can be found at
+   https://francoismichel.github.io/ssh3-spec/draft-michel-ssh3.html.
+   Status information for this document may be found at
+   https://datatracker.ietf.org/doc/draft-michel-ssh3/.
+
+   Source for this draft and an issue tracker can be found at
+   https://github.com/francoismichel/ssh3-spec.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on 31 August 2024.
+
+Copyright Notice
+
+   Copyright (c) 2024 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.
+
+Table of Contents
+
+   1.  Introduction
+     1.1.  How SSH benefits from HTTP/3
+       1.1.1.  QUIC: datagrams support, streams multiplexing and
+               connection migration
+       1.1.2.  Protecting transport-layer control fields
+       1.1.3.  Leveraging the X.509 ecosystem
+       1.1.4.  HTTP authentication: compatibility with existing
+               authentication systems
+       1.1.5.  URL multiplexing and undiscoverability
+   2.  Conventions and Definitions
+   3.  Establishing an SSH3 conversation
+     3.1.  Authenticating the client
+       3.1.1.  Password authentication using HTTP Basic Authentication
+       3.1.2.  Public key authentication using OAUTH2 and JWTs
+       3.1.3.  Public key authentication using HTTP Signature
+               authentication
+   4.  Mapping the SSH Connection protocol
+     4.1.  Channels
+       4.1.1.  Opening a channel
+       4.1.2.  Channel types
+       4.1.3.  Port forwarding
+       4.1.4.  Messages
+   5.  SSH3 and MASQUE
+   6.  Version Negotiation
+   7.  Compatibility with SSHv2 and TCP-only networks
+   8.  Security Considerations
+   9.  IANA Considerations
+     9.1.  HTTP Upgrade Token
+   10. References
+     10.1.  Normative References
+     10.2.  Informative References
+   Acknowledgments
+   Authors' Addresses
+
+1.  Introduction
+
+   The SSH protocol [SSH-ARCH] provides a secure way to access computers
+   remotely over an untrusted network.  SSH is currently the most
+   popular way to access Unix hosts and network equipments remotely.
+   Built atop the unencrypted TCP protocol [TCP], SSH proposes its own
+   mechanisms to establish a secure channel [SSH-TRANSPORT] and perform
+   user authentication [SSH-AUTH].  Once the secure session is
+   established and the user is authenticated and authorized, SSH uses
+   the Connection protocol to run and manage remote processes and
+   functionalities executed on the remote host [SSH-CONNECT].  Among
+   others, SSH provides different services such as remote program
+   execution, shell access and TCP port forwarding.  Figure 1 provides a
+   graphical representation of the SSHv2 protocol stack.
+
+        +------------------------------------------------------------+
+        |                           SSHv2                            |
+        | +---------------+   +---------------+   +----------------+ |
+        | | SSH Transport |   |   SSH Auth.   |   | SSH Connection | |
+        | |   (RFC4253)   |   |   (RFC4252)   |   |   (RFC4254)    | |
+        | +---------------+   +---------------+   +----------------+ |
+        |  secure channel            user            SSH services    |
+        |   establishment       authentication                       |
+        +------------------------------------------------------------+
+                                      |
+                                      |  - reliable transport
+                                      v
+                  +----------------------------------------+
+                  |                  TCP                   |
+                  +----------------------------------------+
+
+              Figure 1: The SSHv2 architecture protocol stack.
+
+   This document defines mechanisms to run the SSH Connection protocol
+   [SSH-CONNECT] over HTTP/3 and uses the name "SSH3" to refer to this
+   solution.  The secure channel establishment uses TLS included in QUIC
+   [QUIC] [QUIC-TLS] while user authentication is performed using
+   existing HTTP authentication schemes, focusing the design of SSH on
+   the Connection protocol itself.  Figure 2 provides a graphical
+   representation of the architecture proposed in this document.  One
+   benefit of the approach is that the HTTP3 and QUIC layers can evolve
+   independently of SSH.  For instance, new encryption and MAC
+   algorithms can be added to TLS and used in SSH3 without impacting the
+   specification or adding new code points in SSH3 for these new
+   algorithms.
+
+                    +---------------------------------+
+                    |              SSH3               |
+                    |   +-------------------------+   |
+                    |   |     SSH Connection      |   |
+                    |   |       (~RFC4254)        |   |
+                    |   +-------------------------+   |
+                    |          SSH services           |
+                    +---------------------------------+
+                      | - user authentication   | - reliable transport
+                      | - URL multiplexing      | - secure channel
+                      v                         |    establishment
+                +-----------------------+       | - streams multiplexing
+                |        HTTP/3         |       |            & datagrams
+                +-----------------------+       v
+                +----------------------------------------------+
+                |                 QUIC / TLS                   |
+                +----------------------------------------------+
+
+                 Figure 2: The proposed SSH3 architecture.
+
+   The mechanisms used for establishing an SSH3 conversation are similar
+   to the WebTransport session establishment [WEBTRANSPORT-H3].
+   WebTransport is also a good transport layer candidate for SSH3.  The
+   current SSH3 prototype [SSH3-PROTOTYPE] is built directly over HTTP/3
+   since there is no public WebTransport implementation meeting all our
+   requirements as of now.  The semantics of HTTP/2 being comparable to
+   HTTP/3, the mechanisms defined in this document could be implemented
+   using HTTP/2 if a fallback to TCP is required.  There is an ongoing
+   effort to be able to run HTTP/3 over QUIC on TCP Streams
+   [QUIC-ON-STREAMS].  This document is a first introductory document.
+   We limit its current scope to HTTP/3 using the classical QUIC.
+
+1.1.  How SSH benefits from HTTP/3
+
+   Using HTTP/3 and QUIC as a substrate for SSH brings several different
+   benefits that are highlighted in this section.
+
+1.1.1.  QUIC: datagrams support, streams multiplexing and connection
+        migration
+
+   Using QUIC, SSH3 can send data through both reliable streams and
+   unreliable datagrams.  This makes SSH3 able to support port
+   forwarding for both UDP [UDP] and TCP-based protocols.  Being based
+   exclusively on TCP, SSHv2 does not offer UDP port forwarding and
+   therefore provides no support to UDP-based protocols such as RTP or
+   QUIC.  This lack of UDP support in SSHv2 may become problematic as
+   the use of QUIC-based applications (HTTP/3, MOQT [MOQT], DOQ [DOQ])
+   grows.  Support for UDP port forwarding with SSH3 also allows
+   accessing real-time media content such as low-latency live video
+   available on the server.  The stream multiplexing capabilities of
+   QUIC allow reducing the head-of-line blocking that SSHv2 encounters
+   when multiplexing several SSH channels over the same TCP connection.
+
+   QUIC also supports connection migration (Section 9 of [QUIC]).  Using
+   connection migration, a mobile host roaming between networks can
+   maintain established connections alive across different networks by
+   migrating them on their newly acquired IP address.  This avoids
+   disrupting the SSH conversation upon network changes.  Finally, QUIC
+   also offers a significantly reduced connection establishment time
+   compared to the SSHv2 session establishment.
+
+1.1.2.  Protecting transport-layer control fields
+
+   Since QUIC integrates authentication and encryption as part of its
+   transport features, it makes SSH3 robust to transport-layer attacks
+   that were possible with TCP, such as packet injections or reset
+   attacks [RFC5961].  For instance, the recent Terrapin attack
+   [TERRAPIN] manipulates the TCP sequence number to alter the SSH
+   extension negotiation mechanism [RFC8308] and downgrade the client
+   authentication algorithms.  QUIC control information such as packet
+   numbers and frame formats are all authenticated and encrypted
+   starting from the Handshake encryption level.  Furthermore, QUIC
+   prevents middlebox interference.
+
+1.1.3.  Leveraging the X.509 ecosystem
+
+   By using TLS for their secure channel establishment, HTTPS and QUIC
+   leverage the X.509 certificates ecosystem with low implementation
+   effort.  TLS and QUIC libraries already implement support for
+   generating, parsing and verifying X.509 certificates.  Similarly to
+   classical OpenSSH certificates, this avoids encouraging SSH users to
+   rely on the Trust On First Use pattern when connecting to their
+   remote hosts.  Relying on the X.509 certificates ecosystem
+   additionally enables SSH3 servers to use ACME [ACME] to automatically
+   (with no additional user action) generate X.509 certificates for
+   their domain names using well-known certificate authorities such as
+   Let's Encrypt.  These certificates are publicly valid and can be
+   verified like classical HTTPS certificates.  Client certificates can
+   also be issued and used as an authentication method for the client.
+
+1.1.4.  HTTP authentication: compatibility with existing authentication
+        systems
+
+   Using HTTP authentication schemes for user authentication allows
+   implementing diverse authentication mechanisms such as the classical
+   password-based and public key authentication, but also popular web
+   authentication mechanisms such as OpenID Connect [OpenID.Core], SAML2
+   [OASIS.saml-core-2.0-os] or the recent Passkeys/WebAuthn standard
+   [WebAuthn].  All these authentication schemes are already deployed
+   for managing access to critical resources in different organizations.
+   Sharing computing resources using SSHv2 through these mechanisms
+   generally requires the deployment of a middleware managing the
+   mapping between identities and SSH keys or certificates.  Adding HTTP
+   authentication to SSH allows welcoming these authentication methods
+   directly and interfaces SSH3 more naturally with existing
+   architectures.  As a proof-of-concept, OpenID Connect support has
+   been added to our SSH3 prototype [SSH3-PROTOTYPE].  Other web
+   authentication standards such as Passkeys/WebAuthn [WebAuthn] allow
+   administrators to restrict remote access to specific client devices
+   in addition to users.
+
+1.1.5.  URL multiplexing and undiscoverability
+
+   Relying on HTTP allows easily placing SSH endpoints as resources
+   accessible through specific URLs.  First, this makes it easier to
+   integrate SSH endpoints on web servers that already perform user
+   authentication and authorization.  Second, it allows placing several
+   SSH server instances on the same physical machine on the same port.
+   These instances can run in different virtual machines, containers or
+   simply different users with user's priviledges and be multiplexed on
+   a URL-basis.  Finally, SSH3 endpoints can be placed behind secret
+   URLs, reducing the exposure of SSH3 hosts to scanning and brute force
+   attacks.  This goes in line with the will of having undiscoverable
+   resources also tackled by other IETF working groups [HTTP-SIGNATURE].
+   This property is not provided by SSHv2 since the SSHv2 server
+   announces its SSH version string to any connected TCP client.  If
+   wanted, SSH3 hosts can be made indistinguishable from any HTTP
+   server.  This is however only complementary to and MUST NOT replace
+   user authentication.
+
+2.  Conventions and Definitions
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in
+   BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
+
+3.  Establishing an SSH3 conversation
+
+   We choose the term "conversation" to avoid ambiguities with the
+   existing concepts of SSH shell session and QUIC connection.  An SSH3
+   conversation can be started using the HTTP/3 Extended CONNECT method
+   [EXTENDED-CONNECT].  The :protocol pseudo-header MUST be set to ssh3
+   and the :scheme pseudo-header MUST be set to https.  If an SSH3
+   client or server supports the UDP forwarding feature, it MUST
+   indicate support for HTTP/3 datagrams by sending a
+   SETTINGS_H3_DATAGRAM value set to 1 in their SETTINGS frame
+   (Section 2.1.1 of [HTTP-DATAGRAM]).
+
+   An SSH3 server listens for CONNECT requests with the ssh3 protocol on
+   URI templates having the username variable.  Example URIs can be
+   found below.
+
+   https://example.org:4443/ssh3?user={username}
+   https://proxy.example.org:4443/ssh3{?username}
+
+   [[Note: In the current prototype [SSH3-PROTOTYPE], percent-encoding
+   is used for characters outside the allowed set of [URI].  An
+   alternative can be to perform base64url encoding of the username
+   instead.]]
+
+   Figure 3 illustrates a successful SSH3 conversation establishment.
+
+          Client
+             |                QUIC HANDSHAKE                 |
+             |<--------------------------------------------->|
+             |                                               |
+             | HTTP/3, Stream x CONNECT /<path>?user=<user>  |
+             |         :protocol="ssh3"                      |
+             |         Authorization=<auth_material>         |
+             |---------------------------------------------->|
+             |                                               |
+             |               HTTP/3, Stream x 200 OK         |
+             |<----------------------------------------------|
+             |                                               |
+             |           Conversation established            |
+           --+-----------------------------------------------+--
+             |                                               |
+             |    (endpoints now run the SSH Connection)     |
+             |    (protocol over QUIC streams          )     |
+             |                                               |
+
+           Figure 3: SSH3 successful conversation establishment.
+
+   Authentication material is placed inside the Authorization header of
+   the Extended CONNECT request.  The format and value of
+   <auth_material> depends on the HTTP authentication scheme used
+   (Section 3.1 explores several examples of authentication mechanisms).
+   If an SSH3 endpoint is available to the HTTP/3 server and if the user
+   is successfully authenticated and authorized, the server responds
+   with a 2xx HTTP status code and the conversation is established.
+
+   The stream ID used for the Extended CONNECT request is then
+   remembered by each endpoint as the SSH conversation ID, uniquely
+   identifying this SSH conversation.
+
+3.1.  Authenticating the client
+
+   Authorization of the CONNECT request is done using HTTP Authorization
+   as defined in [HTTP-SEMANTICS], with no restriction on the
+   authentication scheme used.  If no Authorization header is present in
+   the request or if the authentication scheme is not supported by the
+   server, the server SHOULD respond with a 401 (Unauthorized) response
+   message.  Once the user authentication is successful, the SSH3 server
+   can process the request and start the conversation.  This section
+   only provides example user authentication mechanisms.  Other
+   mechanisms may be proposed in the future in separate documents.  The
+   two first examples are implemented by our current prototype
+   [SSH3-PROTOTYPE].  The third example leverages the Signature
+   authentication scheme [HTTP-SIGNATURE] and will be preferred for
+   public key authentication in future versions of our prototype.
+
+3.1.1.  Password authentication using HTTP Basic Authentication
+
+   Password-based authentication is performed using the HTTP Basic
+   authentication scheme [HTTP-BASIC].  The user-id part of the
+   <credentials> in the Authorization header defined in [HTTP-BASIC]
+   MUST be equal to the username variable in the request URI defined in
+   Section 3.
+
+     Client
+        |                QUIC HANDSHAKE                 |
+        |<--------------------------------------------->|
+        |                                               |
+        | HTTP/3, Stream x CONNECT /<path>?user=<user>  |
+        |         :protocol="ssh3"                      |
+        |         Authorization="Basic <credentials>"   |
+        |---------------------------------------------->|
+        |                                               |
+        |               HTTP/3, Stream x 200 OK         |
+        |<----------------------------------------------|
+        |                                               |
+        |           Conversation established            |
+        +-----------------------------------------------+
+        |                                               |
+
+3.1.2.  Public key authentication using OAUTH2 and JWTs
+
+   Classical public key authentication can be performed using the OAUTH2
+   framework [OAUTH2]: the HTTP Bearer authentication scheme is used to
+   carry an OAUTH access token encoded in the JWT [JWT] format
+   [OAUTH2-JWT].
+
+     Client
+        |                QUIC HANDSHAKE                 |
+        |<--------------------------------------------->|
+        |                                               |
+        | HTTP/3, Stream x CONNECT /<path>?user=<user>  |
+        |         :protocol="ssh3"                      |
+        |         Authorization="Bearer <JWT token>"    |
+        |---------------------------------------------->|
+        |                                               |
+        |               HTTP/3, Stream x 200 OK         |
+        |<----------------------------------------------|
+        |                                               |
+        |           Conversation established            |
+        +-----------------------------------------------+
+        |                                               |
+
+   For classical client-server public key authentication with no third-
+   party involved, only the following claims are required (see [JWT] for
+   their definition):
+
+   *  sub: set to ssh3-<user>
+
+   *  iat: set to the date of issuance of the JWT
+
+   *  exp: set to a short expiration value to limit the token replay
+      window
+
+   The jti claim may also be used to prevent the token from being
+   replayed.
+
+3.1.3.  Public key authentication using HTTP Signature authentication
+
+   Public key authentication can also be performed using the HTTP
+   Signature Authentication scheme [HTTP-SIGNATURE].  The <k> parameter
+   designates the key ID of the public key used by the authentication
+   process.  Classical SSH implementations usually do not assign IDs to
+   public keys.  The value <k> can therefore be set to the cryptographic
+   hash of the public key instead.
+
+     Client
+        |                QUIC HANDSHAKE                 |
+        |<--------------------------------------------->|
+        |                                               |
+        | HTTP/3, Stream x CONNECT /<path>?user=<user>  |
+        |    :protocol="ssh3"                           |
+        |    Signature k=<k>, a=<a>,s=<s>,v=<v>,p=<p>   |
+        |---------------------------------------------->|
+        |                                               |
+        |               HTTP/3, Stream x 200 OK         |
+        |<----------------------------------------------|
+        |                                               |
+        |           Conversation established            |
+        +-----------------------------------------------+
+        |                                               |
+
+4.  Mapping the SSH Connection protocol
+
+   This document reuses the SSH Connection protocol defined in
+   [SSH-CONNECT].  SSH Channels are run over their dedicated HTTP
+   streams and carry SSH messages.  The boolean and string data types
+   defined in [SSH-ARCH] are reused.  The byte, uint32 and uint64 data
+   types are replaced by variable-length integers as defined in
+   Section 16 of [QUIC].
+
+4.1.  Channels
+
+   Similarly to [SSH-TRANSPORT], SSH3 defines bidirectional channels
+   over which the endpoints exchange SSH messages.  Each channel runs
+   over a bidirectional HTTP/3 stream and is attached to a single SSH
+   conversation.  In this document, channels are therefore not assigned
+   a channel number conversely to SSHv2.
+
+4.1.1.  Opening a channel
+
+   SSH channels can be opened on HTTP/3 client-initiated bidirectional
+   streams.  By default, HTTP/3 considers every client-initiated
+   bidirectional stream as a request stream.  Similarly to WebTransport,
+   SSH3 extends HTTP/3 using a specific signal value.  An SSH3 client
+   can open a stream with this signal value to indicate that it is not a
+   request stream and that the remaining stream bytes will be used
+   arbitrarily by the SSH3 protocol to carry the content of a channel.
+   For experimental purpose, the signal value is chosen at random and
+   will change over time.  The current signal value is 0xaf3627e6.  The
+   content of an HTTP/3 stream carrying an SSH3 channel is illustrated
+   below.
+
+   Channel {
+       Signal Value (i) = 0xaf3627e6,
+       Conversation ID (i),
+       Channel Type Length (i)
+       Channel Type (..)
+       Maximum Message Size (i)
+       SSH messages (..)
+   }
+
+   The first value sent on the HTTP/3 stream is the Signal Value.  The
+   Channel Type is a UTF-8-encoded string whose length is defined by the
+   Channel Type Length field.
+
+   [[Note: SSHv2 uses text-based channel types.  Should we keep that or
+   use something else instead ? If we change, we loose a 1-1 mapping
+   with SSHv2.]]
+
+   The Maximum Message Size field defines the maximum size in bytes of
+   SSH messages.
+
+   The remaining bytes of the stream are interpreted as a sequence of
+   SSH messages.  Their format and length can vary depending on the
+   message type (see Section 4.1.4).
+
+4.1.2.  Channel types
+
+   This document defines the following channel types, the four first
+   being also defined in [SSH-CONNECT]:
+
+   *  session
+
+   *  x11
+
+   *  direct-tcp
+
+   *  reverse-tcp
+
+   *  direct-udp
+
+   *  reverse-udp
+
+   The direct-tcp and direct-udp channels offer TCP and UDP port
+   forwarding from a local port on the client towards a remote address
+   accessible from the remote host.  The reverse-tcp and reverse-udp
+   channels offer the forwarding of UDP packets and TCP connections
+   arriving on a specific port on the remote host to the client.
+
+4.1.3.  Port forwarding
+
+   The HTTP bidirectional stream attached to the direct-tcp or reverse-
+   tcp channel directly carries the TCP payload to forward.
+
+   For UDP forwarding, UDP packets are carried through HTTP Datagrams
+   (Section 2 of [HTTP-DATAGRAM]) whose Quarter Stream IDs refer
+   directly to the HTTP Stream ID of the corresponding direct-udp or
+   reverse-udp channel.
+
+   Forwarding of other layers (e.g.  IP) is left for future versions of
+   the document.
+
+4.1.4.  Messages
+
+   Messages are exchanged over channels similarly to SSHv2.  The same
+   message format as the one defined in [SSH-CONNECT] applies, with
+   channel numbers removed from the messages headers as channel run over
+   dedicated HTTP streams.  Hereunder is an example showing the wire
+   format of the exit-status SSH message for SSH3.  Its SSHv2 variant is
+   described in Section 6.10 of [SSH-CONNECT].
+
+   ExitStatusMessage {
+       Message Type (string) = "exit-status",
+       Want Reply (bool) = false,
+       Exit Status (i)
+   }
+
+5.  SSH3 and MASQUE
+
+   SSH3 shares common objectives with the MASQUE proxy [MASQUE] and
+   while it is currently out of scope of this introductory document,
+   interactions between the two protocols may exist in the future.  For
+   instance, a MASQUE endpoint can be integrated with SSH3 to provide
+   diverse forwarding services.  Another possible outcome is the
+   integration of SSH3 in the MASQUE family of proxies in the form of a
+   "CONNECT-SHELL" endpoint.
+
+6.  Version Negotiation
+
+   For SSH3 implementations to be able to follow the versions of this
+   draft while being interoperable with a large amount of peers, we
+   define the "ssh-version" header to list the supported draft versions.
+   The value of this field sent by the client is a comma-separated list
+   of strings representing the filenames of the supported drafts without
+   the "draft-" prefix.  For instance, SSH3 clients implementing this
+   draft in versions 00 and 01 send the "ssh-version: michel-ssh3-
+   00,michel-ssh3-01" HTTP header in the CONNECT request.  Upon
+   receiving this header, the server chooses a version from the ones
+   supported by the client.  It then sets this single version as the
+   value of the "ssh-version" header.
+
+7.  Compatibility with SSHv2 and TCP-only networks
+
+   While the protocol described in this document is not directly
+   compatible with SSHv2, mechanisms can be defined in the future to
+   announce the availability of SSH3 and upgrade to SSH3 from SSHv2
+   sessions.  SSH3 can also be made available on networks supporting
+   only TCP using either HTTP/2 [HTTP2] or HTTP/3 [HTTP3] with QUIC on
+   Streams [QUIC-ON-STREAMS] as a substrate for SSH3.
+
+8.  Security Considerations
+
+   Running an SSH3 endpoint with weak or no authentication methods
+   exposes the host to non-negligible risks allowing attackers to gain
+   full control of the server.  SSH3 servers should not be run without
+   authentication and user authentication material should be verified
+   thoroughly.  Public key authentication should be preferred to
+   passwords.
+
+   It is recommended to deploy public TLS certificates on SSH3 servers
+   similarly to classical HTTPS servers.  Using valid public TLS
+   certificates on the server allows their automatic verification on the
+   client with no explicit user action required.  Connecting an SSH3
+   client to a server with a certificate that cannot be validated using
+   the client's trusted Certificate Authorities exposes the user to the
+   same risk incurred by SSHv2 endpoints relying on Host keys: the user
+   needs to manually validate the certificate before connecting.
+   Ignoring this verification may allow an attacker to impersonate the
+   server and access the keystrokes typed by the user during the
+   conversation.
+
+9.  IANA Considerations
+
+9.1.  HTTP Upgrade Token
+
+   This document will request IANA to register "ssh3" in the "HTTP
+   Upgrade Tokens" registry maintained at
+   https://www.iana.org/assignments/http-upgrade-tokens
+   (https://www.iana.org/assignments/http-upgrade-tokens).
+
+   [[Note: This may be removed if we decide to run SSH3 atop
+   WebTransport instead of HTTP/3 only.]]
+
+10.  References
+
+10.1.  Normative References
+
+   [DOQ]      Huitema, C., Dickinson, S., and A. Mankin, "DNS over
+              Dedicated QUIC Connections", RFC 9250,
+              DOI 10.17487/RFC9250, May 2022,
+              <https://www.rfc-editor.org/rfc/rfc9250>.
+
+   [EXTENDED-CONNECT]
+              McManus, P., "Bootstrapping WebSockets with HTTP/2",
+              RFC 8441, DOI 10.17487/RFC8441, September 2018,
+              <https://www.rfc-editor.org/rfc/rfc8441>.
+
+   [HTTP-BASIC]
+              Reschke, J., "The 'Basic' HTTP Authentication Scheme",
+              RFC 7617, DOI 10.17487/RFC7617, September 2015,
+              <https://www.rfc-editor.org/rfc/rfc7617>.
+
+   [HTTP-DATAGRAM]
+              Schinazi, D. and L. Pardue, "HTTP Datagrams and the
+              Capsule Protocol", RFC 9297, DOI 10.17487/RFC9297, August
+              2022, <https://www.rfc-editor.org/rfc/rfc9297>.
+
+   [HTTP-SEMANTICS]
+              Fielding, R., Ed., Nottingham, M., Ed., and J. Reschke,
+              Ed., "HTTP Semantics", STD 97, RFC 9110,
+              DOI 10.17487/RFC9110, June 2022,
+              <https://www.rfc-editor.org/rfc/rfc9110>.
+
+   [HTTP-SIGNATURE]
+              Schinazi, D., Oliver, D., and J. Hoyland, "The Signature
+              HTTP Authentication Scheme", Work in Progress, Internet-
+              Draft, draft-ietf-httpbis-unprompted-auth-06, 23 January
+              2024, <https://datatracker.ietf.org/doc/html/draft-ietf-
+              httpbis-unprompted-auth-06>.
+
+   [HTTP2]    Thomson, M., Ed. and C. Benfield, Ed., "HTTP/2", RFC 9113,
+              DOI 10.17487/RFC9113, June 2022,
+              <https://www.rfc-editor.org/rfc/rfc9113>.
+
+   [HTTP3]    Bishop, M., Ed., "HTTP/3", RFC 9114, DOI 10.17487/RFC9114,
+              June 2022, <https://www.rfc-editor.org/rfc/rfc9114>.
+
+   [JWT]      Jones, M., Bradley, J., and N. Sakimura, "JSON Web Token
+              (JWT)", RFC 7519, DOI 10.17487/RFC7519, May 2015,
+              <https://www.rfc-editor.org/rfc/rfc7519>.
+
+   [OAUTH2-JWT]
+              Bertocci, V., "JSON Web Token (JWT) Profile for OAuth 2.0
+              Access Tokens", RFC 9068, DOI 10.17487/RFC9068, October
+              2021, <https://www.rfc-editor.org/rfc/rfc9068>.
+
+   [QUIC]     Iyengar, J., Ed. and M. Thomson, Ed., "QUIC: A UDP-Based
+              Multiplexed and Secure Transport", RFC 9000,
+              DOI 10.17487/RFC9000, May 2021,
+              <https://www.rfc-editor.org/rfc/rfc9000>.
+
+   [QUIC-RECOVERY]
+              Iyengar, J., Ed. and I. Swett, Ed., "QUIC Loss Detection
+              and Congestion Control", RFC 9002, DOI 10.17487/RFC9002,
+              May 2021, <https://www.rfc-editor.org/rfc/rfc9002>.
+
+   [QUIC-TLS] Thomson, M., Ed. and S. Turner, Ed., "Using TLS to Secure
+              QUIC", RFC 9001, DOI 10.17487/RFC9001, May 2021,
+              <https://www.rfc-editor.org/rfc/rfc9001>.
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/rfc/rfc2119>.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
+
+   [SSH-ARCH] Ylonen, T. and C. Lonvick, Ed., "The Secure Shell (SSH)
+              Protocol Architecture", RFC 4251, DOI 10.17487/RFC4251,
+              January 2006, <https://www.rfc-editor.org/rfc/rfc4251>.
+
+   [SSH-AUTH] Ylonen, T. and C. Lonvick, Ed., "The Secure Shell (SSH)
+              Authentication Protocol", RFC 4252, DOI 10.17487/RFC4252,
+              January 2006, <https://www.rfc-editor.org/rfc/rfc4252>.
+
+   [SSH-CONNECT]
+              Ylonen, T. and C. Lonvick, Ed., "The Secure Shell (SSH)
+              Connection Protocol", RFC 4254, DOI 10.17487/RFC4254,
+              January 2006, <https://www.rfc-editor.org/rfc/rfc4254>.
+
+   [SSH-TRANSPORT]
+              Ylonen, T. and C. Lonvick, Ed., "The Secure Shell (SSH)
+              Transport Layer Protocol", RFC 4253, DOI 10.17487/RFC4253,
+              January 2006, <https://www.rfc-editor.org/rfc/rfc4253>.
+
+   [TCP]      Eddy, W., Ed., "Transmission Control Protocol (TCP)",
+              STD 7, RFC 9293, DOI 10.17487/RFC9293, August 2022,
+              <https://www.rfc-editor.org/rfc/rfc9293>.
+
+   [UDP]      Postel, J., "User Datagram Protocol", STD 6, RFC 768,
+              DOI 10.17487/RFC0768, August 1980,
+              <https://www.rfc-editor.org/rfc/rfc768>.
+
+   [URI]      Berners-Lee, T., Fielding, R., and L. Masinter, "Uniform
+              Resource Identifier (URI): Generic Syntax", STD 66,
+              RFC 3986, DOI 10.17487/RFC3986, January 2005,
+              <https://www.rfc-editor.org/rfc/rfc3986>.
+
+   [WEBTRANSPORT-H3]
+              Frindell, A., Kinnear, E., and V. Vasiliev, "WebTransport
+              over HTTP/3", Work in Progress, Internet-Draft, draft-
+              ietf-webtrans-http3-08, 23 October 2023,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-
+              webtrans-http3-08>.
+
+10.2.  Informative References
+
+   [ACME]     Barnes, R., Hoffman-Andrews, J., McCarney, D., and J.
+              Kasten, "Automatic Certificate Management Environment
+              (ACME)", RFC 8555, DOI 10.17487/RFC8555, March 2019,
+              <https://www.rfc-editor.org/rfc/rfc8555>.
+
+   [MASQUE]   Schinazi, D., "The MASQUE Proxy", Work in Progress,
+              Internet-Draft, draft-schinazi-masque-proxy-01, 7
+              September 2023, <https://datatracker.ietf.org/doc/html/
+              draft-schinazi-masque-proxy-01>.
+
+   [MOQT]     Curley, L., Pugin, K., Nandakumar, S., Vasiliev, V., and
+              I. Swett, "Media over QUIC Transport", Work in Progress,
+              Internet-Draft, draft-ietf-moq-transport-02, 24 January
+              2024, <https://datatracker.ietf.org/doc/html/draft-ietf-
+              moq-transport-02>.
+
+   [OASIS.saml-core-2.0-os]
+              Cantor, S., Kemp, J., Philpott, R., and E. Maler,
+              "Assertions and Protocols for the OASIS Security Assertion
+              Markup Language (SAML) V2.0", Web http://docs.oasis-
+              open.org/security/saml/v2.0/saml-core-2.0-os.pdf, n.d..
+
+   [OAUTH2]   Hardt, D., Ed., "The OAuth 2.0 Authorization Framework",
+              RFC 6749, DOI 10.17487/RFC6749, October 2012,
+              <https://www.rfc-editor.org/rfc/rfc6749>.
+
+   [OpenID.Core]
+              Sakimura, N., Bradley, J., Jones, M., de Medeiros, B., and
+              C. Mortimore, "OpenID Connect Core 1.0", Web 
+              http://openid.net/specs/openid-connect-core-1_0.html,
+              n.d..
+
+   [OPENSSH-5.4]
+              "OpenSSH release 5.4", Web 
+              https://www.openssh.com/txt/release-5.4.
+
+   [PUTTY-CERTIFICATES]
+              "PuTTY Certificates", Web 
+              https://www.chiark.greenend.org.uk/~sgtatham/quasiblog/
+              putty-certificates/.
+
+   [QUIC-ON-STREAMS]
+              Oku, K. and L. Pardue, "QUIC on Streams", Work in
+              Progress, Internet-Draft, draft-kazuho-quic-quic-on-
+              streams-00, 16 February 2024,
+              <https://datatracker.ietf.org/doc/html/draft-kazuho-quic-
+              quic-on-streams-00>.
+
+   [RFC5961]  Ramaiah, A., Stewart, R., and M. Dalal, "Improving TCP's
+              Robustness to Blind In-Window Attacks", RFC 5961,
+              DOI 10.17487/RFC5961, August 2010,
+              <https://www.rfc-editor.org/rfc/rfc5961>.
+
+   [RFC8308]  Bider, D., "Extension Negotiation in the Secure Shell
+              (SSH) Protocol", RFC 8308, DOI 10.17487/RFC8308, March
+              2018, <https://www.rfc-editor.org/rfc/rfc8308>.
+
+   [SSH3-PROTOTYPE]
+              Michel, F., "SSH3: faster and rich secure shell using
+              HTTP/3", Web https://github.com/francoismichel/ssh3, n.d..
+
+   [TECTIA-CERTIFICATES]
+              "Tectia Certificates", Web 
+              https://privx.docs.ssh.com/docs/enabling-certificate-
+              based-authentication-for-ssh-connections.
+
+   [TERRAPIN] Bäumer, F., Brinkmann, M., and J. Schwenk, "Terrapin
+              Attack: Breaking SSH Channel Integrity By Sequence Number
+              Manipulation", DOI 10.48550/arXiv.2312.12422, 2023,
+              <https://doi.org/10.48550/arXiv.2312.12422>.
+
+   [WebAuthn] "Web Authentication: An API for accessing Public Key
+              Credentials Level 3", Web https://www.w3.org/TR/webauthn-
+              3/, n.d..
+
+Acknowledgments
+
+   We warmly thank Maxime Piraux, Lucas Pardue and David Schinazi for
+   their precious comments on the document before the submission.  We
+   also thank Ryan Hurst for all the motivating discussions around the
+   protocol.
+
+Authors' Addresses
+
+   François Michel
+   UCLouvain
+   Email: francois.michel@uclouvain.be
+
+
+   Olivier Bonaventure
+   UCLouvain and WELRI
+   Email: olivier.bonaventure@uclouvain.be
