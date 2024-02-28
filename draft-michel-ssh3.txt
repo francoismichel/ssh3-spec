@@ -5,8 +5,8 @@
 Network Working Group                                          F. Michel
 Internet-Draft                                                 UCLouvain
 Intended status: Experimental                             O. Bonaventure
-Expires: 30 August 2024                              UCLouvain and WELRI
-                                                        27 February 2024
+Expires: 31 August 2024                              UCLouvain and WELRI
+                                                        28 February 2024
 
 
                   Secure shell over HTTP/3 connections
@@ -51,7 +51,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 30 August 2024.
+   This Internet-Draft will expire on 31 August 2024.
 
 Copyright Notice
 
@@ -794,7 +794,9 @@ Table of Contents
 Acknowledgments
 
    We warmly thank Maxime Piraux, Lucas Pardue and David Schinazi for
-   their precious comments on the document before the submission.
+   their precious comments on the document before the submission.  We
+   also thank Ryan Hurst for all the motivating discussions around the
+   protocol.
 
 Authors' Addresses
 
