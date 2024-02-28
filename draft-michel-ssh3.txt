@@ -105,7 +105,7 @@ Table of Contents
    The SSH protocol [SSH-ARCH] provides a secure way to access computers
    remotely over an untrusted network.  SSH is currently the most
    popular way to access Unix hosts and network equipments remotely.
-   Built atop the unencrypted TCP protocol, SSH proposes its own
+   Built atop the unencrypted TCP protocol [TCP], SSH proposes its own
    mechanisms to establish a secure channel [SSH-TRANSPORT] and perform
    user authentication [SSH-AUTH].  Once the secure session is
    established and the user is authenticated and authorized, SSH uses
@@ -136,14 +136,14 @@ Table of Contents
    This document defines mechanisms to run the SSH Connection protocol
    [SSH-CONNECT] over HTTP/3 and uses the name "SSH3" to refer to this
    solution.  The secure channel establishment uses TLS included in QUIC
-   while user authentication is performed using existing HTTP
-   authentication schemes, simplifying significantly the design of the
-   protocol.  Figure 2 provides a graphical representation of the
-   architecture proposed in this document.  One benefit of the approach
-   is that the HTTP3 and QUIC layers can evolve independently of SSH.
-   For instance, new encryption and MAC algorithms can be added to TLS
-   and used in SSH3 without impacting the specification or adding new
-   code points in SSH3 for these new algorithms.
+   [QUIC] [QUIC-TLS] while user authentication is performed using
+   existing HTTP authentication schemes, simplifying significantly the
+   design of the protocol.  Figure 2 provides a graphical representation
+   of the architecture proposed in this document.  One benefit of the
+   approach is that the HTTP3 and QUIC layers can evolve independently
+   of SSH.  For instance, new encryption and MAC algorithms can be added
+   to TLS and used in SSH3 without impacting the specification or adding
+   new code points in SSH3 for these new algorithms.
 
                     +---------------------------------+
                     |              SSH3               |
@@ -187,7 +187,7 @@ Table of Contents
 
    Using QUIC, SSH3 can send data through both reliable streams and
    unreliable datagrams.  This makes SSH3 able to support port
-   forwarding for both TCP and UDP-based protocols.  Being based
+   forwarding for both UDP [UDP] and TCP-based protocols.  Being based
    exclusively on TCP, SSHv2 does not offer UDP port forwarding and
    therefore provides no support to UDP-based protocols such as RTP or
    QUIC.  This lack of UDP support in SSHv2 may become problematic as
@@ -675,6 +675,10 @@ Table of Contents
               and Congestion Control", RFC 9002, DOI 10.17487/RFC9002,
               May 2021, <https://www.rfc-editor.org/rfc/rfc9002>.
 
+   [QUIC-TLS] Thomson, M., Ed. and S. Turner, Ed., "Using TLS to Secure
+              QUIC", RFC 9001, DOI 10.17487/RFC9001, May 2021,
+              <https://www.rfc-editor.org/rfc/rfc9001>.
+
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
@@ -701,6 +705,14 @@ Table of Contents
               Ylonen, T. and C. Lonvick, Ed., "The Secure Shell (SSH)
               Transport Layer Protocol", RFC 4253, DOI 10.17487/RFC4253,
               January 2006, <https://www.rfc-editor.org/rfc/rfc4253>.
+
+   [TCP]      Eddy, W., Ed., "Transmission Control Protocol (TCP)",
+              STD 7, RFC 9293, DOI 10.17487/RFC9293, August 2022,
+              <https://www.rfc-editor.org/rfc/rfc9293>.
+
+   [UDP]      Postel, J., "User Datagram Protocol", STD 6, RFC 768,
+              DOI 10.17487/RFC0768, August 1980,
+              <https://www.rfc-editor.org/rfc/rfc768>.
 
    [URI]      Berners-Lee, T., Fielding, R., and L. Masinter, "Uniform
               Resource Identifier (URI): Generic Syntax", STD 66,

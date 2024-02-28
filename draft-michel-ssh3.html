@@ -1251,7 +1251,7 @@ and stronger resilience against packet injection attacks and middlebox interfere
       <h2 id="name-introduction">
 <a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
       </h2>
-<p id="section-1-1">The SSH protocol <span>[<a href="#SSH-ARCH" class="cite xref">SSH-ARCH</a>]</span> provides a secure way to access computers remotely over an untrusted network. SSH is currently the most popular way to access Unix hosts and network equipments remotely. Built atop the unencrypted TCP protocol, SSH proposes its own mechanisms to establish a secure channel <span>[<a href="#SSH-TRANSPORT" class="cite xref">SSH-TRANSPORT</a>]</span> and perform user authentication <span>[<a href="#SSH-AUTH" class="cite xref">SSH-AUTH</a>]</span>. Once the secure session is established
+<p id="section-1-1">The SSH protocol <span>[<a href="#SSH-ARCH" class="cite xref">SSH-ARCH</a>]</span> provides a secure way to access computers remotely over an untrusted network. SSH is currently the most popular way to access Unix hosts and network equipments remotely. Built atop the unencrypted TCP protocol  <span>[<a href="#TCP" class="cite xref">TCP</a>]</span>, SSH proposes its own mechanisms to establish a secure channel <span>[<a href="#SSH-TRANSPORT" class="cite xref">SSH-TRANSPORT</a>]</span> and perform user authentication <span>[<a href="#SSH-AUTH" class="cite xref">SSH-AUTH</a>]</span>. Once the secure session is established
 and the user is authenticated and authorized, SSH uses the Connection protocol to run and manage
 remote processes and functionalities executed on the remote host <span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]</span>.
 Among others, SSH provides different services such as remote program execution, shell access and TCP port forwarding.
@@ -1283,7 +1283,7 @@ Among others, SSH provides different services such as remote program execution, 
 </div>
 <p id="section-1-3">This document defines mechanisms to run the SSH Connection protocol
 <span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]</span> over HTTP/3 and uses the name "SSH3" to refer to
-this solution. The secure channel establishment uses TLS included in QUIC while user authentication
+this solution. The secure channel establishment uses TLS included in QUIC <span>[<a href="#QUIC" class="cite xref">QUIC</a>]</span> <span>[<a href="#QUIC-TLS" class="cite xref">QUIC-TLS</a>]</span> while user authentication
 is performed using existing HTTP authentication schemes, simplifying significantly the design of the protocol. <a href="#ssh3-architecture-goal" class="auto internal xref">Figure 2</a>
 provides a graphical representation of the architecture proposed in this document.
 One benefit of the approach is that the HTTP3 and QUIC layers can
@@ -1342,7 +1342,7 @@ highlighted in this section.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
 <a href="#section-1.1.1" class="section-number selfRef">1.1.1. </a><a href="#name-quic-datagrams-support-stre" class="section-name selfRef">QUIC: datagrams support, streams multiplexing and connection migration</a>
           </h4>
 <p id="section-1.1.1-1">Using QUIC, SSH3 can send data through both reliable streams and unreliable datagrams. This makes SSH3
-able to support port forwarding for both TCP and UDP-based protocols. Being based exclusively on TCP, SSHv2 does not offer UDP port forwarding and therefore provides no support to UDP-based protocols such as RTP or QUIC.
+able to support port forwarding for both UDP <span>[<a href="#UDP" class="cite xref">UDP</a>]</span> and TCP-based protocols. Being based exclusively on TCP, SSHv2 does not offer UDP port forwarding and therefore provides no support to UDP-based protocols such as RTP or QUIC.
 This lack of UDP support in SSHv2 may become problematic as the use of QUIC-based applications (HTTP/3, MOQT <span>[<a href="#MOQT" class="cite xref">MOQT</a>]</span>, DOQ <span>[<a href="#DOQ" class="cite xref">DOQ</a>]</span>) grows. Support for UDP port forwarding with SSH3 also allows accessing real-time media content such as low-latency live video available on the server.
 The stream multiplexing capabilities of QUIC allow reducing the head-of-line blocking that SSHv2 encounters when multiplexing several SSH channels over the same TCP connection.<a href="#section-1.1.1-1" class="pilcrow">¶</a></p>
 <p id="section-1.1.1-2">QUIC also supports connection migration (<span><a href="https://rfc-editor.org/rfc/rfc9000#section-9" class="relref">Section 9</a> of [<a href="#QUIC" class="cite xref">QUIC</a>]</span>).
@@ -1893,6 +1893,10 @@ HTTP/3 only.]]<a href="#section-9.1-2" class="pilcrow">¶</a></p>
         <dd>
 <span class="refAuthor">Iyengar, J., Ed.</span> and <span class="refAuthor">I. Swett, Ed.</span>, <span class="refTitle">"QUIC Loss Detection and Congestion Control"</span>, <span class="seriesInfo">RFC 9002</span>, <span class="seriesInfo">DOI 10.17487/RFC9002</span>, <time datetime="2021-05" class="refDate">May 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9002">https://www.rfc-editor.org/rfc/rfc9002</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="QUIC-TLS">[QUIC-TLS]</dt>
+        <dd>
+<span class="refAuthor">Thomson, M., Ed.</span> and <span class="refAuthor">S. Turner, Ed.</span>, <span class="refTitle">"Using TLS to Secure QUIC"</span>, <span class="seriesInfo">RFC 9001</span>, <span class="seriesInfo">DOI 10.17487/RFC9001</span>, <time datetime="2021-05" class="refDate">May 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9001">https://www.rfc-editor.org/rfc/rfc9001</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="RFC2119">[RFC2119]</dt>
         <dd>
 <span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2119">https://www.rfc-editor.org/rfc/rfc2119</a>&gt;</span>. </dd>
@@ -1916,6 +1920,14 @@ HTTP/3 only.]]<a href="#section-9.1-2" class="pilcrow">¶</a></p>
 <dt id="SSH-TRANSPORT">[SSH-TRANSPORT]</dt>
         <dd>
 <span class="refAuthor">Ylonen, T.</span> and <span class="refAuthor">C. Lonvick, Ed.</span>, <span class="refTitle">"The Secure Shell (SSH) Transport Layer Protocol"</span>, <span class="seriesInfo">RFC 4253</span>, <span class="seriesInfo">DOI 10.17487/RFC4253</span>, <time datetime="2006-01" class="refDate">January 2006</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc4253">https://www.rfc-editor.org/rfc/rfc4253</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="TCP">[TCP]</dt>
+        <dd>
+<span class="refAuthor">Eddy, W., Ed.</span>, <span class="refTitle">"Transmission Control Protocol (TCP)"</span>, <span class="seriesInfo">STD 7</span>, <span class="seriesInfo">RFC 9293</span>, <span class="seriesInfo">DOI 10.17487/RFC9293</span>, <time datetime="2022-08" class="refDate">August 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9293">https://www.rfc-editor.org/rfc/rfc9293</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="UDP">[UDP]</dt>
+        <dd>
+<span class="refAuthor">Postel, J.</span>, <span class="refTitle">"User Datagram Protocol"</span>, <span class="seriesInfo">STD 6</span>, <span class="seriesInfo">RFC 768</span>, <span class="seriesInfo">DOI 10.17487/RFC0768</span>, <time datetime="1980-08" class="refDate">August 1980</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc768">https://www.rfc-editor.org/rfc/rfc768</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="URI">[URI]</dt>
         <dd>
