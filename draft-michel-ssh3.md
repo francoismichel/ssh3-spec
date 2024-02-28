@@ -519,7 +519,7 @@ The first value sent on the HTTP/3 stream is the Signal Value. The
 Channel Type is a UTF-8-encoded string whose length is defined
 by the Channel Type Length field.
 
-\[\[Note: SSHv2 uses text-based channel IDs. Should we keep that or
+\[\[Note: SSHv2 uses text-based channel types. Should we keep that or
 use something else instead ? If we change, we loose a 1-1 mapping with SSHv2.]]
 
 The Maximum Message Size field defines the maximum size in bytes of
