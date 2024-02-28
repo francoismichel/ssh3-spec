@@ -643,4 +643,5 @@ HTTP/3 only.]]
 {:numbered="false"}
 
 We warmly thank Maxime Piraux, Lucas Pardue and David Schinazi for their precious
-comments on the document before the submission.
+comments on the document before the submission. We also thank Ryan Hurst for all the
+motivating discussions around the protocol.
