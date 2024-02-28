@@ -137,13 +137,14 @@ Table of Contents
    [SSH-CONNECT] over HTTP/3 and uses the name "SSH3" to refer to this
    solution.  The secure channel establishment uses TLS included in QUIC
    [QUIC] [QUIC-TLS] while user authentication is performed using
-   existing HTTP authentication schemes, simplifying significantly the
-   design of the protocol.  Figure 2 provides a graphical representation
-   of the architecture proposed in this document.  One benefit of the
-   approach is that the HTTP3 and QUIC layers can evolve independently
-   of SSH.  For instance, new encryption and MAC algorithms can be added
-   to TLS and used in SSH3 without impacting the specification or adding
-   new code points in SSH3 for these new algorithms.
+   existing HTTP authentication schemes, focusing the design of SSH on
+   the Connection protocol.  Figure 2 provides a graphical
+   representation of the architecture proposed in this document.  One
+   benefit of the approach is that the HTTP3 and QUIC layers can evolve
+   independently of SSH.  For instance, new encryption and MAC
+   algorithms can be added to TLS and used in SSH3 without impacting the
+   specification or adding new code points in SSH3 for these new
+   algorithms.
 
                     +---------------------------------+
                     |              SSH3               |
