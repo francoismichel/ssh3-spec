@@ -37,7 +37,6 @@ author:
     email: "olivier.bonaventure@uclouvain.be"
 
 normative:
-  QUIC-RECOVERY: RFC9002
   HTTP2: RFC9113
   HTTP3: RFC9114
   SSH-ARCH: RFC4251
@@ -48,6 +47,8 @@ normative:
   HTTP-BASIC: RFC7617
   JWT: RFC7519
   QUIC: RFC9000
+  QUIC-TLS: RFC9001
+  QUIC-RECOVERY: RFC9002
   OAUTH2-JWT: RFC9068
   EXTENDED-CONNECT: RFC8441
   HTTP-DATAGRAM: RFC9297
@@ -55,6 +56,8 @@ normative:
   HTTP-SIGNATURE: I-D.ietf-httpbis-unprompted-auth
   URI: RFC3986
   DOQ: RFC9250
+  TCP: RFC9293
+  UDP: RFC768
 
 informative:
   OAUTH2: RFC6749
@@ -163,7 +166,7 @@ and stronger resilience against packet injection attacks and middlebox interfere
 
 # Introduction
 
-The SSH protocol {{SSH-ARCH}} provides a secure way to access computers remotely over an untrusted network. SSH is currently the most popular way to access Unix hosts and network equipments remotely. Built atop the unencrypted TCP protocol, SSH proposes its own mechanisms to establish a secure channel {{SSH-TRANSPORT}} and perform user authentication {{SSH-AUTH}}. Once the secure session is established
+The SSH protocol {{SSH-ARCH}} provides a secure way to access computers remotely over an untrusted network. SSH is currently the most popular way to access Unix hosts and network equipments remotely. Built atop the unencrypted TCP protocol  {{TCP}}, SSH proposes its own mechanisms to establish a secure channel {{SSH-TRANSPORT}} and perform user authentication {{SSH-AUTH}}. Once the secure session is established
 and the user is authenticated and authorized, SSH uses the Connection protocol to run and manage
 remote processes and functionalities executed on the remote host {{SSH-CONNECT}}.
 Among others, SSH provides different services such as remote program execution, shell access and TCP port forwarding.
@@ -191,7 +194,7 @@ Among others, SSH provides different services such as remote program execution, 
 
 This document defines mechanisms to run the SSH Connection protocol
 {{SSH-CONNECT}} over HTTP/3 and uses the name "SSH3" to refer to
-this solution. The secure channel establishment uses TLS included in QUIC while user authentication
+this solution. The secure channel establishment uses TLS included in QUIC {{QUIC}} {{QUIC-TLS}} while user authentication
 is performed using existing HTTP authentication schemes, simplifying significantly the design of the protocol. {{ssh3-architecture-goal}}
 provides a graphical representation of the architecture proposed in this document.
 One benefit of the approach is that the HTTP3 and QUIC layers can
@@ -244,7 +247,7 @@ highlighted in this section.
 ### QUIC: datagrams support, streams multiplexing and connection migration
 
 Using QUIC, SSH3 can send data through both reliable streams and unreliable datagrams. This makes SSH3
-able to support port forwarding for both TCP and UDP-based protocols. Being based exclusively on TCP, SSHv2 does not offer UDP port forwarding and therefore provides no support to UDP-based protocols such as RTP or QUIC.
+able to support port forwarding for both UDP {{UDP}} and TCP-based protocols. Being based exclusively on TCP, SSHv2 does not offer UDP port forwarding and therefore provides no support to UDP-based protocols such as RTP or QUIC.
 This lack of UDP support in SSHv2 may become problematic as the use of QUIC-based applications (HTTP/3, MOQT {{MOQT}}, DOQ {{DOQ}}) grows. Support for UDP port forwarding with SSH3 also allows accessing real-time media content such as low-latency live video available on the server.
 The stream multiplexing capabilities of QUIC allow reducing the head-of-line blocking that SSHv2 encounters when multiplexing several SSH channels over the same TCP connection.
 
