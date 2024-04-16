@@ -1,0 +1,221 @@
+{
+  "magic": "E!vIA5L86J2I",
+  "timestamp": "2024-04-16T00:41:03.910280+00:00",
+  "repo": "francoismichel/ssh3-spec",
+  "labels": [
+    {
+      "name": "bug",
+      "description": "Something isn't working",
+      "color": "d73a4a"
+    },
+    {
+      "name": "documentation",
+      "description": "Improvements or additions to documentation",
+      "color": "0075ca"
+    },
+    {
+      "name": "duplicate",
+      "description": "This issue or pull request already exists",
+      "color": "cfd3d7"
+    },
+    {
+      "name": "enhancement",
+      "description": "New feature or request",
+      "color": "a2eeef"
+    },
+    {
+      "name": "good first issue",
+      "description": "Good for newcomers",
+      "color": "7057ff"
+    },
+    {
+      "name": "help wanted",
+      "description": "Extra attention is needed",
+      "color": "008672"
+    },
+    {
+      "name": "invalid",
+      "description": "This doesn't seem right",
+      "color": "e4e669"
+    },
+    {
+      "name": "question",
+      "description": "Further information is requested",
+      "color": "d876e3"
+    },
+    {
+      "name": "wontfix",
+      "description": "This will not be worked on",
+      "color": "ffffff"
+    }
+  ],
+  "issues": [
+    {
+      "number": 5,
+      "id": "I_kwDOKh-kgc6FpZc4",
+      "title": "ACME IP Identifier Validation Extension (RFC 8738) compatibility of implementations",
+      "url": "https://github.com/francoismichel/ssh3-spec/issues/5",
+      "state": "OPEN",
+      "author": "almereyda",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "When reading through the written material for the proposed SSH3 specification\r\n\r\n* [Towards SSH3: How HTTP/3 improves secure shells | APNIC Blog](https://blog.apnic.net/2024/02/02/towards-ssh3-how-http-3-improves-secure-shells/)\r\n* [Towards SSH3: how HTTP/3 improves secure shells](https://arxiv.org/html/2312.08396v1) arXiv\r\n* [Secure shell over HTTP/3 connections](https://www.ietf.org/archive/id/draft-michel-ssh3-00.html) IETF datatracker `draft-michel-ssh3-00`\r\n\r\none little detail stands out from the introductory article, which is not mentioned in the arXiv paper nor in this spec proposal.\r\n\r\nThe blog article speaks about using ACME services for generating x.509 certificates,\r\n\r\n> \"although there is no service providing ACME for IP-based certificates yet\"\r\n\r\nThe paper nor the spec mention this detail. While the paper does not have any mention of ACME at all, and only speaks about Let's Encrypt, the spec has a reference to both. But both do not mention the described limitation.\r\n\r\nIn opposition to what is stated in the blog article, the ACME v2 specification, published as RFC 8555, contains a mention of an *IP Identifier Validation Extension*, later on published as RFC 8738, which supports validation of IP addresses.\r\n\r\n- https://datatracker.ietf.org/doc/html/rfc8555#ref-ACME-IP\r\n- https://datatracker.ietf.org/doc/html/rfc8738#name-ip-identifier\r\n\r\nThe ACME Validation Methods Registry at the IANA also contains two methods for the Identifier Type `ip`, which references RFC 8738.\r\n\r\n- https://www.iana.org/assignments/acme/acme.xhtml#acme-validation-methods ([archived](http://web.archive.org/web/20231025031810/https://www.iana.org/assignments/acme/acme.xhtml#acme-validation-methods))\r\n\r\n---\r\n\r\nWith no other implementations of ACME servers known to me, I have had a quick look at how the Smallstep CA handles this situation. Apparently they have a working implementation for being able to issue certificates based on IP addresses:\r\n\r\n- https://smallstep.com/docs/certificate-manager/acme/how-to-use-acme/ ([archived](http://web.archive.org/web/20240414152046/https://smallstep.com/docs/certificate-manager/acme/how-to-use-acme/#additional-control))\r\n  > By configuring a policy for an ACME account, issuance of specific hostnames or IP addresses can be limited to specific ACME clients.\r\n- https://smallstep.com/docs/certificate-manager/acme/when-to-use-acme/ ([archived](http://web.archive.org/web/20231203145818/https://smallstep.com/docs/certificate-manager/acme/when-to-use-acme/))\r\n  > The ACME specification currently only officially supports domain names and IP addresses in certificate requests and challenges. Certificate requests for domain names and IP addresses are currently supported in the Smallstep platform.\r\n\r\nIt would be left to the interested reader in validating those claims.\r\n\r\n---\r\n\r\nThe proposal here is to remove the brace that states that \"there is no service providing ACME for IP-based certificates\" and to extend the blog article, the paper and the specification with details about RFC 8738 support in existing implementations. Maybe replacing \"is no service\" with \"are only few services\" in the blog article would already be enough, without the need to go into details there and extending at least the spec and maybe also the paper later on.",
+      "createdAt": "2024-04-14T15:28:59Z",
+      "updatedAt": "2024-04-14T15:28:59Z",
+      "closedAt": null,
+      "comments": []
+    }
+  ],
+  "pulls": [
+    {
+      "number": 1,
+      "id": "PR_kwDOKh-kgc5n-E2u",
+      "title": "comments on first part and spellcheck",
+      "url": "https://github.com/francoismichel/ssh3-spec/pull/1",
+      "state": "CLOSED",
+      "author": "obonaventure",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-02-26T21:33:04Z",
+      "updatedAt": "2024-02-27T11:43:38Z",
+      "baseRepository": "francoismichel/ssh3-spec",
+      "baseRefName": "main",
+      "baseRefOid": "2413880fe7c072c01f6bc8a9384583ecf6b9615c",
+      "headRepository": "obonaventure/ssh3-spec",
+      "headRefName": "main",
+      "headRefOid": "2413880fe7c072c01f6bc8a9384583ecf6b9615c",
+      "closedAt": "2024-02-27T11:43:38Z",
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOKh-kgc5xbhsN",
+          "commit": {
+            "abbreviatedOid": "40b2a18"
+          },
+          "author": "francoismichel",
+          "authorAssociation": "OWNER",
+          "state": "CHANGES_REQUESTED",
+          "body": "",
+          "createdAt": "2024-02-27T09:53:31Z",
+          "updatedAt": "2024-02-27T10:04:57Z",
+          "comments": [
+            {
+              "originalPosition": 98,
+              "body": "```suggestion\r\n             |        HTTP/3         |       |            & datagrams\r\n```",
+              "createdAt": "2024-02-27T09:53:31Z",
+              "updatedAt": "2024-02-27T10:04:57Z"
+            },
+            {
+              "originalPosition": 145,
+              "body": "```suggestion\r\nmaintain established connections alive across different networks by migrating them\r\n```",
+              "createdAt": "2024-02-27T09:54:28Z",
+              "updatedAt": "2024-02-27T10:04:57Z"
+            },
+            {
+              "originalPosition": 194,
+              "body": "```suggestion\r\na middleware managing the\r\n```",
+              "createdAt": "2024-02-27T09:56:46Z",
+              "updatedAt": "2024-02-27T10:04:57Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "id": "PR_kwDOKh-kgc5oCheo",
+      "title": "Olivier's comments",
+      "url": "https://github.com/francoismichel/ssh3-spec/pull/2",
+      "state": "MERGED",
+      "author": "francoismichel",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-02-27T12:38:48Z",
+      "updatedAt": "2024-02-27T12:39:06Z",
+      "baseRepository": "francoismichel/ssh3-spec",
+      "baseRefName": "main",
+      "baseRefOid": "2413880fe7c072c01f6bc8a9384583ecf6b9615c",
+      "headRepository": "francoismichel/ssh3-spec",
+      "headRefName": "obonaventure-main",
+      "headRefOid": "16d02026deb9268fe2fea46d095fec8345869a57",
+      "closedAt": "2024-02-27T12:39:05Z",
+      "mergedAt": "2024-02-27T12:39:05Z",
+      "mergedBy": "francoismichel",
+      "mergeCommit": {
+        "oid": "d775803b13d38595528b2d581e15875dddee7d7c"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 3,
+      "id": "PR_kwDOKh-kgc5oClsY",
+      "title": "non tcp section",
+      "url": "https://github.com/francoismichel/ssh3-spec/pull/3",
+      "state": "CLOSED",
+      "author": "obonaventure",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Suggestions to the text",
+      "createdAt": "2024-02-27T12:48:13Z",
+      "updatedAt": "2024-02-27T16:35:55Z",
+      "baseRepository": "francoismichel/ssh3-spec",
+      "baseRefName": "main",
+      "baseRefOid": "fb84dc0f7c3f3319a1da8fb21ffb174f4853c173",
+      "headRepository": "obonaventure/ssh3-spec",
+      "headRefName": "main",
+      "headRefOid": "2a275618a89935a34423844f237d613d08fe56dd",
+      "closedAt": "2024-02-27T16:35:55Z",
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [
+        {
+          "author": "francoismichel",
+          "authorAssociation": "OWNER",
+          "body": "Merged in [c61ee07](https://github.com/francoismichel/ssh3-spec/commit/c61ee070c95d9137f9681b41dd1888a39d888760)\r\n \u00b7",
+          "createdAt": "2024-02-27T16:35:55Z",
+          "updatedAt": "2024-02-27T16:35:55Z"
+        }
+      ],
+      "reviews": []
+    },
+    {
+      "number": 4,
+      "id": "PR_kwDOKh-kgc5oEORN",
+      "title": "Suggestions and typos",
+      "url": "https://github.com/francoismichel/ssh3-spec/pull/4",
+      "state": "MERGED",
+      "author": "mpiraux",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-02-27T16:00:10Z",
+      "updatedAt": "2024-02-27T16:38:38Z",
+      "baseRepository": "francoismichel/ssh3-spec",
+      "baseRefName": "main",
+      "baseRefOid": "59c63a66e1ba1ee05b8b84d5a7514a412875c335",
+      "headRepository": "mpiraux/ssh3-spec",
+      "headRefName": "main",
+      "headRefOid": "5a1b2cf87ee9ffaaf109ab4fbc33f74116b9f6e4",
+      "closedAt": "2024-02-27T16:38:38Z",
+      "mergedAt": "2024-02-27T16:38:38Z",
+      "mergedBy": "francoismichel",
+      "mergeCommit": {
+        "oid": "118cb4aa7d01662199c85571b7a0a5dbde5e2887"
+      },
+      "comments": [],
+      "reviews": []
+    }
+  ]
+}
