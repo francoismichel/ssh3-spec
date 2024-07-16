@@ -608,7 +608,7 @@ It is recommended to deploy public TLS certificates on remote terminal
 servers similarly to classical HTTPS servers.
 Using valid public TLS certificates on the server allows their
 automatic verification on the client with no explicit user action
-required. Connecting a remote termial client to a server with a certificate
+required. Connecting a remote terminal client to a server with a certificate
 that cannot be validated using the client's trusted Certificate Authorities
 exposes the user to the same risk incurred by SSHv2
 endpoints relying on host keys: the user needs to manually validate the
