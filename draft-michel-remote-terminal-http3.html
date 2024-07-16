@@ -1139,7 +1139,7 @@ and stronger resilience against packet injection attacks and middlebox interfere
                 <p id="section-toc.1-1.1.2.1.1"><a href="#section-1.1" class="auto internal xref">1.1</a>.  <a href="#name-how-remote-terminals-benefi" class="internal xref">How remote terminals benefits from HTTP/3</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1.2.1">
-                    <p id="section-toc.1-1.1.2.1.2.1.1" class="keepWithNext"><a href="#section-1.1.1" class="auto internal xref">1.1.1</a>.  <a href="#name-quic-datagrams-support-stre" class="internal xref">QUIC: datagrams support, streams multiplexing and connection migration</a></p>
+                    <p id="section-toc.1-1.1.2.1.2.1.1" class="keepWithNext"><a href="#section-1.1.1" class="auto internal xref">1.1.1</a>.  <a href="#name-quic-datagrams-streams-mult" class="internal xref">QUIC: datagrams, streams multiplexing and connection migration</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1.2.2">
                     <p id="section-toc.1-1.1.2.1.2.2.1" class="keepWithNext"><a href="#section-1.1.2" class="auto internal xref">1.1.2</a>.  <a href="#name-protecting-transport-layer-" class="internal xref">Protecting transport-layer control fields</a></p>
@@ -1249,7 +1249,7 @@ and stronger resilience against packet injection attacks and middlebox interfere
       </h2>
 <p id="section-1-1">The SSH protocol <span>[<a href="#SSH-ARCH" class="cite xref">SSH-ARCH</a>]</span> provides a secure way to access computers remotely over an untrusted network. SSH is currently the most popular way to access Unix hosts and network equipments remotely. Built atop the unencrypted TCP protocol  <span>[<a href="#TCP" class="cite xref">TCP</a>]</span>, SSH proposes its own mechanisms to establish a secure channel <span>[<a href="#SSH-TRANSPORT" class="cite xref">SSH-TRANSPORT</a>]</span> and perform user authentication <span>[<a href="#SSH-AUTH" class="cite xref">SSH-AUTH</a>]</span>. Once the secure session is established and the user is authenticated and authorized, SSH uses the Connection protocol to run and manage
 remote processes and functionalities executed on the remote host <span>[<a href="#SSH-CONNECT" class="cite xref">SSH-CONNECT</a>]</span>.
-Among others, SSH provides different services such as remote program execution, shell access and TCP port forwarding.
+Among others, SSH provides different services such as remote program execution, shell access, and TCP port forwarding.
 <a href="#ssh2-architecture" class="auto internal xref">Figure 1</a> provides a graphical representation of the SSHv2 protocol stack.<a href="#section-1-1" class="pilcrow">¶</a></p>
 <span id="name-the-sshv2-architecture-prot"></span><div id="ssh2-architecture">
 <figure id="figure-1">
@@ -1330,10 +1330,10 @@ using the classical QUIC.<a href="#section-1-5" class="pilcrow">¶</a></p>
         </h3>
 <p id="section-1.1-1">Using HTTP/3 and QUIC brings several different benefits that are
 highlighted in this section.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
-<div id="quic-datagrams-support-streams-multiplexing-and-connection-migration">
+<div id="quic-datagrams-streams-multiplexing-and-connection-migration">
 <section id="section-1.1.1">
-          <h4 id="name-quic-datagrams-support-stre">
-<a href="#section-1.1.1" class="section-number selfRef">1.1.1. </a><a href="#name-quic-datagrams-support-stre" class="section-name selfRef">QUIC: datagrams support, streams multiplexing and connection migration</a>
+          <h4 id="name-quic-datagrams-streams-mult">
+<a href="#section-1.1.1" class="section-number selfRef">1.1.1. </a><a href="#name-quic-datagrams-streams-mult" class="section-name selfRef">QUIC: datagrams, streams multiplexing and connection migration</a>
           </h4>
 <p id="section-1.1.1-1">Using QUIC, data can be sent through both reliable streams and unreliable datagrams. This makes the protocol
 able to support port forwarding for both UDP <span>[<a href="#UDP" class="cite xref">UDP</a>]</span> and TCP-based protocols. Being based exclusively on TCP, SSHv2 does not offer UDP port forwarding and therefore provides no support to UDP-based protocols such as RTP or QUIC.
@@ -1359,7 +1359,7 @@ with TCP, such as packet injections or reset attacks <span>[<a href="#RFC5961" c
 recent Terrapin attack <span>[<a href="#TERRAPIN" class="cite xref">TERRAPIN</a>]</span> manipulates the TCP
 sequence number to alter the SSH extension negotiation mechanism <span>[<a href="#RFC8308" class="cite xref">RFC8308</a>]</span>
 and downgrade the client authentication algorithms. QUIC control information
-such as packet numbers and frame formats are all
+such as packet numbers and frame formats is
 authenticated and encrypted starting from the Handshake encryption level.
 Furthermore, QUIC prevents middlebox interference.<a href="#section-1.1.2-1" class="pilcrow">¶</a></p>
 </section>
