@@ -277,7 +277,7 @@ for generating, parsing and verifying X.509 certificates. Similarly to classical
 this avoids encouraging users to rely on the Trust On First Use pattern when connecting to their
 remote hosts. Relying on the X.509 certificates ecosystem additionally enables servers to use
 ACME {{ACME}} to automatically (with no additional user action) generate X.509 certificates for their
-domain names using well-known certificate authorities such as Let's Encrypt. These certificates are publicly valid and can be verified like classical HTTPS certificates. Client certificates can also be issued
+domain names using well-known certificate authorities such as Let's Encrypt. These certificates are publicly valid and can be verified like classical TLS certificates. Client certificates can also be issued
 and used as an authentication method for the client.
 
 
