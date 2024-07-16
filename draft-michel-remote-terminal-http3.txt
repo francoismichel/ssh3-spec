@@ -340,8 +340,8 @@ Table of Contents
    responds with a 2xx HTTP status code and the session is established.
 
    The stream ID used for the Extended CONNECT request is then
-   remembered by each endpoint as the remote terminal ID, uniquely
-   identifying this session.
+   remembered by each endpoint as the remote terminal session ID,
+   uniquely identifying this session.
 
 3.1.  Authenticating the client
 
