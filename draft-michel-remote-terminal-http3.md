@@ -52,7 +52,7 @@ normative:
   EXTENDED-CONNECT: RFC8441
   HTTP-DATAGRAM: RFC9297
   WEBTRANSPORT-H3: I-D.ietf-webtrans-http3
-  HTTP-SIGNATURE: I-D.ietf-httpbis-unprompted-auth
+  HTTP-CONCEALED: I-D.ietf-httpbis-unprompted-auth
   URI: RFC3986
   DOQ: RFC9250
   TCP: RFC9293
@@ -309,7 +309,7 @@ user authentication and authorization. Second, it allows placing several remote 
 simply different users with user's priviledges and be multiplexed on a URL-basis.
 Finally, remote terminal endpoints can be placed behind secret URLs, reducing the exposure of remote terminal hosts to
 scanning and brute force attacks. This goes in line with the will of having undiscoverable resources
-also tackled by other IETF working groups {{HTTP-SIGNATURE}}. This property is not provided by SSHv2 since
+also tackled by other IETF working groups {{HTTP-CONCEALED}}. This property is not provided by SSHv2 since
 the SSHv2 server announces its SSH version string to any connected TCP client. If wanted, remote terminal hosts can be made
 indistinguishable from any HTTP server. This is however only complementary to and MUST NOT replace user authentication.
 
@@ -380,8 +380,8 @@ scheme is not supported by the server, the server SHOULD respond with a
 401 (Unauthorized) response message. Once the user authentication is successful, the remote terminal server can process the request and start the conversation. This section only provides example user authentication
 mechanisms. Other mechanisms may be proposed in the future in separate
 documents. The two first examples are implemented by our current
-prototype {{PROTOTYPE}}. The third example leverages the Signature authentication
-scheme {{HTTP-SIGNATURE}} and will be preferred for public key
+prototype {{PROTOTYPE}}. The third example leverages the Concealed authentication
+scheme {{HTTP-CONCEALED}} and will be preferred for public key
 authentication in future versions of our prototype.
 
 ### Password authentication using HTTP Basic Authentication
@@ -445,10 +445,10 @@ third-party involved, only the following claims are required (see
 The `jti` claim may also be used to prevent the token from
 being replayed.
 
-### Public key authentication using HTTP Signature authentication
+### Public key authentication using HTTP Concealed authentication
 
-Public key authentication can also be performed using the HTTP Signature
-Authentication scheme {{HTTP-SIGNATURE}}. The `<k>` parameter designates
+Public key authentication can also be performed using the HTTP Concealed
+Authentication scheme {{HTTP-CONCEALED}}. The `<k>` parameter designates
 the key ID of the public key used by the authentication process.
 
 ~~~~
@@ -458,7 +458,7 @@ the key ID of the public key used by the authentication process.
      |                                               |
      | HTTP/3, Stream x CONNECT /<path>?user=<user>  |
      |    :protocol="remote-terminal"                |
-     |    Signature k=<k>, a=<a>,s=<s>,v=<v>,p=<p>   |
+     |    Concealed k=<k>, a=<a>,s=<s>,v=<v>,p=<p>   |
      |---------------------------------------------->|
      |                                               |
      |               HTTP/3, Stream x 200 OK         |
