@@ -205,7 +205,7 @@ Table of Contents
    connection migration, a mobile host roaming between networks can
    maintain established connections alive across different networks by
    migrating them on their newly acquired IP address.  This avoids
-   disrupting the remote terminal conversation upon network changes.
+   disrupting the remote terminal session upon network changes.
    Finally, QUIC also offers a significantly reduced connection
    establishment time compared to the SSHv2 session establishment.
 
@@ -322,7 +322,7 @@ Table of Contents
             |               HTTP/3, Stream x 200 OK         |
             |<----------------------------------------------|
             |                                               |
-            |           Conversation established            |
+            |             Session established               |
           --+-----------------------------------------------+--
             |                                               |
             |    (endpoints now run the SSH Connection)     |
@@ -337,8 +337,7 @@ Table of Contents
    (Section 3.1 explores several examples of authentication mechanisms).
    If a remote terminal endpoint is available to the HTTP/3 server and
    if the user is successfully authenticated and authorized, the server
-   responds with a 2xx HTTP status code and the conversation is
-   established.
+   responds with a 2xx HTTP status code and the session is established.
 
    The stream ID used for the Extended CONNECT request is then
    remembered by each endpoint as the remote terminal ID, uniquely
@@ -352,10 +351,10 @@ Table of Contents
    the request or if the authentication scheme is not supported by the
    server, the server SHOULD respond with a 401 (Unauthorized) response
    message.  Once the user authentication is successful, the remote
-   terminal server can process the request and start the conversation.
-   This section only provides example user authentication mechanisms.
-   Other mechanisms may be proposed in the future in separate documents.
-   The two first examples are implemented by our current prototype
+   terminal server can process the request and start the session.  This
+   section only provides example user authentication mechanisms.  Other
+   mechanisms may be proposed in the future in separate documents.  The
+   two first examples are implemented by our current prototype
    [PROTOTYPE].  The third example leverages the Concealed
    authentication scheme [HTTP-CONCEALED] and will be preferred for
    public key authentication in future versions of our prototype.
@@ -380,7 +379,7 @@ Table of Contents
         |               HTTP/3, Stream x 200 OK         |
         |<----------------------------------------------|
         |                                               |
-        |           Conversation established            |
+        |             Session established               |
         +-----------------------------------------------+
         |                                               |
 
@@ -403,7 +402,7 @@ Table of Contents
         |               HTTP/3, Stream x 200 OK         |
         |<----------------------------------------------|
         |                                               |
-        |           Conversation established            |
+        |             Session established               |
         +-----------------------------------------------+
         |                                               |
 
@@ -440,7 +439,7 @@ Table of Contents
         |               HTTP/3, Stream x 200 OK         |
         |<----------------------------------------------|
         |                                               |
-        |           Conversation established            |
+        |             Session established               |
         +-----------------------------------------------+
         |                                               |
 
@@ -477,7 +476,7 @@ Table of Contents
 
    Channel {
        Signal Value (i) = 0xaf3627e6,
-       Conversation ID (i),
+       Session ID (i),
        Channel Type Length (i)
        Channel Type (..)
        Maximum Message Size (i)
@@ -600,7 +599,7 @@ Table of Contents
    endpoints relying on Host keys: the user needs to manually validate
    the certificate before connecting.  Ignoring this verification may
    allow an attacker to impersonate the server and access the keystrokes
-   typed by the user during the conversation.
+   typed by the user during the session.
 
 9.  IANA Considerations
 
