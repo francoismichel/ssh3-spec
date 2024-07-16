@@ -491,12 +491,12 @@ this signal value to indicate that it is not a request stream and that
 the remaining stream bytes will be used arbitrarily by the protocol
 to carry the content of a channel.
 For experimental purpose, the signal value is chosen at random and will
-change over time. The current signal value is `0xaf3627e6`. The content of an HTTP/3 stream carrying a remote terminal
+change over time. The current signal value is `0x5e67730e`. The content of an HTTP/3 stream carrying a remote terminal
 channel is illustrated below.
 
 ~~~~
 Channel {
-    Signal Value (i) = 0xaf3627e6,
+    Signal Value (i) = 0x5e67730e,
     Session ID (i),
     Channel Type Length (i)
     Channel Type (..)
