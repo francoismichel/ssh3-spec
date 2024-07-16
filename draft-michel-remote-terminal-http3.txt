@@ -235,7 +235,7 @@ Table of Contents
    additional user action) generate X.509 certificates for their domain
    names using well-known certificate authorities such as Let's Encrypt.
    These certificates are publicly valid and can be verified like
-   classical HTTPS certificates.  Client certificates can also be issued
+   classical TLS certificates.  Client certificates can also be issued
    and used as an authentication method for the client.
 
 1.1.4.  HTTP authentication: compatibility with existing authentication
