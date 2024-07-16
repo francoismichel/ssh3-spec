@@ -5,21 +5,22 @@
 Security Dispatch                                              F. Michel
 Internet-Draft                                                 UCLouvain
 Intended status: Experimental                             O. Bonaventure
-Expires: 31 August 2024                              UCLouvain and WELRI
-                                                        28 February 2024
+Expires: 17 January 2025                             UCLouvain and WELRI
+                                                            16 July 2024
 
 
-                  Secure shell over HTTP/3 connections
-                        draft-michel-ssh3-latest
+                Remote terminal over HTTP/3 connections
+               draft-michel-remote-terminal-http3-latest
 
 Abstract
 
    The secure shell (SSH) traditionally offers its secure services over
    an insecure network using the TCP transport protocol.  This document
-   defines mechanisms to run the SSH protocol over HTTP/3 using Extended
-   CONNECT.  Running SSH over HTTP/3 enables additional benefits such as
-   the scalability offered by HTTP multiplexing, relying on TLS for
-   secure channel establishment leveraging X.509 certificates, HTTP
+   defines mechanisms to access remote terminals by running the SSH
+   Connection protocol over HTTP/3 using Extended CONNECT.  Remote
+   terminals over HTTP/3 enables additional benefits such as the
+   scalability offered by HTTP multiplexing, relying on TLS for secure
+   channel establishment leveraging X.509 certificates, HTTP
    Authentication schemes for client and server authentication, UDP port
    forwarding and stronger resilience against packet injection attacks
    and middlebox interference.
@@ -29,9 +30,10 @@ About This Document
    This note is to be removed before publishing as an RFC.
 
    The latest revision of this draft can be found at
-   https://francoismichel.github.io/ssh3-spec/draft-michel-ssh3.html.
-   Status information for this document may be found at
-   https://datatracker.ietf.org/doc/draft-michel-ssh3/.
+   https://francoismichel.github.io/ssh3-spec/draft-michel-remote-
+   terminal-http3.html.  Status information for this document may be
+   found at https://datatracker.ietf.org/doc/draft-michel-remote-
+   terminal-http3/.
 
    Source for this draft and an issue tracker can be found at
    https://github.com/francoismichel/ssh3-spec.
@@ -51,7 +53,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 31 August 2024.
+   This Internet-Draft will expire on 17 January 2025.
 
 Copyright Notice
 
@@ -67,7 +69,7 @@ Copyright Notice
 Table of Contents
 
    1.  Introduction
-     1.1.  How SSH benefits from HTTP/3
+     1.1.  How remote terminals benefits from HTTP/3
        1.1.1.  QUIC: datagrams support, streams multiplexing and
                connection migration
        1.1.2.  Protecting transport-layer control fields
@@ -76,7 +78,7 @@ Table of Contents
                authentication systems
        1.1.5.  URL multiplexing and undiscoverability
    2.  Conventions and Definitions
-   3.  Establishing an SSH3 conversation
+   3.  Establishing a remote terminal session
      3.1.  Authenticating the client
        3.1.1.  Password authentication using HTTP Basic Authentication
        3.1.2.  Public key authentication using OAUTH2 and JWTs
@@ -88,9 +90,9 @@ Table of Contents
        4.1.2.  Channel types
        4.1.3.  Port forwarding
        4.1.4.  Messages
-   5.  SSH3 and MASQUE
+   5.  Remote terminal and MASQUE
    6.  Version Negotiation
-   7.  Compatibility with SSHv2 and TCP-only networks
+   7.  Compatibility TCP-only networks
    8.  Security Considerations
    9.  IANA Considerations
      9.1.  HTTP Upgrade Token
@@ -134,25 +136,23 @@ Table of Contents
               Figure 1: The SSHv2 architecture protocol stack.
 
    This document defines mechanisms to run the SSH Connection protocol
-   [SSH-CONNECT] over HTTP/3 and uses the name "SSH3" to refer to this
-   solution.  The secure channel establishment uses TLS included in QUIC
-   [QUIC] [QUIC-TLS] while user authentication is performed using
-   existing HTTP authentication schemes, focusing the design of SSH on
-   the Connection protocol itself.  Figure 2 provides a graphical
-   representation of the architecture proposed in this document.  One
-   benefit of the approach is that the HTTP3 and QUIC layers can evolve
-   independently of SSH.  For instance, new encryption and MAC
-   algorithms can be added to TLS and used in SSH3 without impacting the
-   specification or adding new code points in SSH3 for these new
-   algorithms.
+   [SSH-CONNECT] over HTTP/3.  The secure channel establishment uses TLS
+   included in QUIC [QUIC] [QUIC-TLS] while user authentication is
+   performed using existing HTTP authentication schemes.  Figure 2
+   provides a graphical representation of the architecture proposed in
+   this document.  One benefit of the approach is that the HTTP3 and
+   QUIC layers can evolve independently of SSH.  For instance, new
+   encryption and MAC algorithms can be added to TLS and used in this
+   architecture without impacting the specification or adding new code
+   points in this specification for these new algorithms.
 
                     +---------------------------------+
-                    |              SSH3               |
+                    |     Remote Terminal over H3     |
                     |   +-------------------------+   |
                     |   |     SSH Connection      |   |
                     |   |       (~RFC4254)        |   |
                     |   +-------------------------+   |
-                    |          SSH services           |
+                    |            services             |
                     +---------------------------------+
                       | - user authentication   | - reliable transport
                       | - URL multiplexing      | - secure channel
@@ -164,61 +164,63 @@ Table of Contents
                 |                 QUIC / TLS                   |
                 +----------------------------------------------+
 
-                 Figure 2: The proposed SSH3 architecture.
+                    Figure 2: The proposed architecture.
 
-   The mechanisms used for establishing an SSH3 conversation are similar
-   to the WebTransport session establishment [WEBTRANSPORT-H3].
-   WebTransport is also a good transport layer candidate for SSH3.  The
-   current SSH3 prototype [SSH3-PROTOTYPE] is built directly over HTTP/3
-   since there is no public WebTransport implementation meeting all our
-   requirements as of now.  The semantics of HTTP/2 being comparable to
-   HTTP/3, the mechanisms defined in this document could be implemented
-   using HTTP/2 if a fallback to TCP is required.  There is an ongoing
-   effort to be able to run HTTP/3 over QUIC on TCP Streams
-   [QUIC-ON-STREAMS].  This document is a first introductory document.
-   We limit its current scope to HTTP/3 using the classical QUIC.
+   The mechanisms used for establishing an remote terminal session are
+   similar to the WebTransport session establishment [WEBTRANSPORT-H3].
+   WebTransport is also a good transport layer candidate for this
+   protocol.  The current prototype [PROTOTYPE] is built directly over
+   HTTP/3 since there is no public WebTransport implementation meeting
+   all our requirements as of now.  The semantics of HTTP/2 being
+   comparable to HTTP/3, the mechanisms defined in this document could
+   be implemented using HTTP/2 if a fallback to TCP is required.  There
+   is an ongoing effort to be able to run HTTP/3 over QUIC on TCP
+   Streams [QUIC-ON-STREAMS].  This document is a first introductory
+   document.  We limit its current scope to HTTP/3 using the classical
+   QUIC.
 
-1.1.  How SSH benefits from HTTP/3
+1.1.  How remote terminals benefits from HTTP/3
 
-   Using HTTP/3 and QUIC as a substrate for SSH brings several different
-   benefits that are highlighted in this section.
+   Using HTTP/3 and QUIC brings several different benefits that are
+   highlighted in this section.
 
 1.1.1.  QUIC: datagrams support, streams multiplexing and connection
         migration
 
-   Using QUIC, SSH3 can send data through both reliable streams and
-   unreliable datagrams.  This makes SSH3 able to support port
+   Using QUIC, data can be sent through both reliable streams and
+   unreliable datagrams.  This makes the protocol able to support port
    forwarding for both UDP [UDP] and TCP-based protocols.  Being based
    exclusively on TCP, SSHv2 does not offer UDP port forwarding and
    therefore provides no support to UDP-based protocols such as RTP or
    QUIC.  This lack of UDP support in SSHv2 may become problematic as
    the use of QUIC-based applications (HTTP/3, MOQT [MOQT], DOQ [DOQ])
-   grows.  Support for UDP port forwarding with SSH3 also allows
-   accessing real-time media content such as low-latency live video
-   available on the server.  The stream multiplexing capabilities of
-   QUIC allow reducing the head-of-line blocking that SSHv2 encounters
-   when multiplexing several SSH channels over the same TCP connection.
+   grows.  Support for UDP port forwarding in this architecture also
+   allows accessing real-time media content such as low-latency live
+   video available on the server.  The stream multiplexing capabilities
+   of QUIC allow reducing the head-of-line blocking that SSHv2
+   encounters when multiplexing several SSH channels over the same TCP
+   connection.
 
    QUIC also supports connection migration (Section 9 of [QUIC]).  Using
    connection migration, a mobile host roaming between networks can
    maintain established connections alive across different networks by
    migrating them on their newly acquired IP address.  This avoids
-   disrupting the SSH conversation upon network changes.  Finally, QUIC
-   also offers a significantly reduced connection establishment time
-   compared to the SSHv2 session establishment.
+   disrupting the remote terminal conversation upon network changes.
+   Finally, QUIC also offers a significantly reduced connection
+   establishment time compared to the SSHv2 session establishment.
 
 1.1.2.  Protecting transport-layer control fields
 
    Since QUIC integrates authentication and encryption as part of its
-   transport features, it makes SSH3 robust to transport-layer attacks
-   that were possible with TCP, such as packet injections or reset
-   attacks [RFC5961].  For instance, the recent Terrapin attack
-   [TERRAPIN] manipulates the TCP sequence number to alter the SSH
-   extension negotiation mechanism [RFC8308] and downgrade the client
-   authentication algorithms.  QUIC control information such as packet
-   numbers and frame formats are all authenticated and encrypted
-   starting from the Handshake encryption level.  Furthermore, QUIC
-   prevents middlebox interference.
+   transport features, it makes remote terminals over HTTP/3 robust to
+   transport-layer attacks that were possible with TCP, such as packet
+   injections or reset attacks [RFC5961].  For instance, the recent
+   Terrapin attack [TERRAPIN] manipulates the TCP sequence number to
+   alter the SSH extension negotiation mechanism [RFC8308] and downgrade
+   the client authentication algorithms.  QUIC control information such
+   as packet numbers and frame formats are all authenticated and
+   encrypted starting from the Handshake encryption level.  Furthermore,
+   QUIC prevents middlebox interference.
 
 1.1.3.  Leveraging the X.509 ecosystem
 
@@ -226,15 +228,15 @@ Table of Contents
    leverage the X.509 certificates ecosystem with low implementation
    effort.  TLS and QUIC libraries already implement support for
    generating, parsing and verifying X.509 certificates.  Similarly to
-   classical OpenSSH certificates, this avoids encouraging SSH users to
-   rely on the Trust On First Use pattern when connecting to their
-   remote hosts.  Relying on the X.509 certificates ecosystem
-   additionally enables SSH3 servers to use ACME [ACME] to automatically
-   (with no additional user action) generate X.509 certificates for
-   their domain names using well-known certificate authorities such as
-   Let's Encrypt.  These certificates are publicly valid and can be
-   verified like classical HTTPS certificates.  Client certificates can
-   also be issued and used as an authentication method for the client.
+   classical OpenSSH certificates, this avoids encouraging users to rely
+   on the Trust On First Use pattern when connecting to their remote
+   hosts.  Relying on the X.509 certificates ecosystem additionally
+   enables servers to use ACME [ACME] to automatically (with no
+   additional user action) generate X.509 certificates for their domain
+   names using well-known certificate authorities such as Let's Encrypt.
+   These certificates are publicly valid and can be verified like
+   classical HTTPS certificates.  Client certificates can also be issued
+   and used as an authentication method for the client.
 
 1.1.4.  HTTP authentication: compatibility with existing authentication
         systems
@@ -248,33 +250,33 @@ Table of Contents
    for managing access to critical resources in different organizations.
    Sharing computing resources using SSHv2 through these mechanisms
    generally requires the deployment of a middleware managing the
-   mapping between identities and SSH keys or certificates.  Adding HTTP
-   authentication to SSH allows welcoming these authentication methods
-   directly and interfaces SSH3 more naturally with existing
-   architectures.  As a proof-of-concept, OpenID Connect support has
-   been added to our SSH3 prototype [SSH3-PROTOTYPE].  Other web
-   authentication standards such as Passkeys/WebAuthn [WebAuthn] allow
-   administrators to restrict remote access to specific client devices
-   in addition to users.
+   mapping between identities and SSH keys or certificates.  HTTP
+   authentication allows welcoming these authentication methods directly
+   and and being interfaced naturally with existing infrastructures.  As
+   a proof-of-concept, OpenID Connect support has been added to our
+   prototype [PROTOTYPE].  Other web authentication standards such as
+   Passkeys/WebAuthn [WebAuthn] allow administrators to restrict remote
+   access to specific client devices in addition to users.
 
 1.1.5.  URL multiplexing and undiscoverability
 
-   Relying on HTTP allows easily placing SSH endpoints as resources
-   accessible through specific URLs.  First, this makes it easier to
-   integrate SSH endpoints on web servers that already perform user
-   authentication and authorization.  Second, it allows placing several
-   SSH server instances on the same physical machine on the same port.
-   These instances can run in different virtual machines, containers or
-   simply different users with user's priviledges and be multiplexed on
-   a URL-basis.  Finally, SSH3 endpoints can be placed behind secret
-   URLs, reducing the exposure of SSH3 hosts to scanning and brute force
+   Relying on HTTP allows easily placing remote terminal endpoints as
+   resources accessible through specific URLs.  First, this makes it
+   easier to integrate remote terminal endpoints on web servers that
+   already perform user authentication and authorization.  Second, it
+   allows placing several remote terminal server instances on the same
+   physical machine on the same port.  These instances can run in
+   different virtual machines, containers or simply different users with
+   user's priviledges and be multiplexed on a URL-basis.  Finally,
+   remote terminal endpoints can be placed behind secret URLs, reducing
+   the exposure of remote terminal hosts to scanning and brute force
    attacks.  This goes in line with the will of having undiscoverable
    resources also tackled by other IETF working groups [HTTP-SIGNATURE].
    This property is not provided by SSHv2 since the SSHv2 server
    announces its SSH version string to any connected TCP client.  If
-   wanted, SSH3 hosts can be made indistinguishable from any HTTP
-   server.  This is however only complementary to and MUST NOT replace
-   user authentication.
+   wanted, remote terminal hosts can be made indistinguishable from any
+   HTTP server.  This is however only complementary to and MUST NOT
+   replace user authentication.
 
 2.  Conventions and Definitions
 
@@ -284,64 +286,63 @@ Table of Contents
    BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
    capitals, as shown here.
 
-3.  Establishing an SSH3 conversation
+3.  Establishing a remote terminal session
 
-   We choose the term "conversation" to avoid ambiguities with the
-   existing concepts of SSH shell session and QUIC connection.  An SSH3
-   conversation can be started using the HTTP/3 Extended CONNECT method
-   [EXTENDED-CONNECT].  The :protocol pseudo-header MUST be set to ssh3
-   and the :scheme pseudo-header MUST be set to https.  If an SSH3
-   client or server supports the UDP forwarding feature, it MUST
-   indicate support for HTTP/3 datagrams by sending a
-   SETTINGS_H3_DATAGRAM value set to 1 in their SETTINGS frame
+   An remote terminal session can be started using the HTTP/3 Extended
+   CONNECT method [EXTENDED-CONNECT].  The :protocol pseudo-header MUST
+   be set to remote-terminal and the :scheme pseudo-header MUST be set
+   to https.  If a remote terminal client or server supports the UDP
+   forwarding feature, it MUST indicate support for HTTP/3 datagrams by
+   sending a SETTINGS_H3_DATAGRAM value set to 1 in their SETTINGS frame
    (Section 2.1.1 of [HTTP-DATAGRAM]).
 
-   An SSH3 server listens for CONNECT requests with the ssh3 protocol on
-   URI templates having the username variable.  Example URIs can be
-   found below.
+   An remote terminal server listens for CONNECT requests with the
+   remote-terminal protocol on URI templates having the username
+   variable.  Example URIs can be found below.
 
-   https://example.org:4443/ssh3?user={username}
-   https://proxy.example.org:4443/ssh3{?username}
+   https://example.org:4443/abcd?user={username}
+   https://proxy.example.org:4443/1234{?username}
 
-   [[Note: In the current prototype [SSH3-PROTOTYPE], percent-encoding
-   is used for characters outside the allowed set of [URI].  An
-   alternative can be to perform base64url encoding of the username
-   instead.]]
+   [[Note: In the current prototype [PROTOTYPE], percent-encoding is
+   used for characters outside the allowed set of [URI].  An alternative
+   can be to perform base64url encoding of the username instead.]]
 
-   Figure 3 illustrates a successful SSH3 conversation establishment.
+   Figure 3 illustrates a successful remote terminal session
+   establishment.
 
-          Client
-             |                QUIC HANDSHAKE                 |
-             |<--------------------------------------------->|
-             |                                               |
-             | HTTP/3, Stream x CONNECT /<path>?user=<user>  |
-             |         :protocol="ssh3"                      |
-             |         Authorization=<auth_material>         |
-             |---------------------------------------------->|
-             |                                               |
-             |               HTTP/3, Stream x 200 OK         |
-             |<----------------------------------------------|
-             |                                               |
-             |           Conversation established            |
-           --+-----------------------------------------------+--
-             |                                               |
-             |    (endpoints now run the SSH Connection)     |
-             |    (protocol over QUIC streams          )     |
-             |                                               |
+         Client
+            |                QUIC HANDSHAKE                 |
+            |<--------------------------------------------->|
+            |                                               |
+            | HTTP/3, Stream x CONNECT /<path>?user=<user>  |
+            |         :protocol="remote-terminal"                      |
+            |         Authorization=<auth_material>         |
+            |---------------------------------------------->|
+            |                                               |
+            |               HTTP/3, Stream x 200 OK         |
+            |<----------------------------------------------|
+            |                                               |
+            |           Conversation established            |
+          --+-----------------------------------------------+--
+            |                                               |
+            |    (endpoints now run the SSH Connection)     |
+            |    (protocol over QUIC streams          )     |
+            |                                               |
 
-           Figure 3: SSH3 successful conversation establishment.
+       Figure 3: Successful remote terminal session establishment.
 
    Authentication material is placed inside the Authorization header of
    the Extended CONNECT request.  The format and value of
    <auth_material> depends on the HTTP authentication scheme used
    (Section 3.1 explores several examples of authentication mechanisms).
-   If an SSH3 endpoint is available to the HTTP/3 server and if the user
-   is successfully authenticated and authorized, the server responds
-   with a 2xx HTTP status code and the conversation is established.
+   If a remote terminal endpoint is available to the HTTP/3 server and
+   if the user is successfully authenticated and authorized, the server
+   responds with a 2xx HTTP status code and the conversation is
+   established.
 
    The stream ID used for the Extended CONNECT request is then
-   remembered by each endpoint as the SSH conversation ID, uniquely
-   identifying this SSH conversation.
+   remembered by each endpoint as the remote terminal ID, uniquely
+   identifying this session.
 
 3.1.  Authenticating the client
 
@@ -350,12 +351,12 @@ Table of Contents
    authentication scheme used.  If no Authorization header is present in
    the request or if the authentication scheme is not supported by the
    server, the server SHOULD respond with a 401 (Unauthorized) response
-   message.  Once the user authentication is successful, the SSH3 server
-   can process the request and start the conversation.  This section
-   only provides example user authentication mechanisms.  Other
-   mechanisms may be proposed in the future in separate documents.  The
-   two first examples are implemented by our current prototype
-   [SSH3-PROTOTYPE].  The third example leverages the Signature
+   message.  Once the user authentication is successful, the remote
+   terminal server can process the request and start the conversation.
+   This section only provides example user authentication mechanisms.
+   Other mechanisms may be proposed in the future in separate documents.
+   The two first examples are implemented by our current prototype
+   [PROTOTYPE].  The third example leverages the Signature
    authentication scheme [HTTP-SIGNATURE] and will be preferred for
    public key authentication in future versions of our prototype.
 
@@ -372,7 +373,7 @@ Table of Contents
         |<--------------------------------------------->|
         |                                               |
         | HTTP/3, Stream x CONNECT /<path>?user=<user>  |
-        |         :protocol="ssh3"                      |
+        |         :protocol="remote-terminal"           |
         |         Authorization="Basic <credentials>"   |
         |---------------------------------------------->|
         |                                               |
@@ -395,7 +396,7 @@ Table of Contents
         |<--------------------------------------------->|
         |                                               |
         | HTTP/3, Stream x CONNECT /<path>?user=<user>  |
-        |         :protocol="ssh3"                      |
+        |         :protocol="remote-terminal"           |
         |         Authorization="Bearer <JWT token>"    |
         |---------------------------------------------->|
         |                                               |
@@ -410,7 +411,7 @@ Table of Contents
    party involved, only the following claims are required (see [JWT] for
    their definition):
 
-   *  sub: set to ssh3-<user>
+   *  sub: set to remote-terminal-<user>
 
    *  iat: set to the date of issuance of the JWT
 
@@ -425,16 +426,14 @@ Table of Contents
    Public key authentication can also be performed using the HTTP
    Signature Authentication scheme [HTTP-SIGNATURE].  The <k> parameter
    designates the key ID of the public key used by the authentication
-   process.  Classical SSH implementations usually do not assign IDs to
-   public keys.  The value <k> can therefore be set to the cryptographic
-   hash of the public key instead.
+   process.
 
      Client
         |                QUIC HANDSHAKE                 |
         |<--------------------------------------------->|
         |                                               |
         | HTTP/3, Stream x CONNECT /<path>?user=<user>  |
-        |    :protocol="ssh3"                           |
+        |    :protocol="remote-terminal"                |
         |    Signature k=<k>, a=<a>,s=<s>,v=<v>,p=<p>   |
         |---------------------------------------------->|
         |                                               |
@@ -456,25 +455,25 @@ Table of Contents
 
 4.1.  Channels
 
-   Similarly to [SSH-TRANSPORT], SSH3 defines bidirectional channels
-   over which the endpoints exchange SSH messages.  Each channel runs
-   over a bidirectional HTTP/3 stream and is attached to a single SSH
-   conversation.  In this document, channels are therefore not assigned
-   a channel number conversely to SSHv2.
+   Similarly to [SSH-TRANSPORT], this document defines bidirectional
+   channels over which the endpoints exchange messages.  Each channel
+   runs over a bidirectional HTTP/3 stream and is attached to a single
+   remote terminal session.  In this document, channels are therefore
+   not assigned a channel number conversely to SSHv2.
 
 4.1.1.  Opening a channel
 
-   SSH channels can be opened on HTTP/3 client-initiated bidirectional
+   Channels can be opened on HTTP/3 client-initiated bidirectional
    streams.  By default, HTTP/3 considers every client-initiated
    bidirectional stream as a request stream.  Similarly to WebTransport,
-   SSH3 extends HTTP/3 using a specific signal value.  An SSH3 client
-   can open a stream with this signal value to indicate that it is not a
-   request stream and that the remaining stream bytes will be used
-   arbitrarily by the SSH3 protocol to carry the content of a channel.
-   For experimental purpose, the signal value is chosen at random and
-   will change over time.  The current signal value is 0xaf3627e6.  The
-   content of an HTTP/3 stream carrying an SSH3 channel is illustrated
-   below.
+   this protocol extends HTTP/3 using a specific signal value.  An
+   remote terminal client can open a stream with this signal value to
+   indicate that it is not a request stream and that the remaining
+   stream bytes will be used arbitrarily by the protocol to carry the
+   content of a channel.  For experimental purpose, the signal value is
+   chosen at random and will change over time.  The current signal value
+   is 0xaf3627e6.  The content of an HTTP/3 stream carrying an remote
+   terminal channel is illustrated below.
 
    Channel {
        Signal Value (i) = 0xaf3627e6,
@@ -497,8 +496,8 @@ Table of Contents
    SSH messages.
 
    The remaining bytes of the stream are interpreted as a sequence of
-   SSH messages.  Their format and length can vary depending on the
-   message type (see Section 4.1.4).
+   messages.  Their format and length can vary depending on the message
+   type (see Section 4.1.4).
 
 4.1.2.  Channel types
 
@@ -542,8 +541,8 @@ Table of Contents
    message format as the one defined in [SSH-CONNECT] applies, with
    channel numbers removed from the messages headers as channel run over
    dedicated HTTP streams.  Hereunder is an example showing the wire
-   format of the exit-status SSH message for SSH3.  Its SSHv2 variant is
-   described in Section 6.10 of [SSH-CONNECT].
+   format of the exit-status message.  Its SSHv2 variant is described in
+   Section 6.10 of [SSH-CONNECT].
 
    ExitStatusMessage {
        Message Type (string) = "exit-status",
@@ -551,70 +550,68 @@ Table of Contents
        Exit Status (i)
    }
 
-5.  SSH3 and MASQUE
+5.  Remote terminal and MASQUE
 
-   SSH3 shares common objectives with the MASQUE proxy [MASQUE] and
-   while it is currently out of scope of this introductory document,
+   This protocol shares common objectives with the MASQUE proxy [MASQUE]
+   and while it is currently out of scope of this introductory document,
    interactions between the two protocols may exist in the future.  For
-   instance, a MASQUE endpoint can be integrated with SSH3 to provide
-   diverse forwarding services.  Another possible outcome is the
-   integration of SSH3 in the MASQUE family of proxies in the form of a
-   "CONNECT-SHELL" endpoint.
+   instance, a MASQUE endpoint can be integrated with a remote terminal
+   endpoint to provide diverse forwarding services.  Another possible
+   outcome is the integration of remote terminals in the MASQUE family
+   of proxies in the form of a "CONNECT-SHELL" endpoint.
 
 6.  Version Negotiation
 
-   For SSH3 implementations to be able to follow the versions of this
-   draft while being interoperable with a large amount of peers, we
-   define the "ssh-version" header to list the supported draft versions.
-   The value of this field sent by the client is a comma-separated list
-   of strings representing the filenames of the supported drafts without
-   the "draft-" prefix.  For instance, SSH3 clients implementing this
-   draft in versions 00 and 01 send the "ssh-version: michel-ssh3-
-   00,michel-ssh3-01" HTTP header in the CONNECT request.  Upon
+   For remote terminal implementations to be able to follow the versions
+   of this draft while being interoperable with a large amount of peers,
+   we define the "remote-terminal-version" header to list the supported
+   draft versions.  The value of this field sent by the client is a
+   comma-separated list of strings representing the filenames of the
+   supported drafts without the "draft-" prefix.  For instance, remote
+   terminal clients implementing this draft in versions 00 and 01 send
+   the "remote-terminal-version: michel-remote-terminal-http3-00,michel-
+   remote-terminal-http3-01" HTTP header in the CONNECT request.  Upon
    receiving this header, the server chooses a version from the ones
    supported by the client.  It then sets this single version as the
-   value of the "ssh-version" header.
+   value of the "remote-terminal-version" header.
 
-7.  Compatibility with SSHv2 and TCP-only networks
+7.  Compatibility TCP-only networks
 
-   While the protocol described in this document is not directly
-   compatible with SSHv2, mechanisms can be defined in the future to
-   announce the availability of SSH3 and upgrade to SSH3 from SSHv2
-   sessions.  SSH3 can also be made available on networks supporting
-   only TCP using either HTTP/2 [HTTP2] or HTTP/3 [HTTP3] with QUIC on
-   Streams [QUIC-ON-STREAMS] as a substrate for SSH3.
+   This protocol can also be made available on networks supporting only
+   TCP using either HTTP/2 [HTTP2] or HTTP/3 [HTTP3] with QUIC on
+   Streams [QUIC-ON-STREAMS].
 
 8.  Security Considerations
 
-   Running an SSH3 endpoint with weak or no authentication methods
-   exposes the host to non-negligible risks allowing attackers to gain
-   full control of the server.  SSH3 servers should not be run without
-   authentication and user authentication material should be verified
-   thoroughly.  Public key authentication should be preferred to
-   passwords.
+   Running an remote terminal endpoint with weak or no authentication
+   methods exposes the host to non-negligible risks allowing attackers
+   to gain full control of the server.  Remote terminal servers should
+   not be run without authentication and user authentication material
+   should be verified thoroughly.  Public key authentication should be
+   preferred to passwords.
 
-   It is recommended to deploy public TLS certificates on SSH3 servers
-   similarly to classical HTTPS servers.  Using valid public TLS
-   certificates on the server allows their automatic verification on the
-   client with no explicit user action required.  Connecting an SSH3
-   client to a server with a certificate that cannot be validated using
-   the client's trusted Certificate Authorities exposes the user to the
-   same risk incurred by SSHv2 endpoints relying on Host keys: the user
-   needs to manually validate the certificate before connecting.
-   Ignoring this verification may allow an attacker to impersonate the
-   server and access the keystrokes typed by the user during the
-   conversation.
+   It is recommended to deploy public TLS certificates on remote
+   terminal servers similarly to classical HTTPS servers.  Using valid
+   public TLS certificates on the server allows their automatic
+   verification on the client with no explicit user action required.
+   Connecting a remote termial client to a server with a certificate
+   that cannot be validated using the client's trusted Certificate
+   Authorities exposes the user to the same risk incurred by SSHv2
+   endpoints relying on Host keys: the user needs to manually validate
+   the certificate before connecting.  Ignoring this verification may
+   allow an attacker to impersonate the server and access the keystrokes
+   typed by the user during the conversation.
 
 9.  IANA Considerations
 
 9.1.  HTTP Upgrade Token
 
-   This document will request IANA to register "ssh3" in the "HTTP
-   Upgrade Tokens" registry maintained at
+   This document will request IANA to register "remote-terminal" in the
+   "HTTP Upgrade Tokens" registry maintained at
    https://www.iana.org/assignments/http-upgrade-tokens
    (https://www.iana.org/assignments/http-upgrade-tokens).
 
-   [[Note: This may be removed if we decide to run SSH3 atop
+   [[Note: This may be removed if we decide to run remote terminals atop
    WebTransport instead of HTTP/3 only.]]
 
 10.  References
@@ -648,11 +645,11 @@ Table of Contents
               <https://www.rfc-editor.org/rfc/rfc9110>.
 
    [HTTP-SIGNATURE]
-              Schinazi, D., Oliver, D., and J. Hoyland, "The Signature
+              Schinazi, D., Oliver, D., and J. Hoyland, "The Concealed
               HTTP Authentication Scheme", Work in Progress, Internet-
-              Draft, draft-ietf-httpbis-unprompted-auth-06, 23 January
-              2024, <https://datatracker.ietf.org/doc/html/draft-ietf-
-              httpbis-unprompted-auth-06>.
+              Draft, draft-ietf-httpbis-unprompted-auth-08, 5 July 2024,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-
+              unprompted-auth-08>.
 
    [HTTP2]    Thomson, M., Ed. and C. Benfield, Ed., "HTTP/2", RFC 9113,
               DOI 10.17487/RFC9113, June 2022,
@@ -727,9 +724,9 @@ Table of Contents
    [WEBTRANSPORT-H3]
               Frindell, A., Kinnear, E., and V. Vasiliev, "WebTransport
               over HTTP/3", Work in Progress, Internet-Draft, draft-
-              ietf-webtrans-http3-08, 23 October 2023,
+              ietf-webtrans-http3-09, 4 March 2024,
               <https://datatracker.ietf.org/doc/html/draft-ietf-
-              webtrans-http3-08>.
+              webtrans-http3-09>.
 
 10.2.  Informative References
 
@@ -745,9 +742,9 @@ Table of Contents
 
    [MOQT]     Curley, L., Pugin, K., Nandakumar, S., Vasiliev, V., and
               I. Swett, "Media over QUIC Transport", Work in Progress,
-              Internet-Draft, draft-ietf-moq-transport-02, 24 January
-              2024, <https://datatracker.ietf.org/doc/html/draft-ietf-
-              moq-transport-02>.
+              Internet-Draft, draft-ietf-moq-transport-05, 8 July 2024,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-moq-
+              transport-05>.
 
    [OASIS.saml-core-2.0-os]
               Cantor, S., Kemp, J., Philpott, R., and E. Maler,
@@ -769,6 +766,10 @@ Table of Contents
               "OpenSSH release 5.4", Web 
               https://www.openssh.com/txt/release-5.4.
 
+   [PROTOTYPE]
+              Michel, F., "SSH3: faster and rich secure shell using
+              HTTP/3", Web https://github.com/francoismichel/ssh3, n.d..
+
    [PUTTY-CERTIFICATES]
               "PuTTY Certificates", Web 
               https://www.chiark.greenend.org.uk/~sgtatham/quasiblog/
@@ -789,10 +790,6 @@ Table of Contents
    [RFC8308]  Bider, D., "Extension Negotiation in the Secure Shell
               (SSH) Protocol", RFC 8308, DOI 10.17487/RFC8308, March
               2018, <https://www.rfc-editor.org/rfc/rfc8308>.
-
-   [SSH3-PROTOTYPE]
-              Michel, F., "SSH3: faster and rich secure shell using
-              HTTP/3", Web https://github.com/francoismichel/ssh3, n.d..
 
    [TECTIA-CERTIFICATES]
               "Tectia Certificates", Web 
