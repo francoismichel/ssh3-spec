@@ -166,7 +166,7 @@ and stronger resilience against packet injection attacks and middlebox interfere
 
 The SSH protocol {{SSH-ARCH}} provides a secure way to access computers remotely over an untrusted network. SSH is currently the most popular way to access Unix hosts and network equipments remotely. Built atop the unencrypted TCP protocol  {{TCP}}, SSH proposes its own mechanisms to establish a secure channel {{SSH-TRANSPORT}} and perform user authentication {{SSH-AUTH}}. Once the secure session is established and the user is authenticated and authorized, SSH uses the Connection protocol to run and manage
 remote processes and functionalities executed on the remote host {{SSH-CONNECT}}.
-Among others, SSH provides different services such as remote program execution, shell access and TCP port forwarding.
+Among others, SSH provides different services such as remote program execution, shell access, and TCP port forwarding.
 {{ssh2-architecture}} provides a graphical representation of the SSHv2 protocol stack.
 
 ~~~~
@@ -240,7 +240,7 @@ Using HTTP/3 and QUIC brings several different benefits that are
 highlighted in this section.
 
 
-### QUIC: datagrams support, streams multiplexing and connection migration
+### QUIC: datagrams, streams multiplexing and connection migration
 
 Using QUIC, data can be sent through both reliable streams and unreliable datagrams. This makes the protocol
 able to support port forwarding for both UDP {{UDP}} and TCP-based protocols. Being based exclusively on TCP, SSHv2 does not offer UDP port forwarding and therefore provides no support to UDP-based protocols such as RTP or QUIC.
@@ -264,7 +264,7 @@ with TCP, such as packet injections or reset attacks {{RFC5961}}. For instance, 
 recent Terrapin attack {{TERRAPIN}} manipulates the TCP
 sequence number to alter the SSH extension negotiation mechanism {{RFC8308}}
 and downgrade the client authentication algorithms. QUIC control information
-such as packet numbers and frame formats are all
+such as packet numbers and frame formats is
 authenticated and encrypted starting from the Handshake encryption level.
 Furthermore, QUIC prevents middlebox interference.
 
