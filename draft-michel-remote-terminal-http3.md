@@ -367,7 +367,7 @@ Authentication material is placed inside the `Authorization` header of the Exten
 remote terminal endpoint is available to the HTTP/3 server and if the user is successfully authenticated and authorized, the server responds
 with a 2xx HTTP status code and the session is established.
 
-The stream ID used for the Extended CONNECT request is then remembered by each endpoint as the remote terminal ID, uniquely identifying this session.
+The stream ID used for the Extended CONNECT request is then remembered by each endpoint as the remote terminal session ID, uniquely identifying this session.
 
 ## Authenticating the client
 {: #authenticating-the-client}
