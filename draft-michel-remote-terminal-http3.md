@@ -611,7 +611,7 @@ automatic verification on the client with no explicit user action
 required. Connecting a remote termial client to a server with a certificate
 that cannot be validated using the client's trusted Certificate Authorities
 exposes the user to the same risk incurred by SSHv2
-endpoints relying on Host keys: the user needs to manually validate the
+endpoints relying on host keys: the user needs to manually validate the
 certificate before connecting. Ignoring this verification may allow an attacker
 to impersonate the server and access the keystrokes typed by the user during the
 session.
