@@ -1173,7 +1173,7 @@ and stronger resilience against packet injection attacks and middlebox interfere
                     <p id="section-toc.1-1.3.2.1.2.2.1"><a href="#section-3.1.2" class="auto internal xref">3.1.2</a>.  <a href="#name-public-key-authentication-u" class="internal xref">Public key authentication using OAUTH2 and JWTs</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1.2.3">
-                    <p id="section-toc.1-1.3.2.1.2.3.1"><a href="#section-3.1.3" class="auto internal xref">3.1.3</a>.  <a href="#name-public-key-authentication-us" class="internal xref">Public key authentication using HTTP Signature authentication</a></p>
+                    <p id="section-toc.1-1.3.2.1.2.3.1"><a href="#section-3.1.3" class="auto internal xref">3.1.3</a>.  <a href="#name-public-key-authentication-us" class="internal xref">Public key authentication using HTTP Concealed authentication</a></p>
 </li>
                 </ul>
 </li>
@@ -1414,7 +1414,7 @@ user authentication and authorization. Second, it allows placing several remote 
 simply different users with user's priviledges and be multiplexed on a URL-basis.
 Finally, remote terminal endpoints can be placed behind secret URLs, reducing the exposure of remote terminal hosts to
 scanning and brute force attacks. This goes in line with the will of having undiscoverable resources
-also tackled by other IETF working groups <span>[<a href="#HTTP-SIGNATURE" class="cite xref">HTTP-SIGNATURE</a>]</span>. This property is not provided by SSHv2 since
+also tackled by other IETF working groups <span>[<a href="#HTTP-CONCEALED" class="cite xref">HTTP-CONCEALED</a>]</span>. This property is not provided by SSHv2 since
 the SSHv2 server announces its SSH version string to any connected TCP client. If wanted, remote terminal hosts can be made
 indistinguishable from any HTTP server. This is however only complementary to and <span class="bcp14">MUST NOT</span> replace user authentication.<a href="#section-1.1.5-1" class="pilcrow">¶</a></p>
 </section>
@@ -1501,8 +1501,8 @@ scheme is not supported by the server, the server <span class="bcp14">SHOULD</sp
 401 (Unauthorized) response message. Once the user authentication is successful, the remote terminal server can process the request and start the conversation. This section only provides example user authentication
 mechanisms. Other mechanisms may be proposed in the future in separate
 documents. The two first examples are implemented by our current
-prototype <span>[<a href="#PROTOTYPE" class="cite xref">PROTOTYPE</a>]</span>. The third example leverages the Signature authentication
-scheme <span>[<a href="#HTTP-SIGNATURE" class="cite xref">HTTP-SIGNATURE</a>]</span> and will be preferred for public key
+prototype <span>[<a href="#PROTOTYPE" class="cite xref">PROTOTYPE</a>]</span>. The third example leverages the Concealed authentication
+scheme <span>[<a href="#HTTP-CONCEALED" class="cite xref">HTTP-CONCEALED</a>]</span> and will be preferred for public key
 authentication in future versions of our prototype.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
 <div id="password-authentication-using-http-basic-authentication">
 <section id="section-3.1.1">
@@ -1579,13 +1579,13 @@ third-party involved, only the following claims are required (see
 being replayed.<a href="#section-3.1.2-5" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="public-key-authentication-using-http-signature-authentication">
+<div id="public-key-authentication-using-http-concealed-authentication">
 <section id="section-3.1.3">
           <h4 id="name-public-key-authentication-us">
-<a href="#section-3.1.3" class="section-number selfRef">3.1.3. </a><a href="#name-public-key-authentication-us" class="section-name selfRef">Public key authentication using HTTP Signature authentication</a>
+<a href="#section-3.1.3" class="section-number selfRef">3.1.3. </a><a href="#name-public-key-authentication-us" class="section-name selfRef">Public key authentication using HTTP Concealed authentication</a>
           </h4>
-<p id="section-3.1.3-1">Public key authentication can also be performed using the HTTP Signature
-Authentication scheme <span>[<a href="#HTTP-SIGNATURE" class="cite xref">HTTP-SIGNATURE</a>]</span>. The <code>&lt;k&gt;</code> parameter designates
+<p id="section-3.1.3-1">Public key authentication can also be performed using the HTTP Concealed
+Authentication scheme <span>[<a href="#HTTP-CONCEALED" class="cite xref">HTTP-CONCEALED</a>]</span>. The <code>&lt;k&gt;</code> parameter designates
 the key ID of the public key used by the authentication process.<a href="#section-3.1.3-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-3.1.3-2">
 <pre>
@@ -1595,7 +1595,7 @@ the key ID of the public key used by the authentication process.<a href="#sectio
      |                                               |
      | HTTP/3, Stream x CONNECT /&lt;path&gt;?user=&lt;user&gt;  |
      |    :protocol="remote-terminal"                |
-     |    Signature k=&lt;k&gt;, a=&lt;a&gt;,s=&lt;s&gt;,v=&lt;v&gt;,p=&lt;p&gt;   |
+     |    Concealed k=&lt;k&gt;, a=&lt;a&gt;,s=&lt;s&gt;,v=&lt;v&gt;,p=&lt;p&gt;   |
      |----------------------------------------------&gt;|
      |                                               |
      |               HTTP/3, Stream x 200 OK         |
@@ -1846,6 +1846,10 @@ HTTP/3 only.]]<a href="#section-9.1-2" class="pilcrow">¶</a></p>
         <dd>
 <span class="refAuthor">Reschke, J.</span>, <span class="refTitle">"The 'Basic' HTTP Authentication Scheme"</span>, <span class="seriesInfo">RFC 7617</span>, <span class="seriesInfo">DOI 10.17487/RFC7617</span>, <time datetime="2015-09" class="refDate">September 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7617">https://www.rfc-editor.org/rfc/rfc7617</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="HTTP-CONCEALED">[HTTP-CONCEALED]</dt>
+        <dd>
+<span class="refAuthor">Schinazi, D.</span>, <span class="refAuthor">Oliver, D.</span>, and <span class="refAuthor">J. Hoyland</span>, <span class="refTitle">"The Concealed HTTP Authentication Scheme"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-httpbis-unprompted-auth-08</span>, <time datetime="2024-07-05" class="refDate">5 July 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-unprompted-auth-08">https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-unprompted-auth-08</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="HTTP-DATAGRAM">[HTTP-DATAGRAM]</dt>
         <dd>
 <span class="refAuthor">Schinazi, D.</span> and <span class="refAuthor">L. Pardue</span>, <span class="refTitle">"HTTP Datagrams and the Capsule Protocol"</span>, <span class="seriesInfo">RFC 9297</span>, <span class="seriesInfo">DOI 10.17487/RFC9297</span>, <time datetime="2022-08" class="refDate">August 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9297">https://www.rfc-editor.org/rfc/rfc9297</a>&gt;</span>. </dd>
@@ -1853,10 +1857,6 @@ HTTP/3 only.]]<a href="#section-9.1-2" class="pilcrow">¶</a></p>
 <dt id="HTTP-SEMANTICS">[HTTP-SEMANTICS]</dt>
         <dd>
 <span class="refAuthor">Fielding, R., Ed.</span>, <span class="refAuthor">Nottingham, M., Ed.</span>, and <span class="refAuthor">J. Reschke, Ed.</span>, <span class="refTitle">"HTTP Semantics"</span>, <span class="seriesInfo">STD 97</span>, <span class="seriesInfo">RFC 9110</span>, <span class="seriesInfo">DOI 10.17487/RFC9110</span>, <time datetime="2022-06" class="refDate">June 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9110">https://www.rfc-editor.org/rfc/rfc9110</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="HTTP-SIGNATURE">[HTTP-SIGNATURE]</dt>
-        <dd>
-<span class="refAuthor">Schinazi, D.</span>, <span class="refAuthor">Oliver, D.</span>, and <span class="refAuthor">J. Hoyland</span>, <span class="refTitle">"The Concealed HTTP Authentication Scheme"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-httpbis-unprompted-auth-08</span>, <time datetime="2024-07-05" class="refDate">5 July 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-unprompted-auth-08">https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-unprompted-auth-08</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="HTTP2">[HTTP2]</dt>
         <dd>
