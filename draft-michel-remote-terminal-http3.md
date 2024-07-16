@@ -250,7 +250,7 @@ The stream multiplexing capabilities of QUIC allow reducing the head-of-line blo
 QUIC also supports connection migration ({{Section 9 of QUIC}}).
 Using connection migration, a mobile host roaming between networks can
 maintain established connections alive across different networks by migrating them
-on their newly acquired IP address. This avoids disrupting the remote terminal conversation
+on their newly acquired IP address. This avoids disrupting the remote terminal session
 upon network changes.
 Finally, QUIC also offers a significantly reduced connection establishment
 time compared to the SSHv2 session establishment.
@@ -353,7 +353,7 @@ establishment.
           |               HTTP/3, Stream x 200 OK         |
           |<----------------------------------------------|
           |                                               |
-          |           Conversation established            |
+          |             Session established               |
         --+-----------------------------------------------+--
           |                                               |
           |    (endpoints now run the SSH Connection)     |
@@ -365,7 +365,7 @@ establishment.
 
 Authentication material is placed inside the `Authorization` header of the Extended CONNECT request. The format and value of `<auth_material>` depends on the HTTP authentication scheme used ({{authenticating-the-client}} explores several examples of authentication mechanisms). If a
 remote terminal endpoint is available to the HTTP/3 server and if the user is successfully authenticated and authorized, the server responds
-with a 2xx HTTP status code and the conversation is established.
+with a 2xx HTTP status code and the session is established.
 
 The stream ID used for the Extended CONNECT request is then remembered by each endpoint as the remote terminal ID, uniquely identifying this session.
 
@@ -377,7 +377,7 @@ as defined in {{HTTP-SEMANTICS}}, with no restriction on the
 authentication scheme used. If no Authorization header is present in the
 request or if the authentication
 scheme is not supported by the server, the server SHOULD respond with a
-401 (Unauthorized) response message. Once the user authentication is successful, the remote terminal server can process the request and start the conversation. This section only provides example user authentication
+401 (Unauthorized) response message. Once the user authentication is successful, the remote terminal server can process the request and start the session. This section only provides example user authentication
 mechanisms. Other mechanisms may be proposed in the future in separate
 documents. The two first examples are implemented by our current
 prototype {{PROTOTYPE}}. The third example leverages the Concealed authentication
@@ -405,7 +405,7 @@ the `username` variable in the request URI defined in {{establishing}}.
      |               HTTP/3, Stream x 200 OK         |
      |<----------------------------------------------|
      |                                               |
-     |           Conversation established            |
+     |             Session established               |
      +-----------------------------------------------+
      |                                               |
 ~~~~
@@ -429,7 +429,7 @@ the HTTP Bearer authentication scheme is used to carry an OAUTH access token enc
      |               HTTP/3, Stream x 200 OK         |
      |<----------------------------------------------|
      |                                               |
-     |           Conversation established            |
+     |             Session established               |
      +-----------------------------------------------+
      |                                               |
 ~~~~
@@ -464,7 +464,7 @@ the key ID of the public key used by the authentication process.
      |               HTTP/3, Stream x 200 OK         |
      |<----------------------------------------------|
      |                                               |
-     |           Conversation established            |
+     |             Session established               |
      +-----------------------------------------------+
      |                                               |
 ~~~~
@@ -497,7 +497,7 @@ channel is illustrated below.
 ~~~~
 Channel {
     Signal Value (i) = 0xaf3627e6,
-    Conversation ID (i),
+    Session ID (i),
     Channel Type Length (i)
     Channel Type (..)
     Maximum Message Size (i)
@@ -614,7 +614,7 @@ exposes the user to the same risk incurred by SSHv2
 endpoints relying on Host keys: the user needs to manually validate the
 certificate before connecting. Ignoring this verification may allow an attacker
 to impersonate the server and access the keystrokes typed by the user during the
-conversation.
+session.
 
 
 # IANA Considerations
