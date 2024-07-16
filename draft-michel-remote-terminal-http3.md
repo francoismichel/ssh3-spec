@@ -221,7 +221,7 @@ adding new code points in this specification for these new algorithms.
 ~~~~
 {: #architecture-goal title="The proposed architecture."}
 
-The mechanisms used for establishing an remote terminal session
+The mechanisms used for establishing a remote terminal session
 are similar to the WebTransport session establishment {{WEBTRANSPORT-H3}}.
 WebTransport is also a good transport layer candidate for this protocol. The current
 prototype {{PROTOTYPE}} is built directly over HTTP/3 since there is no public
@@ -320,13 +320,13 @@ indistinguishable from any HTTP server. This is however only complementary to an
 
 # Establishing a remote terminal session {#establishing}
 
-An remote terminal session can be started using the HTTP/3 Extended CONNECT
+A remote terminal session can be started using the HTTP/3 Extended CONNECT
 method {{EXTENDED-CONNECT}}. The `:protocol` pseudo-header MUST be set
 to `remote-terminal` and the `:scheme` pseudo-header MUST be set to `https`.
 If a remote terminal client or server supports the UDP forwarding feature, it MUST indicate support for HTTP/3 datagrams by sending a SETTINGS_H3_DATAGRAM value set to 1 in their
 SETTINGS frame ({{Section 2.1.1 of HTTP-DATAGRAM}}).
 
-An remote terminal server listens for CONNECT requests with the `remote-terminal`
+A remote terminal server listens for CONNECT requests with the `remote-terminal`
 protocol on URI templates having the `username` variable. Example URIs can be
 found below.
 
@@ -486,12 +486,12 @@ channels are therefore not assigned a channel number conversely to SSHv2.
 Channels can be opened on HTTP/3 client-initiated bidirectional
 streams. By default, HTTP/3 considers every client-initiated
 bidirectional stream as a request stream. Similarly to WebTransport,
-this protocol extends HTTP/3 using a specific signal value. An remote terminal client can open a stream with
+this protocol extends HTTP/3 using a specific signal value. A remote terminal client can open a stream with
 this signal value to indicate that it is not a request stream and that
 the remaining stream bytes will be used arbitrarily by the protocol
 to carry the content of a channel.
 For experimental purpose, the signal value is chosen at random and will
-change over time. The current signal value is `0xaf3627e6`. The content of an HTTP/3 stream carrying an remote terminal
+change over time. The current signal value is `0xaf3627e6`. The content of an HTTP/3 stream carrying a remote terminal
 channel is illustrated below.
 
 ~~~~
@@ -598,7 +598,7 @@ using either HTTP/2 {{HTTP2}} or HTTP/3 {{HTTP3}} with QUIC on Streams {{QUIC-ON
 
 # Security Considerations
 
-Running an remote terminal endpoint with weak or no authentication methods exposes
+Running a remote terminal endpoint with weak or no authentication methods exposes
 the host to non-negligible risks allowing attackers to gain full control
 of the server. Remote terminal servers should not be run without authentication
 and user authentication material should be verified thoroughly. Public
