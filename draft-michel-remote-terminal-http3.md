@@ -194,7 +194,7 @@ This document defines mechanisms to run the SSH Connection protocol
 is performed using existing HTTP authentication schemes.
 {{architecture-goal}} provides a graphical representation of the architecture proposed in this document.
 One benefit of the approach is that the HTTP3 and QUIC layers can
-evolve independently of SSH. For instance, new encryption and MAC algorithms
+evolve independently of this architecture. For instance, new encryption and MAC algorithms
 can be added to TLS and used in this architecture without impacting the specification or
 adding new code points in this specification for these new algorithms.
 
